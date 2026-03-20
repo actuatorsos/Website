@@ -188,6 +188,12 @@ const TRANSLATIONS = {
     'cta.submit':             'INITIALIZE REQUEST →',
     'cta.success':            '[SEQUENCE_QUEUED] // ACCESS_REQUEST_RECEIVED — WE\'LL BE IN TOUCH SHORTLY.',
 
+    // ---- ECOSYSTEM ----
+    'ecosystem.tag':          'ECOSYSTEM // OUR_NETWORK',
+    'ecosystem.title':        'The network<br><span class="text-cyan">in motion.</span>',
+    'ecosystem.sub':          'Companies and organizations building Syria\'s economic future.',
+    'ecosystem.cta':          'MANAGE ECOSYSTEM →',
+
     // ---- FOOTER ----
     'footer.mission':         'MISSION',
     'footer.product':         'PRODUCT',
@@ -382,6 +388,12 @@ const TRANSLATIONS = {
     'cta.role_other':         'أخرى',
     'cta.submit':             'تهيئة الطلب →',
     'cta.success':            '[الطلب في الانتظار] // تم استلام طلب الوصول — سنتواصل معك قريباً.',
+
+    // ---- ECOSYSTEM ----
+    'ecosystem.tag':          'النظام_البيئي // شبكتنا',
+    'ecosystem.title':        'الشبكة<br><span class="text-cyan">في حركة.</span>',
+    'ecosystem.sub':          'الشركات والمنظمات التي تبني مستقبل سوريا الاقتصادي.',
+    'ecosystem.cta':          'إدارة النظام البيئي ←',
 
     // ---- FOOTER ----
     'footer.mission':         'المهمة',

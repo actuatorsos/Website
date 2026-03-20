@@ -1792,3 +1792,152 @@ body {
 [dir="rtl"] .footer-nav {
     flex-direction: row-reverse;
 }
+
+/* =============================================
+   ECOSYSTEM SECTION
+   ============================================= */
+
+.ecosystem-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+}
+
+.es-sep { opacity: 0.35; }
+
+.company-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2px;
+    background: rgba(0, 183, 194, 0.08);
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+    min-height: 80px;
+}
+
+.company-card {
+    background: var(--bg);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: background var(--snap);
+    position: relative;
+}
+
+.company-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+}
+
+.company-card:hover { background: rgba(0, 183, 194, 0.03); }
+.company-card:hover::after { background: var(--cyan); }
+
+.cc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.company-logo {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.company-logo-img { width: 100%; height: 100%; object-fit: contain; }
+
+.company-logo-initials {
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.05em;
+}
+
+.cc-stage-badge {
+    font-size: 0.55rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.08em;
+}
+
+.cc-stage-badge.mvp    { border-color: var(--cyan); color: var(--cyan); }
+.cc-stage-badge.growth { border-color: var(--orange); color: var(--orange); }
+.cc-stage-badge.scale  { background: var(--cyan); color: var(--bg); border-color: var(--cyan); }
+
+.cc-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white);
+    font-family: var(--font-main);
+}
+
+.cc-sector {
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+}
+
+.cc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+}
+
+.cc-visit {
+    font-size: 0.65rem;
+    color: var(--cyan);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: opacity var(--snap);
+}
+
+.cc-visit:hover { opacity: 0.7; }
+
+.cc-visit-disabled {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+}
+
+.cc-location {
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+}
+
+.eco-empty {
+    grid-column: 1 / -1;
+    padding: 48px 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+}
+
+.ecosystem-cta {
+    text-align: center;
+    margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+    .company-grid { grid-template-columns: 1fr; }
+    .ecosystem-stats { flex-wrap: wrap; gap: 10px; }
+}

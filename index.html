@@ -82,13 +82,13 @@
                 <a href="#impact"  class="nav-link" data-i18n="nav.impact">IMPACT</a>
                 <a href="#team"    class="nav-link" data-i18n="nav.team">TEAM</a>
             </nav>
-            <a href="#cta" class="btn-header-cta mono" data-i18n="header.cta">GET EARLY ACCESS</a>
             <!-- Language toggle -->
             <div class="lang-toggle" id="lang-toggle">
                 <button class="lang-btn active" data-lang="en">EN</button>
                 <span class="lang-sep">/</span>
                 <button class="lang-btn" data-lang="ar">AR</button>
             </div>
+            <a href="#cta" class="btn-header-cta mono" data-i18n="header.cta">GET EARLY ACCESS</a>
             <button class="hamburger" id="hamburger" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
@@ -579,6 +579,28 @@
         </div>
     </section>
 
+    <!-- ECOSYSTEM SECTION -->
+    <section id="ecosystem" class="section section-alt">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="ecosystem.tag">ECOSYSTEM // OUR_NETWORK</div>
+            <h2 class="section-title" data-i18n-html="ecosystem.title">The network<br><span class="text-cyan">in motion.</span></h2>
+            <p class="section-sub" data-i18n="ecosystem.sub">Companies and organizations building Syria's economic future.</p>
+            <div class="ecosystem-stats mono">
+                <span><span class="text-cyan" id="eco-count">—</span> COMPANIES</span>
+                <span class="es-sep">//</span>
+                <span><span class="text-cyan" id="eco-sectors">—</span> SECTORS</span>
+                <span class="es-sep">//</span>
+                <span><span class="text-cyan" id="eco-countries">—</span> COUNTRIES</span>
+            </div>
+            <div class="company-grid" id="company-grid">
+                <div class="eco-empty mono" id="eco-empty">NO_COMPANIES_REGISTERED // <a href="/admin/" style="color:var(--cyan)">ADMIN_DASHBOARD</a></div>
+            </div>
+            <div class="ecosystem-cta">
+                <a href="/admin/" class="btn-ghost mono" data-i18n="ecosystem.cta">MANAGE ECOSYSTEM →</a>
+            </div>
+        </div>
+    </section>
+
     <!-- TEAM SECTION -->
     <section id="team" class="section">
         <div class="section-inner">
@@ -749,6 +771,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="translations.js"></script>
     <script src="app.js"></script>
 </body>

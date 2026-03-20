@@ -566,4 +566,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.projections').forEach(el => projObserver.observe(el));
 
+    // ── ECOSYSTEM SECTION ──────────────────────────────
+    loadEcosystem();
 });
+
+// =========================================
+// ECOSYSTEM — Supabase company showcase
+// =========================================
+(function() {
+    const SUPABASE_URL  = 'https://usxcuocnvfeltcdcnqoy.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeGN1b2NudmZlbHRjZGNucW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMTQxMjMsImV4cCI6MjA4OTU5MDEyM30.6eTp6qeyna4WOdoUKUp6qvGJ0MuZD-hAzU58SID8zXU';
+
+    let _sb = null;
+    function getSB() {
+        if (!_sb && window.supabase) {
+            _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+        }
+        return _sb;
+    }
+
+    window.loadEcosystem = async function() {
+        const grid  = document.getElementById('company-grid');
+        const empty = document.getElementById('eco-empty');
+        if (!grid) return;
+
+        const sb = getSB();
+        if (!sb) { if (empty) empty.style.display = 'block'; return; }
+
+        try {
+            const { data: companies, error } = await sb
+                .from('companies')
+                .select('id,name,sector,stage,location,website,logo,show_on_homepage')
+                .eq('show_on_homepage', true)
+                .order('created_at', { ascending: false });
+
+            if (error || !companies || companies.length === 0) {
+                if (empty) empty.style.display = 'block';
+                ['eco-count','eco-sectors','eco-countries'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '0';
+                });
+                return;
+            }
+
+            if (empty) empty.style.display = 'none';
+
+            document.getElementById('eco-count').textContent     = companies.length;
+            document.getElementById('eco-sectors').textContent   = new Set(companies.map(c => c.sector).filter(Boolean)).size;
+            document.getElementById('eco-countries').textContent = new Set(companies.map(c => c.location).filter(Boolean)).size;
+
+            grid.innerHTML = companies.map(renderCompanyCard).join('');
+        } catch(e) {
+            if (empty) empty.style.display = 'block';
+        }
+    };
+
+    function renderCompanyCard(c) {
+        const initials = c.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+        const logoHtml = c.logo
+            ? `<img src="${c.logo}" alt="${c.name}" class="company-logo-img">`
+            : `<div class="company-logo-initials mono">${initials}</div>`;
+        const stageClass = (c.stage || '').toLowerCase();
+        return `
+            <div class="company-card">
+                <div class="cc-top">
+                    <div class="company-logo">${logoHtml}</div>
+                    ${c.stage ? `<span class="cc-stage-badge mono ${stageClass}">${c.stage}</span>` : ''}
+                </div>
+                <div>
+                    <div class="cc-name">${c.name}</div>
+                    ${c.sector ? `<div class="cc-sector mono">${c.sector}</div>` : ''}
+                </div>
+                <div class="cc-footer">
+                    ${c.website
+                        ? `<a href="${c.website}" target="_blank" rel="noopener" class="cc-visit mono">VISIT →</a>`
+                        : `<span class="cc-visit-disabled mono">NO_SITE</span>`}
+                    ${c.location ? `<span class="cc-location mono">${c.location}</span>` : ''}
+                </div>
+            </div>`;
+    }
+})();
