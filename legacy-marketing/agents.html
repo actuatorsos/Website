@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACTUATORS // AI AGENTS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0B1A2A;
+    --bg2:     #0d2035;
+    --cyan:    #00B7C2;
+    --orange:  #FF6A2A;
+    --white:   #FFFFFF;
+    --muted:   rgba(255,255,255,0.55);
+    --border:  rgba(0,183,194,0.2);
+    --border2: rgba(0,183,194,0.08);
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-main: 'Inter', sans-serif;
+    --snap: 0.18s ease;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--white); font-family: var(--font-main); font-size: 14px; }
+
+  /* ── HEADER ── */
+  .agents-header {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(11,26,42,0.9);
+    backdrop-filter: blur(12px);
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .agents-header a { text-decoration: none; }
+  .header-logo { display: flex; align-items: center; gap: 8px; }
+  .header-logo-mark {
+    width: 24px; height: 24px;
+    border: 1px solid var(--cyan);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-logo-mark svg { width: 14px; height: 14px; }
+  .header-logo-name { font-family: var(--font-mono); font-size: 0.65rem; color: var(--cyan); letter-spacing: 0.15em; }
+  .header-sep { color: var(--border); font-family: var(--font-mono); font-size: 0.65rem; }
+  .header-title { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; flex: 1; }
+  .header-back { font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; transition: color var(--snap); }
+  .header-back:hover { color: var(--cyan); }
+  .api-status { display: flex; align-items: center; gap: 6px; }
+  .api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .api-dot.ok  { background: #2ecc71; }
+  .api-dot.err { background: #e74c3c; }
+  .api-label { font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 0.08em; }
+
+  /* ── LAYOUT ── */
+  .agents-wrap {
+    display: flex;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+  }
+
+  /* ── AGENT SELECTOR ── */
+  .agent-selector {
+    width: 240px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.15);
+  }
+  .selector-header {
+    padding: 20px 20px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+  }
+  .agent-tab {
+    padding: 18px 20px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all var(--snap);
+    border-bottom: 1px solid var(--border2);
+  }
+  .agent-tab:hover { background: rgba(0,183,194,0.04); }
+  .agent-tab.active {
+    border-left-color: var(--cyan);
+    background: rgba(0,183,194,0.06);
+  }
+  .at-icon { margin-bottom: 10px; }
+  .at-icon svg { width: 18px; height: 18px; color: var(--muted); transition: color var(--snap); }
+  .agent-tab.active .at-icon svg { color: var(--cyan); }
+  .at-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 4px;
+    transition: color var(--snap);
+  }
+  .agent-tab.active .at-label { color: var(--cyan); }
+  .at-sub { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+
+  /* ── CHAT AREA ── */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+  .chat-agent-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .cah-name {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+  }
+  .cah-context {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    flex: 1;
+  }
+  .clear-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); font-family: var(--font-mono); font-size: 0.6rem;
+    letter-spacing: 0.08em; padding: 5px 10px; cursor: pointer;
+    transition: all var(--snap);
+  }
+  .clear-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msg-welcome {
+    align-self: flex-start;
+    max-width: 75%;
+    padding: 14px 18px;
+    background: rgba(0,183,194,0.06);
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--cyan);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+
+  .msg-user {
+    align-self: flex-end;
+    max-width: 72%;
+    padding: 14px 18px;
+    background: rgba(255,106,42,0.1);
+    border: 1px solid rgba(255,106,42,0.25);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .msg-agent {
+    align-self: flex-start;
+    max-width: 75%;
+    padding: 14px 18px;
+    background: rgba(0,183,194,0.05);
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .msg-agent p { margin-bottom: 8px; }
+  .msg-agent p:last-child { margin-bottom: 0; }
+  .msg-agent strong { color: var(--cyan); font-weight: 600; }
+  .msg-agent code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: rgba(0,183,194,0.1);
+    padding: 1px 5px;
+    color: var(--cyan);
+  }
+
+  .msg-error {
+    align-self: flex-start;
+    max-width: 75%;
+    padding: 12px 16px;
+    border: 1px solid rgba(231,76,60,0.4);
+    background: rgba(231,76,60,0.06);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: #e74c3c;
+    line-height: 1.5;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    align-self: flex-start;
+    display: flex;
+    gap: 5px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    background: rgba(0,183,194,0.05);
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ── INPUT BAR ── */
+  .chat-input-bar {
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-shrink: 0;
+    background: rgba(11,26,42,0.5);
+  }
+  .chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 10px 14px;
+    font-family: var(--font-main);
+    font-size: 0.88rem;
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+    max-height: 120px;
+    transition: border-color var(--snap);
+  }
+  .chat-input::placeholder { color: var(--muted); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; }
+  .chat-input:focus { border-color: var(--cyan); }
+  .send-btn {
+    background: var(--cyan); color: var(--bg);
+    border: none; font-family: var(--font-mono); font-size: 0.65rem;
+    letter-spacing: 0.1em; padding: 10px 18px; cursor: pointer;
+    transition: background var(--snap); white-space: nowrap;
+    align-self: flex-end;
+  }
+  .send-btn:hover { background: #00d0dd; }
+  .send-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  /* ── CONTEXT PANEL ── */
+  .context-panel {
+    width: 220px;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .cp-header {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cp-topics { display: flex; flex-direction: column; gap: 8px; }
+  .cp-topic {
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cp-topic::before {
+    content: '›';
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .cp-disclaimer {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.6;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── API KEY MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(11,26,42,0.9); backdrop-filter: blur(4px);
+    z-index: 1000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    width: 440px; padding: 0;
+  }
+  .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--cyan); }
+  .modal-body { padding: 24px; }
+  .modal-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+  .modal-input {
+    width: 100%; background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border); color: var(--white);
+    font-family: var(--font-mono); font-size: 0.72rem;
+    padding: 10px 14px; outline: none; margin-bottom: 16px;
+    transition: border-color var(--snap);
+  }
+  .modal-input:focus { border-color: var(--cyan); }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-ghost { background: none; color: var(--muted); border: 1px solid var(--border); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; padding: 9px 16px; cursor: pointer; transition: all var(--snap); }
+  .btn-ghost:hover { color: var(--white); border-color: var(--cyan); }
+  .btn-action { background: var(--cyan); color: var(--bg); border: none; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; padding: 9px 16px; cursor: pointer; transition: background var(--snap); }
+  .btn-action:hover { background: #00d0dd; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .agents-wrap { flex-direction: column; }
+    .agent-selector {
+      width: 100%; height: auto;
+      flex-direction: row;
+      overflow-x: auto; overflow-y: hidden;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .selector-header { display: none; }
+    .agent-tab {
+      flex-shrink: 0; min-width: 140px;
+      border-left: none; border-bottom: 2px solid transparent;
+      border-right: 1px solid var(--border);
+    }
+    .agent-tab.active { border-left: none; border-bottom-color: var(--cyan); }
+    .context-panel { display: none; }
+    .chat-area { flex: 1; min-height: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .chat-agent-header { flex-wrap: wrap; gap: 8px; }
+    .cah-context { display: none; }
+    .agents-header { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="agents-header">
+  <a href="/" class="header-logo">
+    <div class="header-logo-mark">
+      <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(60,60)">
+          <polygon points="0,-18 15.6,-9 15.6,9 0,18 -15.6,9 -15.6,-9" fill="none" stroke="#00B7C2" stroke-width="2"/>
+          <line x1="0" y1="0" x2="0" y2="18" stroke="#00B7C2" stroke-width="2"/>
+          <line x1="0" y1="0" x2="-15.6" y2="-9" stroke="#00B7C2" stroke-width="2"/>
+          <line x1="0" y1="0" x2="15.6" y2="-9" stroke="#00B7C2" stroke-width="2"/>
+        </g>
+      </svg>
+    </div>
+    <span class="header-logo-name">ACTUATORS</span>
+  </a>
+  <span class="header-sep">//</span>
+  <span class="header-title">AI_AGENTS_CONSULTATION</span>
+  <div class="api-status">
+    <div class="api-dot" id="api-dot"></div>
+    <span class="api-label" id="api-label">CHECKING</span>
+  </div>
+  <a href="/" class="header-back">← BACK_TO_SITE</a>
+</header>
+
+<!-- MAIN -->
+<div class="agents-wrap">
+
+  <!-- AGENT SELECTOR -->
+  <aside class="agent-selector">
+    <div class="selector-header">SELECT_AGENT</div>
+    <div id="agent-selector-list">
+    <div class="agent-tab active" data-agent="legal">
+      <div class="at-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 2L3 7v4c0 4 3.1 7.7 7 8.9C17 18.7 17 12 17 11V7L10 2z"/>
+        </svg>
+      </div>
+      <div class="at-label">LEGAL_GUIDE</div>
+      <div class="at-sub">Syrian law & regulations</div>
+    </div>
+    <div class="agent-tab" data-agent="strategy">
+      <div class="at-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="2,14 7,9 11,13 18,4"/>
+          <polyline points="14,4 18,4 18,8"/>
+        </svg>
+      </div>
+      <div class="at-label">BIZ_STRATEGIST</div>
+      <div class="at-sub">Funding & business models</div>
+    </div>
+    <div class="agent-tab" data-agent="ops">
+      <div class="at-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="10" cy="10" r="3"/>
+          <path d="M10 1v3M10 16v3M1 10h3M16 10h3M3.2 3.2l2.1 2.1M14.7 14.7l2.1 2.1M3.2 16.8l2.1-2.1M14.7 5.3l2.1-2.1"/>
+        </svg>
+      </div>
+      <div class="at-label">OPS_EXPERT</div>
+      <div class="at-sub">Post-conflict operations</div>
+    </div>
+    </div><!-- end agent-selector-list -->
+  </aside>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area">
+    <div class="chat-agent-header">
+      <span class="cah-name" id="cah-name">LEGAL_GUIDE</span>
+      <span class="cah-context" id="cah-context">Syrian commercial law context loaded</span>
+      <button class="clear-btn" id="clear-btn">CLEAR_THREAD</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-bar">
+      <textarea class="chat-input" id="chat-input" placeholder="TYPE_YOUR_QUESTION..." rows="3"></textarea>
+      <button class="send-btn" id="send-btn">SEND →</button>
+    </div>
+  </div>
+
+  <!-- CONTEXT PANEL -->
+  <aside class="context-panel">
+    <div class="cp-header">AGENT_CONTEXT</div>
+    <div class="cp-topics" id="cp-topics"></div>
+    <div class="cp-disclaimer">AI-generated guidance. Always verify with licensed professionals before acting.</div>
+  </aside>
+
+</div>
+
+<!-- API KEY MODAL -->
+<div id="api-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">API_KEY_REQUIRED</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-msg">
+        The AI agents require an Anthropic API key. Either add <code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--cyan)">ANTHROPIC_API_KEY</code> to your Vercel environment variables, or enter it below for this session.
+      </p>
+      <input class="modal-input" type="password" id="modal-key-input" placeholder="sk-ant-...">
+    </div>
+    <div class="modal-footer">
+      <a href="/admin/#settings" class="btn-ghost">ADMIN_SETTINGS →</a>
+      <button class="btn-action" id="modal-save-btn">SAVE_AND_CONTINUE</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// ── AGENT DEFINITIONS ─────────────────────────────────
+const AGENTS = {
+  legal: {
+    name: 'LEGAL_GUIDE',
+    context: 'Syrian commercial law & regulatory context loaded',
+    topics: [
+      'Company registration',
+      'NGO regulations',
+      'IP protection',
+      'Labor law (Law 17/2010)',
+      'Sanctions compliance',
+      'Foreign investment',
+      'Free zone regulations',
+      'Contract law'
+    ],
+    welcome: 'LEGAL_GUIDE_ONLINE\n\nSyrian commercial law context loaded. I can help you navigate company registration, NGO regulations, labor law, sanctions compliance, and foreign investment frameworks in the post-2024 Syrian regulatory environment.\n\nWhat legal question can I help you with?',
+    systemPrompt: `You are a legal advisor specializing in Syrian commercial law and the post-2024 regulatory environment for Syrian entrepreneurs and NGOs.
+
+Your knowledge covers:
+- Syrian Commercial Code (Law No. 149 of 2011 and amendments)
+- Company registration procedures at the Ministry of Economy and Foreign Trade — required documents, timelines, fees
+- NGO and non-profit registration under the Ministry of Social Affairs and Labour
+- Intellectual property: Syria's limited IP framework, WIPO non-membership context, practical brand and trade secret protections
+- Syrian Labor Law No. 17 of 2010 — employment contracts, termination, severance, working hours
+- Sanctions landscape: OFAC Syria sanctions (General License 23 issued mid-2025 enabling broader reconstruction activity), EU Council sanctions largely lifted post-transition, remaining sector-specific restrictions
+- Foreign investment: Law No. 16 of 2021 — eligible sectors, minimum investment, incentive packages
+- Free zone regulations at Damascus, Aleppo, Tartus, and Lattakia zones
+- Partnership and joint venture structures for diaspora-local collaboration
+
+Response guidelines:
+- Be concise and practical — give actionable steps, not just legal theory
+- Specify when professional legal counsel from a licensed Syrian lawyer is essential
+- Acknowledge legal uncertainty where post-transition regulations are still evolving
+- Ask clarifying questions about business type, location, and structure when relevant to give a more precise answer
+- Format responses clearly with numbered steps or bullet points where helpful`
+  },
+
+  strategy: {
+    name: 'BIZ_STRATEGIST',
+    context: 'Syrian startup ecosystem & funding landscape loaded',
+    topics: [
+      'USAID & EU grants',
+      'Diaspora capital',
+      'Impact investors',
+      'Business model design',
+      'Revenue in SYP/USD',
+      'MENA expansion',
+      'Accelerators & ecosystems',
+      'Financial projections'
+    ],
+    welcome: 'BIZ_STRATEGIST_ONLINE\n\nSyrian startup ecosystem context loaded. I can help you find funding sources, design your business model, navigate the MENA investor landscape, and build your go-to-market strategy.\n\nWhat strategic challenge are you working through?',
+    systemPrompt: `You are a business strategist with deep expertise in the Syrian startup ecosystem and MENA impact investing landscape.
+
+Your knowledge covers:
+Syrian Startup Ecosystem:
+- 200+ active Syrian startups across fintech, agritech, edtech, logistics, and healthtech
+- Key accelerators: Jusoor (diaspora-focused), Shamsaha (women-led), Fikra Space (Damascus-based), SAWA (Beirut, Syrian-founded), SPARK (Dutch NGO supporting Syria/MENA)
+- SYNC conference ecosystem, Arab Founders community, Syrian Tech Collective
+
+Funding Sources (detailed knowledge):
+- USAID: SEREA program (Syria Economic Recovery and Agriculture), Development Innovation Ventures, MENA Investment Initiative
+- EU: COSME, Horizon Europe MENA track, EIB impact lending, EU Emergency Trust Fund residual programs
+- Syrian Diaspora Capital: $2B+ annual remittances, angel networks in Germany (Syrian expat community Berlin), Sweden, UAE (Sharjah Syrian business council), Canada (SyrianCanada.com network)
+- Impact Investors: Acumen (invests in Syria-adjacent markets), Omidyar Network MENA, Flat6Labs (Cairo/Riyadh/Tunis), Sawari Ventures, 500 Global MENA, Algebra Ventures
+- Grants: GIZ Syria programs, UN Women, UNDP early recovery fund, WFP innovation challenges, GSMA Innovation Fund (mobile/connectivity), Tony Elumelu Foundation
+
+Business Model Patterns:
+- Revenue in dual SYP/USD environments — USD pricing for B2B, SYP-indexed pricing for B2C
+- Subscription models for diaspora-facing services
+- Freemium with premium tiers for NGO/institutional clients
+- Platform/marketplace models aggregating fragmented supply chains
+
+Response guidelines:
+- Be specific about funding amounts, eligibility criteria, and application windows when known
+- Prioritize actionable next steps — "apply to X by Y date" over general advice
+- Ask about current revenue, team size, and sector to give tailored advice
+- Flag when diaspora connections could unlock specific opportunities`
+  },
+
+  ops: {
+    name: 'OPS_EXPERT',
+    context: 'Post-conflict operations & infrastructure context loaded',
+    topics: [
+      'Power & connectivity',
+      'Remote team management',
+      'Supply chain resilience',
+      'Low-bandwidth tools',
+      'Payment processing',
+      'Cybersecurity basics',
+      'Offline-first systems',
+      'Cross-border logistics'
+    ],
+    welcome: 'OPS_EXPERT_ONLINE\n\nPost-conflict operations context loaded. I can help you build resilient operations under infrastructure constraints — power, connectivity, team management, payments, and supply chain.\n\nWhat operational challenge can I help you solve?',
+    systemPrompt: `You are an operations expert specializing in building and running businesses in post-conflict environments with constrained infrastructure, specifically for Syrian entrepreneurs.
+
+Your knowledge covers:
+Infrastructure Resilience:
+- Power: generator sizing for office loads, UPS battery backup for servers, solar panel ROI in Syrian context (high solar irradiance, ~5.5 kWh/m²/day in most of Syria)
+- Connectivity: Syrian telecom landscape (Syriatel, MTN Syria), 4 Mbps median fixed broadband, mobile LTE coverage map, offline-first design patterns, sync strategies with low bandwidth
+- Water and logistics infrastructure in different Syrian governorates
+
+Remote Team Management:
+- Async-first workflows for Syria + diaspora teams across 3+ time zones (Syria GMT+3, Germany GMT+2, UAE GMT+4, Canada EST/PST)
+- WhatsApp Business API for team coordination (most widely used in Syria)
+- Tools with offline modes: Notion (requires connectivity for sync), Trello offline, Obsidian for local-first notes, plain markdown files synced via Syncthing
+- Payroll in multi-currency teams: Wise for diaspora payments, local Syrian banks for SYP payroll, Payoneer for freelancers
+
+Supply Chain:
+- Multi-supplier strategies for Syrian context — never rely on single supplier post-conflict
+- Inventory buffers: 30-60 day stock minimum for critical components
+- Customs navigation post-2025 sanctions lift — Tartus port procedures, DHL/Aramex coverage, local freight forwarders
+- Free trade zones at Adra Industrial City, Damascus free zone
+
+Digital Tools for Low-Bandwidth:
+- Communication: Signal (encrypted, low data), Telegram (large groups, file sharing), WhatsApp Business
+- Finance: Quickbooks offline mode, Wave Accounting (free), manual double-entry spreadsheets
+- Collaboration: GitHub (code), Figma offline-capable, Google Workspace offline sync
+- File storage: Syncthing (local network sync), Google Drive with Offline enabled, local NAS with Nextcloud
+
+Payments:
+- Syriatel Cash — mobile money, widely accepted, no bank account needed
+- Bemo Bank Syria — most foreign currency-friendly
+- Wise for diaspora → Syria transfers (recently re-enabled post-sanctions lift)
+- Hawala networks for B2B payments when banking unavailable
+- USD cash economy for large transactions
+
+Cybersecurity:
+- VPN essentials: ProtonVPN, Mullvad (no-log providers) for team communications
+- Device encryption: BitLocker (Windows), FileVault (Mac), VeraCrypt for shared drives
+- Phishing awareness training for Syrian team members
+- Two-factor authentication setup across all accounts
+
+Response guidelines:
+- Give tactical, immediately applicable advice — exact tool names, configurations, providers
+- Acknowledge Syrian infrastructure realities explicitly — don't assume reliable power/internet
+- Prioritize low-cost or free solutions given budget constraints
+- Ask about team size, location spread, and specific infrastructure challenges for tailored advice`
+  }
+};
+
+// ── SUPABASE — dynamic agent loading ──────────────────
+const SUPABASE_URL  = 'https://usxcuocnvfeltcdcnqoy.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeGN1b2NudmZlbHRjZGNucW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMTQxMjMsImV4cCI6MjA4OTU5MDEyM30.6eTp6qeyna4WOdoUKUp6qvGJ0MuZD-hAzU58SID8zXU';
+const { createClient } = window.supabase || {};
+const _sb = createClient ? createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+// ── STATE ─────────────────────────────────────────────
+// agentList: array of agent objects (loaded from DB or fallback to AGENTS object)
+let agentList = [];
+const conversations = {};  // keyed by agent id/key
+let currentAgent = null;   // key into agentList
+
+function agentById(key) {
+  return agentList.find(a => a._key === key) || null;
+}
+
+// ── API KEY MANAGEMENT ────────────────────────────────
+function getApiKey() {
+  return sessionStorage.getItem('agents-api-key') || null;
+}
+
+function saveApiKey(key) {
+  sessionStorage.setItem('agents-api-key', key);
+}
+
+async function checkApiStatus() {
+  const dot   = document.getElementById('api-dot');
+  const label = document.getElementById('api-label');
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'anthropic/claude-3-haiku', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] })
+    });
+    if (res.status === 200 || res.status === 400) {
+      dot.className = 'api-dot ok';
+      label.textContent = 'API_READY';
+    } else if (res.status === 500) {
+      const data = await res.json();
+      if (data.error && data.error.includes('OPENROUTER_API_KEY')) {
+        dot.className = 'api-dot err';
+        label.textContent = 'KEY_MISSING';
+        openModal();
+      } else {
+        dot.className = 'api-dot ok';
+        label.textContent = 'API_READY';
+      }
+    } else {
+      dot.className = 'api-dot ok';
+      label.textContent = 'API_READY';
+    }
+  } catch(e) {
+    dot.className = 'api-dot err';
+    label.textContent = 'OFFLINE';
+  }
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal() {
+  document.getElementById('api-modal').classList.add('open');
+  document.getElementById('modal-key-input').focus();
+}
+
+document.getElementById('modal-save-btn').addEventListener('click', () => {
+  const key = document.getElementById('modal-key-input').value.trim();
+  if (key) {
+    saveApiKey(key);
+    document.getElementById('api-modal').classList.remove('open');
+    document.getElementById('api-dot').className = 'api-dot ok';
+    document.getElementById('api-label').textContent = 'API_READY';
+  }
+});
+
+// ── AGENT SWITCHING ───────────────────────────────────
+function switchAgent(agentKey) {
+  currentAgent = agentKey;
+  if (!conversations[agentKey]) conversations[agentKey] = [];
+  const agent = agentById(agentKey);
+  if (!agent) return;
+  document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector(`[data-agent="${agentKey}"]`);
+  if (tab) tab.classList.add('active');
+  document.getElementById('cah-name').textContent    = agent.name;
+  document.getElementById('cah-context').textContent = agent.context_label || agent.context || '';
+  renderContextTopics(agent.topics || []);
+  renderMessages();
+}
+
+function renderContextTopics(topics) {
+  document.getElementById('cp-topics').innerHTML = (topics || [])
+    .map(t => `<div class="cp-topic">${t}</div>`).join('');
+}
+
+// ── AGENT SELECTOR — dynamic rendering ────────────────
+function renderAgentSelector(agents) {
+  const selector = document.getElementById('agent-selector-list');
+  if (!selector) return;
+  selector.innerHTML = agents.map(a => `
+    <div class="agent-tab" data-agent="${a._key}">
+      <div class="at-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          ${getAgentIcon(a.icon || '')}
+        </svg>
+      </div>
+      <div class="at-label">${a.name}</div>
+      <div class="at-sub">${a.context_label || ''}</div>
+    </div>
+  `).join('');
+  selector.querySelectorAll('.agent-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchAgent(tab.dataset.agent));
+  });
+}
+
+function getAgentIcon(iconName) {
+  const icons = {
+    shield: '<path d="M10 2L3 7v4c0 4 3.1 7.7 7 8.9C17 18.7 17 12 17 11V7L10 2z"/>',
+    chart:  '<polyline points="2,14 7,9 11,13 18,4"/><polyline points="14,4 18,4 18,8"/>',
+    ops:    '<circle cx="10" cy="10" r="3"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3M3.2 3.2l2.1 2.1M14.7 14.7l2.1 2.1M3.2 16.8l2.1-2.1M14.7 5.3l2.1-2.1"/>',
+    star:   '<polygon points="10,1 12.5,7.5 19,8.2 14,13 15.8,19.5 10,16 4.2,19.5 6,13 1,8.2 7.5,7.5"/>',
+    book:   '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  };
+  return icons[iconName] || icons.shield;
+}
+
+// ── LOAD AGENTS FROM SUPABASE ─────────────────────────
+async function loadAgentsFromDB() {
+  const fallback = Object.entries(AGENTS).map(([key, a]) => ({ _key: key, ...a }));
+
+  if (!_sb) {
+    agentList = fallback;
+    initAgents();
+    return;
+  }
+
+  try {
+    const { data, error } = await _sb
+      .from('agents')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at');
+
+    if (error || !data || data.length === 0) {
+      agentList = fallback;
+    } else {
+      // Map DB records to agentList format, using id as _key
+      agentList = data.map(a => ({
+        _key:          a.id,
+        name:          a.name,
+        context_label: a.context_label,
+        context:       a.context_label,
+        welcome:       a.welcome_message,
+        systemPrompt:  a.system_prompt,
+        topics:        a.topics || [],
+        model:         a.model || 'anthropic/claude-3-haiku',
+        icon:          a.icon || 'shield'
+      }));
+    }
+  } catch(e) {
+    agentList = fallback;
+  }
+
+  initAgents();
+}
+
+function initAgents() {
+  renderAgentSelector(agentList);
+  if (agentList.length > 0) {
+    switchAgent(agentList[0]._key);
+  }
+}
+
+// ── MESSAGE RENDERING ─────────────────────────────────
+function renderMessages() {
+  const container = document.getElementById('chat-messages');
+  const msgs = conversations[currentAgent];
+
+  if (msgs.length === 0) {
+    const agent = agentById(currentAgent);
+    const welcome = agent?.welcome || agent?.welcome_message || 'AGENT_ONLINE // Ready.';
+    container.innerHTML = `<div class="msg-welcome">${escapeHtml(welcome).replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')}</div>`;
+    return;
+  }
+
+  container.innerHTML = msgs.map(m => {
+    if (m.role === 'user') {
+      return `<div class="msg-user">${escapeHtml(m.content).replace(/\n/g,'<br>')}</div>`;
+    } else {
+      return `<div class="msg-agent">${formatAgentMessage(m.content)}</div>`;
+    }
+  }).join('');
+
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatAgentMessage(text) {
+  // Convert markdown-ish formatting to HTML
+  let html = escapeHtml(text);
+  // Bold **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Inline code `code`
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Numbered lists: lines starting with 1. 2. etc
+  html = html.replace(/^\d+\.\s+(.+)$/gm, '<p>· $1</p>');
+  // Bullet points: - or •
+  html = html.replace(/^[-•]\s+(.+)$/gm, '<p>· $1</p>');
+  // Double newlines → paragraph breaks
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = html.replace(/\n/g, '<br>');
+  return `<p>${html}</p>`;
+}
+
+function appendTypingIndicator() {
+  const container = document.getElementById('chat-messages');
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typing';
+  el.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  return el;
+}
+
+// ── SEND MESSAGE ──────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  conversations[currentAgent].push({ role: 'user', content: userText });
+  input.value = '';
+  input.style.height = 'auto';
+  renderMessages();
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+
+  const typingEl = appendTypingIndicator();
+
+  try {
+    const agent = agentById(currentAgent);
+    const model = agent?.model || 'anthropic/claude-3-haiku';
+    const systemPrompt = agent?.systemPrompt || agent?.system_prompt || '';
+
+    // OpenRouter / OpenAI-compatible format
+    const messages = [
+      ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+      ...conversations[currentAgent]
+    ];
+
+    const body = { model, max_tokens: 1024, messages };
+
+    // Use Vercel proxy (key stays server-side); fall back to direct call with session key
+    let res;
+    const sessionKey = getApiKey();
+
+    if (sessionKey) {
+      res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Actuators OS'
+        },
+        body: JSON.stringify(body)
+      });
+    } else {
+      res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    }
+
+    typingEl.remove();
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const errMsg = errData.error?.message || errData.error || `HTTP_${res.status}`;
+      if (res.status === 500 && errMsg.includes('OPENROUTER_API_KEY')) {
+        openModal();
+      }
+      conversations[currentAgent].push({ role: 'assistant', content: `ERROR_${res.status}: ${errMsg}` });
+      renderMessages();
+      return;
+    }
+
+    const data = await res.json();
+    // OpenRouter returns OpenAI-compatible response: choices[0].message.content
+    const reply = data.choices?.[0]?.message?.content || data.error?.message || 'EMPTY_RESPONSE';
+    conversations[currentAgent].push({ role: 'assistant', content: reply });
+    renderMessages();
+
+  } catch(err) {
+    typingEl.remove();
+    conversations[currentAgent].push({ role: 'assistant', content: `NETWORK_ERROR: ${err.message}` });
+    renderMessages();
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────
+document.getElementById('send-btn').addEventListener('click', sendMessage);
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// Auto-resize textarea
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  conversations[currentAgent] = [];
+  renderMessages();
+});
+
+// ── INIT ──────────────────────────────────────────────
+loadAgentsFromDB();
+checkApiStatus();
+</script>
+</body>
+</html>
