@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actuators | Impact in Motion</title>
+    <meta name="description" content="The operating system for post-conflict entrepreneurship. Syria's first digital backbone for founders, teams, and the capital that connects them.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="grid-overlay"></div>
+
+    <!-- FIXED MARKETING HEADER -->
+    <header id="site-header">
+        <div class="header-inner">
+            <a href="#" class="logo-container">
+                <!-- Icon mark: default / hover -->
+                <div class="logo-icon-wrap">
+                    <svg class="li-default" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="38" height="38" aria-hidden="true">
+                        <defs>
+                            <g id="lc-d">
+                                <polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </g>
+                        </defs>
+                        <g transform="translate(60,60)">
+                            <use href="#lc-d" x="34.641"   y="0"   color="#00B7C2"/>
+                            <use href="#lc-d" x="-34.641"  y="0"   color="#00B7C2"/>
+                            <use href="#lc-d" x="17.3205"  y="-30" color="#00B7C2"/>
+                            <use href="#lc-d" x="-17.3205" y="-30" color="#00B7C2"/>
+                            <use href="#lc-d" x="17.3205"  y="30"  color="#00B7C2"/>
+                            <use href="#lc-d" x="-17.3205" y="30"  color="#00B7C2"/>
+                            <use href="#lc-d" x="0"        y="0"   color="#FF6A2A"/>
+                        </g>
+                    </svg>
+                    <svg class="li-hover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="38" height="38" aria-hidden="true">
+                        <defs>
+                            <g id="lc-r">
+                                <polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </g>
+                        </defs>
+                        <g transform="translate(60,60)">
+                            <use href="#lc-r" x="34.641"   y="0"   color="#FF6A2A"/>
+                            <use href="#lc-r" x="-34.641"  y="0"   color="#FF6A2A"/>
+                            <use href="#lc-r" x="17.3205"  y="-30" color="#FF6A2A"/>
+                            <use href="#lc-r" x="-17.3205" y="-30" color="#FF6A2A"/>
+                            <use href="#lc-r" x="17.3205"  y="30"  color="#FF6A2A"/>
+                            <use href="#lc-r" x="-17.3205" y="30"  color="#FF6A2A"/>
+                            <use href="#lc-r" x="0"        y="0"   color="#00B7C2"/>
+                        </g>
+                    </svg>
+                </div>
+                <!-- Wordmark: default / hover — viewBox cropped to text area for larger rendered size -->
+                <div class="logo-wordmark-wrap">
+                    <svg class="lw-default" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145" aria-hidden="true">
+                        <line x1="40" y1="120" x2="960" y2="120" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/>
+                        <line x1="40" y1="180" x2="960" y2="180" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/>
+                        <line x1="40" y1="230" x2="960" y2="230" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/>
+                        <path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#FF6A2A" stroke-width="2" opacity="0.3" fill="none"/>
+                        <text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#00B7C2" letter-spacing="7" text-anchor="middle">ACTUATORS</text>
+                    </svg>
+                    <svg class="lw-hover" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145" aria-hidden="true">
+                        <line x1="40" y1="120" x2="960" y2="120" stroke="#00B7C2" stroke-width="2" opacity="0.5"/>
+                        <line x1="40" y1="180" x2="960" y2="180" stroke="#00B7C2" stroke-width="2" opacity="0.5"/>
+                        <line x1="40" y1="230" x2="960" y2="230" stroke="#00B7C2" stroke-width="2" opacity="0.5"/>
+                        <path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#00B7C2" stroke-width="2" opacity="0.3" fill="none"/>
+                        <text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#FF6A2A" letter-spacing="7" text-anchor="middle">ACTUATORS</text>
+                    </svg>
+                </div>
+            </a>
+            <nav class="main-nav" id="main-nav">
+                <a href="#problem" class="nav-link" data-i18n="nav.mission">MISSION</a>
+                <a href="#product" class="nav-link" data-i18n="nav.product">PRODUCT</a>
+                <a href="#impact"  class="nav-link" data-i18n="nav.impact">IMPACT</a>
+                <a href="#team"    class="nav-link" data-i18n="nav.team">TEAM</a>
+            </nav>
+            <a href="#cta" class="btn-header-cta mono" data-i18n="header.cta">GET EARLY ACCESS</a>
+            <!-- Language toggle -->
+            <div class="lang-toggle" id="lang-toggle">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <span class="lang-sep">/</span>
+                <button class="lang-btn" data-lang="ar">AR</button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="hero">
+        <div id="hero-canvas-wrap">
+            <canvas id="hero-canvas"></canvas>
+        </div>
+        <div class="hero-content">
+            <div class="hero-tag mono" data-i18n="hero.tag">ACT.OS_v1.0.0 // POST-CONFLICT INFRASTRUCTURE</div>
+            <h1 class="hero-title" data-i18n-html="hero.title">Impact<br>in Motion</h1>
+            <p class="hero-sub" data-i18n-html="hero.sub">The operating system for post-conflict entrepreneurship.<br>Syria's first digital backbone for founders, teams, and the capital that connects them.</p>
+            <div class="hero-actions">
+                <a href="#cta"     class="btn-primary mono" data-i18n="hero.cta_primary">GET EARLY ACCESS</a>
+                <a href="#product" class="btn-ghost mono"   data-i18n="hero.cta_secondary">EXPLORE THE SYSTEM →</a>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-block">
+                <div class="stat-num mono">84<span class="stat-unit">%</span></div>
+                <div class="stat-label mono" data-i18n-html="hero.stat1_label">GDP DECLINE<br>SINCE 2010</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-block">
+                <div class="stat-num mono">200<span class="stat-unit">+</span></div>
+                <div class="stat-label mono" data-i18n-html="hero.stat2_label">STARTUPS WITH<br>ZERO DIGITAL TOOLS</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-block">
+                <div class="stat-num mono">4.05<span class="stat-unit">M</span></div>
+                <div class="stat-label mono" data-i18n-html="hero.stat3_label">MBPS MEDIAN<br>RANKED 179/181</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-block">
+                <div class="stat-num mono">6.1<span class="stat-unit">M+</span></div>
+                <div class="stat-label mono" data-i18n-html="hero.stat4_label">DIASPORA<br>TO CONNECT</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROBLEM SECTION -->
+    <section id="problem" class="section">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="problem.tag">01 // PROBLEM_MATRIX</div>
+            <h2 class="section-title" data-i18n-html="problem.title">Syria's economy did not slow down.<br>It <span class="text-orange">collapsed.</span></h2>
+            <p class="section-sub" data-i18n="problem.sub">200+ startups are operating in one of the world's most fragile economies. Zero have a digital backbone. They use notebooks, WhatsApp, and Excel spreadsheets.</p>
+
+            <div class="problem-mosaic">
+                <div class="pm-block pm-large">
+                    <div class="pm-label mono" data-i18n="problem.mosaic1_label">GDP DECLINE SINCE 2010</div>
+                    <div class="pm-value">84<span>%</span></div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic1_source">World Bank, 2025 // Nighttime-light proxy</div>
+                </div>
+                <div class="pm-block">
+                    <div class="pm-label mono" data-i18n="problem.mosaic2_label">GNI PER CAPITA (2024)</div>
+                    <div class="pm-value">$830</div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic2_source">↓ from $2,700+ pre-war</div>
+                </div>
+                <div class="pm-block">
+                    <div class="pm-label mono" data-i18n="problem.mosaic3_label">YOUTH UNEMPLOYMENT</div>
+                    <div class="pm-value">31.7<span>%</span></div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic3_source">ILO modeled estimate, 2023</div>
+                </div>
+                <div class="pm-block pm-accent">
+                    <div class="pm-label mono" data-i18n="problem.mosaic4_label">RECONSTRUCTION COST</div>
+                    <div class="pm-value">$216<span>B</span></div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic4_source">World Bank, Oct 2025</div>
+                </div>
+                <div class="pm-block">
+                    <div class="pm-label mono" data-i18n="problem.mosaic5_label">YEARS TO RESTORE GDP</div>
+                    <div class="pm-value">55</div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic5_source">At current trajectory — UNDP</div>
+                </div>
+                <div class="pm-block">
+                    <div class="pm-label mono" data-i18n="problem.mosaic6_label">POPULATION BELOW POVERTY</div>
+                    <div class="pm-value">69<span>%</span></div>
+                    <div class="pm-source mono" data-i18n="problem.mosaic6_source">~14.5 million Syrians</div>
+                </div>
+            </div>
+
+            <div class="failure-grid">
+                <div class="fg-header mono" data-i18n="problem.fail_header">WHY_EVERY_EXISTING_TOOL_FAILS_HERE</div>
+                <div class="fg-items">
+                    <div class="fg-item">
+                        <div class="fg-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5"><path d="M1.5 8.5l5 5L9 11l4 4 4-4 5 5"/></svg>
+                        </div>
+                        <div class="fg-num mono">4.05 Mbps</div>
+                        <div class="fg-desc" data-i18n="problem.fail1_desc">Fixed broadband median — ranked #179 out of 181 countries. 70% rely on limited 3G.</div>
+                    </div>
+                    <div class="fg-item">
+                        <div class="fg-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+                        </div>
+                        <div class="fg-num mono">99%</div>
+                        <div class="fg-desc" data-i18n="problem.fail2_desc">E-commerce uses cash on delivery. Only 3 private payment gateways exist in the entire country.</div>
+                    </div>
+                    <div class="fg-item">
+                        <div class="fg-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <div class="fg-num mono">99.6%</div>
+                        <div class="fg-desc" data-i18n="problem.fail3_desc">Syrian pound lost vs USD since 2011. Fewer than 25% of adults hold a bank account.</div>
+                    </div>
+                    <div class="fg-item fg-item-alert">
+                        <div class="fg-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6A2A" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        </div>
+                        <div class="fg-num mono" style="color: var(--orange-accent)">ZERO</div>
+                        <div class="fg-desc" data-i18n="problem.fail4_desc">No indigenous Syrian ERP or digital business management platform exists for Syrian SMEs.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCT SECTION -->
+    <section id="product" class="section section-alt">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="product.tag">02 // PRODUCT_ARCHITECTURE</div>
+            <h2 class="section-title" data-i18n-html="product.title">Not software.<br><span class="text-cyan">Digital sovereignty.</span></h2>
+            <p class="section-sub" data-i18n="product.sub">A governance layer — the institutional infrastructure that fills the vacuum where functioning institutions used to be.</p>
+
+            <div class="product-layers">
+                <div class="layer-card">
+                    <div class="lc-top">
+                        <span class="lc-num mono">LAYER_01</span>
+                        <svg class="lc-icon" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="40" height="40">
+                            <rect x="3" y="3" width="18" height="18"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                            <line x1="9" y1="12" x2="21" y2="12"/>
+                            <rect x="12" y="6" width="6" height="3" fill="#FF6A2A" stroke="none"/>
+                        </svg>
+                    </div>
+                    <h3 class="lc-title" data-i18n="product.layer1_title">System Dashboard</h3>
+                    <p class="lc-desc" data-i18n="product.layer1_desc">Real-time operational visibility — node grid, logs, core load monitoring. Web-based. Works at 4 Mbps — Syria's median fixed speed.</p>
+                    <div class="lc-tag mono" data-i18n="product.layer1_tag">WEB // LOW-BANDWIDTH OPTIMIZED</div>
+                </div>
+                <div class="layer-card">
+                    <div class="lc-top">
+                        <span class="lc-num mono">LAYER_02</span>
+                        <svg class="lc-icon" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="40" height="40">
+                            <rect x="3" y="4" width="6" height="4"/>
+                            <rect x="15" y="4" width="6" height="4"/>
+                            <rect x="9" y="16" width="6" height="4"/>
+                            <path d="M6 8v4h6v4M18 8v4h-6"/>
+                            <circle cx="12" cy="12" r="1.5" fill="#FF6A2A" stroke="none"/>
+                        </svg>
+                    </div>
+                    <h3 class="lc-title" data-i18n="product.layer2_title">Workflow Engine</h3>
+                    <p class="lc-desc" data-i18n="product.layer2_desc">Project sequencing, team coordination, task tracking. Arabic-first, low-resource. The operational backbone your team has never had access to.</p>
+                    <div class="lc-tag mono" data-i18n="product.layer2_tag">ARABIC-FIRST // TEAM COORDINATION</div>
+                </div>
+                <div class="layer-card">
+                    <div class="lc-top">
+                        <span class="lc-num mono">LAYER_03</span>
+                        <svg class="lc-icon" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="40" height="40">
+                            <rect x="3" y="10" width="4" height="4"/>
+                            <rect x="17" y="10" width="4" height="4"/>
+                            <rect x="10" y="3" width="4" height="4" stroke="#FF6A2A"/>
+                            <rect x="10" y="17" width="4" height="4"/>
+                            <path d="M7 12h3M14 12h3M12 7v3M12 14v3"/>
+                        </svg>
+                    </div>
+                    <h3 class="lc-title" data-i18n="product.layer3_title">Terminal UI</h3>
+                    <p class="lc-desc" data-i18n="product.layer3_desc">Full functionality in text-mode. Runs on any machine with any connection. When the web fails, your operations don't have to.</p>
+                    <div class="lc-tag mono" data-i18n="product.layer3_tag">ANY_MACHINE // ANY_CONNECTION</div>
+                </div>
+            </div>
+
+            <!-- LIVE DASHBOARD DEMO -->
+            <div class="demo-wrap">
+                <div class="demo-topbar mono">
+                    <span data-i18n="demo.header">LIVE_SYSTEM_DEMO // ACTUATORS_OS_v1.0</span>
+                    <div class="demo-status-badge">
+                        <span class="status-dot"></span>
+                        <span data-i18n="demo.status">SYSTEM NOMINAL</span>
+                    </div>
+                </div>
+                <div class="demo-nav-bar">
+                    <a href="#" class="dnav-link active" data-view="system" data-i18n="demo.tab_system">SYSTEM</a>
+                    <a href="#" class="dnav-link" data-view="nodes" data-i18n="demo.tab_nodes">NODES</a>
+                    <a href="#" class="dnav-link" data-view="logs"  data-i18n="demo.tab_logs">LOGS</a>
+                </div>
+
+                <!-- SYSTEM VIEW -->
+                <div id="system-view" class="demo-view active">
+                    <div class="hero-visual">
+                        <div id="system-visualization">
+                            <canvas id="connections-canvas"></canvas>
+                            <div class="center-content">
+                                <h2 class="system-title" data-i18n="demo.infra_title">INFRASTRUCTURE STATUS</h2>
+                                <p class="system-subtitle" data-i18n="demo.infra_sub">Monitoring and coordinating modular node connections across the distributed network.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <section class="system-logs-container">
+                        <div class="logs-header mono">
+                            <span data-i18n="demo.sys_output">SYSTEM_OUTPUT [REAL_TIME]</span>
+                            <span id="log-timestamp">Initializing...</span>
+                        </div>
+                        <div id="logs-output" class="mono"></div>
+                    </section>
+                    <section class="dashboard-grid">
+                        <div class="data-block double">
+                            <div class="block-header">
+                                <div class="header-main">
+                                    <svg class="block-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10m0 0l-5-5m5 5l5-5M2 12h10m0 0l5 5m-5-5l-5 5M12 22V12"/></svg>
+                                    <span class="label" data-i18n="demo.label_network">NETWORK TOPOGRAPHY</span>
+                                </div>
+                                <span class="value" data-i18n="demo.syncing">SYNCING</span>
+                            </div>
+                            <div class="topo-visual">
+                                <svg id="topo-svg" width="100%" height="120" viewBox="0 0 800 120"></svg>
+                            </div>
+                        </div>
+                        <div class="data-block">
+                            <div class="block-header">
+                                <div class="header-main">
+                                    <svg class="block-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                    <span class="label" data-i18n="demo.label_coreload">CORE LOAD</span>
+                                </div>
+                                <span class="value" id="core-load-val">42.8%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="core-load-bar" style="width: 42.8%;"></div>
+                            </div>
+                            <div class="block-footer mono" data-i18n="demo.label_uptime">Uptime: 1,424h 32m</div>
+                        </div>
+                        <div class="data-block">
+                            <div class="block-header">
+                                <div class="header-main">
+                                    <svg class="block-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 7h20M2 17h20"/></svg>
+                                    <span class="label" data-i18n="demo.label_nodes">ACTIVE NODES</span>
+                                </div>
+                                <span class="value">1,024</span>
+                            </div>
+                            <div class="node-grid-small">
+                                <div class="mini-node active"></div>
+                                <div class="mini-node active"></div>
+                                <div class="mini-node"></div>
+                                <div class="mini-node active"></div>
+                            </div>
+                            <div class="block-footer mono" data-i18n="demo.label_sync">Sync: Stable</div>
+                        </div>
+                        <div class="data-block action-requested">
+                            <div class="block-header">
+                                <div class="header-main">
+                                    <svg class="block-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 14 7-7 7 7"/><path d="m19 10-7 7-7-7"/></svg>
+                                    <span class="label" data-i18n="demo.label_pending">PENDING SEQUENCES</span>
+                                </div>
+                                <span class="value">12</span>
+                            </div>
+                            <button id="initialize-button" class="btn-action" data-i18n="demo.init_btn">INITIALIZE SYSTEM</button>
+                            <div class="block-footer mono" data-i18n="demo.label_auth">Requires: Authorization</div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- NODES VIEW -->
+                <div id="nodes-view" class="demo-view">
+                    <div class="view-header">
+                        <h3 class="view-title mono" data-i18n="nodes.header">NODAL_MANAGEMENT</h3>
+                        <div class="view-actions">
+                            <input type="text" id="node-search" class="mono log-search" data-i18n-placeholder="nodes.search" placeholder="FILTER_BY_ID...">
+                            <button id="add-node-btn" class="btn-outline-cyan mono" data-i18n="nodes.add_btn">ADD_NODE</button>
+                        </div>
+                    </div>
+                    <div id="nodes-list" class="nodes-table-container">
+                        <table class="mono technical-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="nodes.col_id">NODE_ID</th>
+                                    <th data-i18n="nodes.col_geometry">GEOMETRY</th>
+                                    <th data-i18n="nodes.col_latency">LATENCY</th>
+                                    <th data-i18n="nodes.col_status">STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="nodes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- LOGS VIEW -->
+                <div id="logs-view" class="demo-view">
+                    <div class="view-header">
+                        <h3 class="view-title mono" data-i18n="logs.header">EXTENDED_SYSTEM_LOGS</h3>
+                        <div class="view-actions">
+                            <input type="text" id="log-filter" class="mono log-search" data-i18n-placeholder="logs.search" placeholder="FILTER_BY_KEYWORD...">
+                            <button id="purge-btn" class="btn-outline-orange mono" data-i18n="logs.purge_btn">PURGE_BUFFER</button>
+                        </div>
+                    </div>
+                    <div class="full-logs-container mono" id="full-logs-list"></div>
+                </div>
+            </div>
+
+            <!-- NODE INSPECTOR MODAL -->
+            <div id="node-modal" class="modal-overlay">
+                <div class="modal-content mono">
+                    <div class="modal-header">
+                        <span data-i18n="modal.header">[NODE_DETAILS_0x00]</span>
+                        <button id="close-modal" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="detail-row"><span>ID:</span><span id="modal-id">---</span></div>
+                        <div class="detail-row"><span>GEOMETRY:</span><span id="modal-geometry">---</span></div>
+                        <div class="detail-row"><span>LATENCY:</span><span id="modal-latency">---</span></div>
+                        <div class="detail-row"><span>SYNC_STATUS:</span><span id="modal-status">---</span></div>
+                        <div class="detail-row"><span>LAST_PACKET:</span><span id="modal-packet">---</span></div>
+                        <div class="visual-placeholder">
+                            <svg width="200" height="80" viewBox="0 0 200 80">
+                                <rect x="10" y="8" width="180" height="64" stroke="#00B7C2" stroke-width="1" fill="none" opacity="0.3"/>
+                                <path d="M10 40h180M50 8v64M150 8v64" stroke="#00B7C2" stroke-width="0.5" opacity="0.2"/>
+                                <rect x="40" y="24" width="10" height="10" fill="#FF6A2A"/>
+                                <rect x="150" y="48" width="10" height="10" fill="#00B7C2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-action" data-i18n="modal.force_sync">FORCE_SYNC</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SYSTEMIC IMPACT (5Rs) -->
+    <section id="impact" class="section">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="impact.tag">03 // SYSTEMIC_IMPACT // 5RS_FRAMEWORK</div>
+            <h2 class="section-title" data-i18n-html="impact.title">Rewiring the system,<br>not patching it.</h2>
+            <p class="section-sub" data-i18n="impact.sub">The 5Rs change architecture — turning isolated founders into a coordinated economic engine that makes capital deployable and recovery measurable.</p>
+
+            <div class="rs-table">
+                <div class="rs-thead mono">
+                    <div class="rs-col-dim"    data-i18n="impact.col_dim">DIMENSION</div>
+                    <div class="rs-col-before" data-i18n="impact.col_before">WITHOUT ACTUATORS</div>
+                    <div class="rs-col-after"  data-i18n="impact.col_after">WITH ACTUATORS</div>
+                </div>
+
+                <div class="rs-row">
+                    <div class="rs-dim">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="20" height="20">
+                            <circle cx="12" cy="7" r="4"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/>
+                        </svg>
+                        <span class="rs-label mono" data-i18n="impact.roles_label">ROLES</span>
+                    </div>
+                    <div class="rs-before" data-i18n="impact.roles_before">200+ isolated founders with no shared infrastructure or governance norms</div>
+                    <div class="rs-after"  data-i18n="impact.roles_after">Networked ecosystem with shared documentation, coordination, and institutional-grade norms</div>
+                </div>
+                <div class="rs-row">
+                    <div class="rs-dim">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="20" height="20">
+                            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                        </svg>
+                        <span class="rs-label mono" data-i18n="impact.rel_label">RELATIONSHIPS</span>
+                    </div>
+                    <div class="rs-before" data-i18n="impact.rel_before">Diaspora capital structurally blocked — no trust bridge or deal flow infrastructure exists</div>
+                    <div class="rs-after"  data-i18n="impact.rel_after">6.1M diaspora connected to local builders via capital bridge built into the product layer</div>
+                </div>
+                <div class="rs-row">
+                    <div class="rs-dim">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="20" height="20">
+                            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                        </svg>
+                        <span class="rs-label mono" data-i18n="impact.rules_label">RULES</span>
+                    </div>
+                    <div class="rs-before" data-i18n="impact.rules_before">Paper ledgers, WhatsApp threads — no funder-accepted operational documentation standard</div>
+                    <div class="rs-after"  data-i18n="impact.rules_after">Digital trust + audit-grade documentation that institutional funders and INGOs require</div>
+                </div>
+                <div class="rs-row">
+                    <div class="rs-dim">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="1.5" width="20" height="20">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        <span class="rs-label mono" data-i18n="impact.res_label">RESOURCES</span>
+                    </div>
+                    <div class="rs-before" data-i18n="impact.res_before">$216B reconstruction wave incoming with no digital absorption or deal flow infrastructure</div>
+                    <div class="rs-after"  data-i18n="impact.res_after">Verified, data-driven deal flow that makes capital deployable and impact measurable at scale</div>
+                </div>
+                <div class="rs-row rs-row-final">
+                    <div class="rs-dim">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#FF6A2A" stroke-width="1.5" width="20" height="20">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3" stroke="#FF6A2A"/>
+                        </svg>
+                        <span class="rs-label mono" style="color: var(--orange-accent)" data-i18n="impact.results_label">RESULTS</span>
+                    </div>
+                    <div class="rs-before" data-i18n="impact.results_before">55 more years to GDP recovery at current trajectory — UNDP</div>
+                    <div class="rs-after rs-after-highlight" data-i18n="impact.results_after">Coordinated, accelerating startup economy. The proof of concept for 1.5 billion people in fragile states.</div>
+                </div>
+            </div>
+
+            <div class="impact-quote">
+                <div class="iq-line"></div>
+                <blockquote data-i18n="impact.quote">"1.5 billion people live in fragile or conflict-affected states. Every one of them deserves digital infrastructure built for their reality. Syria is the proof of concept."</blockquote>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRACTION SECTION -->
+    <section id="traction" class="section section-alt">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="traction.tag">04 // TRACTION // VALIDATED_IN_REAL_CONDITIONS</div>
+            <h2 class="section-title" data-i18n-html="traction.title">Early validation<br>in real conditions.</h2>
+
+            <div class="traction-stats">
+                <div class="ts-block">
+                    <div class="ts-num mono">1,000<span>+</span></div>
+                    <div class="ts-title" data-i18n="traction.stat1_title">SYNC 2025 Registrations</div>
+                    <div class="ts-desc mono" data-i18n="traction.stat1_desc">Organizers expected 50–60. Syria's first post-transition startup conference. Registrants from 15+ countries. The pent-up demand is documented.</div>
+                </div>
+                <div class="ts-block ts-featured">
+                    <div class="ts-num mono">3</div>
+                    <div class="ts-title" data-i18n="traction.stat2_title">Integrated Interfaces</div>
+                    <div class="ts-desc mono" data-i18n="traction.stat2_desc">Web Dashboard + Rust Backend + Terminal UI — all shipped, all functional, all tested in real Syrian connectivity conditions.</div>
+                </div>
+                <div class="ts-block">
+                    <div class="ts-num mono">0</div>
+                    <div class="ts-title" data-i18n="traction.stat3_title">Competing Platforms</div>
+                    <div class="ts-desc mono" data-i18n="traction.stat3_desc">Research-confirmed market void. No indigenous Syrian ERP exists. We are building into a confirmed vacuum — not competing for share.</div>
+                </div>
+            </div>
+
+            <div class="milestones">
+                <div class="ml-header mono" data-i18n="traction.ml_header">MILESTONE_LOG // PHASE_0 COMPLETE → PHASE_1 ACTIVE</div>
+                <div class="ml-list">
+                    <div class="ml-item ml-done">
+                        <div class="ml-dot"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag mono">COMPLETE</span>
+                            <span class="ml-text" data-i18n="traction.done1">Full MVP functional — web dashboard, Rust-based production server, Terminal UI</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-done">
+                        <div class="ml-dot"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag mono">COMPLETE</span>
+                            <span class="ml-text" data-i18n="traction.done2">Low-bandwidth deployment validated at Syria's 4.05 Mbps median speed</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-done">
+                        <div class="ml-dot"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag mono">COMPLETE</span>
+                            <span class="ml-text" data-i18n="traction.done3">Arabic-first interface — native design philosophy, not a translation layer</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-done">
+                        <div class="ml-dot"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag mono">COMPLETE</span>
+                            <span class="ml-text" data-i18n="traction.done4">Audit-grade logging and operational documentation infrastructure operational</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-done">
+                        <div class="ml-dot"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag mono">COMPLETE</span>
+                            <span class="ml-text" data-i18n="traction.done5">Early pilot with Syrian founders in real operational environments — use cases validated</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-next">
+                        <div class="ml-dot ml-dot-next"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag ml-tag-next mono">Q3 2026</span>
+                            <span class="ml-text" data-i18n="traction.next1">Launch — 0 → 3,000 users, first institutional partnerships, company registration</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-next">
+                        <div class="ml-dot ml-dot-next"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag ml-tag-next mono">2027</span>
+                            <span class="ml-text" data-i18n="traction.next2">Scale — 10,000 users, €50K–€120K revenue, first NGO contracts, Arabic NLP module</span>
+                        </div>
+                    </div>
+                    <div class="ml-item ml-next">
+                        <div class="ml-dot ml-dot-next"></div>
+                        <div class="ml-body">
+                            <span class="ml-tag ml-tag-next mono">2028</span>
+                            <span class="ml-text" data-i18n="traction.next3">Expand — 2–3 MENA markets, break-even, template ready for post-conflict contexts globally</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEAM SECTION -->
+    <section id="team" class="section">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="team.tag">05 // TEAM_PROFILES // BUILT_BY_INSIDERS</div>
+            <h2 class="section-title" data-i18n-html="team.title">Built by people who understand<br>the problem from the inside.</h2>
+
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="tc-meta">
+                        <div class="tc-avatar tc-avatar-cyan mono">YD</div>
+                        <div>
+                            <div class="tc-name">Yahya Demeriah</div>
+                            <div class="tc-role mono">CO-FOUNDER &amp; CEO // 60% EQUITY</div>
+                        </div>
+                    </div>
+                    <p class="tc-bio" data-i18n="team.yahya_bio">Leads product vision, strategy, and business development at Actuators. Drives the mission of building Syria's first digital infrastructure layer for entrepreneurs — translating deep understanding of the Syrian economic context into a systems-level product and a credible path to scale.</p>
+                    <div class="tc-tags">
+                        <span class="tc-tag mono" data-i18n="team.yahya_tag1">PRODUCT VISION</span>
+                        <span class="tc-tag mono" data-i18n="team.yahya_tag2">STRATEGY</span>
+                        <span class="tc-tag mono" data-i18n="team.yahya_tag3">FUNDRAISING</span>
+                        <span class="tc-tag mono" data-i18n="team.yahya_tag4">PARTNERSHIPS</span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="tc-meta">
+                        <div class="tc-avatar tc-avatar-orange mono">MA</div>
+                        <div>
+                            <div class="tc-name">Mahmoud Al-Sawan</div>
+                            <div class="tc-role mono">CO-FOUNDER &amp; CTO // 40% EQUITY</div>
+                        </div>
+                    </div>
+                    <p class="tc-bio" data-i18n="team.mahmoud_bio">Designed and built Actuators' complete technical architecture: a Rust-based production server, a web dashboard optimised for low-bandwidth environments, and a full Terminal UI that runs on any machine — engineered from first principles around Syria's connectivity constraints.</p>
+                    <div class="tc-tags">
+                        <span class="tc-tag mono" data-i18n="team.mahmoud_tag1">RUST BACKEND</span>
+                        <span class="tc-tag mono" data-i18n="team.mahmoud_tag2">SYSTEMS ARCHITECTURE</span>
+                        <span class="tc-tag mono" data-i18n="team.mahmoud_tag3">ARABIC-FIRST UI</span>
+                        <span class="tc-tag mono" data-i18n="team.mahmoud_tag4">LOW-BANDWIDTH</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-evidence mono">
+                <div class="te-bracket">[</div>
+                <p class="te-text" data-i18n="team.evidence">Two co-founders who shipped a working, multi-interface MVP with minimal resources — in exactly the environment they are building for. Ashoka evaluates entrepreneurial quality. This is the evidence.</p>
+                <div class="te-bracket">]</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BUSINESS MODEL SECTION -->
+    <section id="model" class="section section-alt">
+        <div class="section-inner">
+            <div class="section-tag mono" data-i18n="model.tag">06 // BUSINESS_MODEL // IMPACT-FIRST</div>
+            <h2 class="section-title" data-i18n-html="model.title">Impact-first.<br><span class="text-cyan">Economically sustainable.</span></h2>
+            <p class="section-sub" data-i18n="model.sub">Not extracting value from Syrian entrepreneurs. Building the coordination layer that's free for those who need it most, monetized through those who benefit from the ecosystem it creates.</p>
+
+            <div class="model-grid">
+                <div class="model-card model-free">
+                    <div class="mc-layer mono">LAYER_01</div>
+                    <div class="mc-title" data-i18n="model.layer1_title">Freemium Core</div>
+                    <div class="mc-users mono" data-i18n="model.layer1_users">SYRIAN YOUTH FOUNDERS</div>
+                    <div class="mc-price mono">FREE</div>
+                    <p class="mc-desc" data-i18n="model.layer1_desc">The asset that makes every other layer valuable. Free access creates the network effects and data infrastructure that institutional revenue depends on.</p>
+                </div>
+                <div class="model-card model-paid">
+                    <div class="mc-layer mono">LAYER_02</div>
+                    <div class="mc-title" data-i18n="model.layer2_title">Enablement Layer</div>
+                    <div class="mc-users mono" data-i18n="model.layer2_users">GROWING TEAMS + DIASPORA USERS</div>
+                    <div class="mc-price mono">€/MONTH</div>
+                    <p class="mc-desc" data-i18n="model.layer2_desc">Advanced analytics, automation tools, diaspora investor modules. Subscriptions for teams ready to scale beyond the free tier operational core.</p>
+                </div>
+                <div class="model-card model-institutional">
+                    <div class="mc-layer mono">LAYER_03</div>
+                    <div class="mc-title" data-i18n="model.layer3_title">Market Infrastructure</div>
+                    <div class="mc-users mono" data-i18n="model.layer3_users">DEV ORGS + INGOs + DIASPORA FUNDS</div>
+                    <div class="mc-price mono">€5K–€25K</div>
+                    <p class="mc-desc" data-i18n="model.layer3_desc">Cohort deployment, deal flow infrastructure, institutional reporting. Contracts with UNDP, GIZ, and diaspora investment networks accessing the ecosystem.</p>
+                </div>
+            </div>
+
+            <div class="projections">
+                <div class="proj-header mono" data-i18n="model.proj_header">REVENUE_PROJECTIONS // THREE_YEAR_PATH</div>
+                <div class="proj-rows">
+                    <div class="proj-row">
+                        <div class="pr-label mono">YEAR_01</div>
+                        <div class="pr-track">
+                            <div class="pr-bar" style="width: 4%" data-target="4"></div>
+                        </div>
+                        <div class="pr-data mono" data-i18n-html="model.year1_data">3,000 users &nbsp;// &nbsp;€0–€15K revenue</div>
+                    </div>
+                    <div class="proj-row">
+                        <div class="pr-label mono">YEAR_02</div>
+                        <div class="pr-track">
+                            <div class="pr-bar" style="width: 38%" data-target="38"></div>
+                        </div>
+                        <div class="pr-data mono" data-i18n-html="model.year2_data">10,000 users &nbsp;// &nbsp;€50K–€120K revenue</div>
+                    </div>
+                    <div class="proj-row">
+                        <div class="pr-label mono">YEAR_03</div>
+                        <div class="pr-track">
+                            <div class="pr-bar pr-bar-highlight" style="width: 100%" data-target="100"></div>
+                        </div>
+                        <div class="pr-data mono" data-i18n-html="model.year3_data">MENA expansion &nbsp;// &nbsp;BREAK-EVEN</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section id="cta" class="section">
+        <div class="section-inner cta-center">
+            <div class="section-tag mono" data-i18n="cta.tag">07 // GET_ACCESS // EARLY_ADOPTER</div>
+            <h2 class="section-title cta-title" data-i18n-html="cta.title">The window is open.<br><span class="text-orange">Now is the time.</span></h2>
+            <p class="section-sub cta-sub" data-i18n="cta.sub">Sanctions lifted mid-2025. $216B reconstruction incoming. 150% surge in new startups. The digital infrastructure layer must exist before the capital wave can land.</p>
+
+            <div class="cta-box">
+                <div class="cta-box-tag mono" data-i18n="cta.box_tag">REQUEST_EARLY_ACCESS</div>
+                <form id="access-form" class="access-form" novalidate>
+                    <input type="email" id="cta-email" class="form-input mono" data-i18n-placeholder="cta.email_placeholder" placeholder="YOUR_EMAIL@DOMAIN.COM" required autocomplete="email">
+                    <select id="cta-role" class="form-input form-select mono">
+                        <option value=""        data-i18n="cta.role_placeholder">SELECT_YOUR_ROLE...</option>
+                        <option value="founder"    data-i18n="cta.role_founder">SYRIAN FOUNDER</option>
+                        <option value="diaspora"   data-i18n="cta.role_diaspora">DIASPORA MEMBER</option>
+                        <option value="ingo"       data-i18n="cta.role_ingo">INGO / DEVELOPMENT ORGANIZATION</option>
+                        <option value="investor"   data-i18n="cta.role_investor">INVESTOR / FUND</option>
+                        <option value="researcher" data-i18n="cta.role_researcher">RESEARCHER / ACADEMIC</option>
+                        <option value="other"      data-i18n="cta.role_other">OTHER</option>
+                    </select>
+                    <button type="submit" class="btn-action form-submit mono" data-i18n="cta.submit">INITIALIZE REQUEST →</button>
+                </form>
+                <div class="form-success mono" id="form-success" data-i18n="cta.success">
+                    [SEQUENCE_QUEUED] // ACCESS_REQUEST_RECEIVED — WE'LL BE IN TOUCH SHORTLY.
+                </div>
+            </div>
+
+            <div class="cta-contact mono">
+                <a href="mailto:actuators.os@gmail.com">actuators.os@gmail.com</a>
+                <span class="cc-sep">//</span>
+                <a href="http://actuators.me" target="_blank" rel="noopener">actuators.me</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="2" stroke-linecap="square">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <path d="M10 6.5h4M10 17.5h4M6.5 10v4M17.5 10v4"/>
+                </svg>
+                <span class="mono">ACTUATORS</span>
+            </div>
+            <nav class="footer-nav mono">
+                <a href="#problem" data-i18n="footer.mission">MISSION</a>
+                <a href="#product" data-i18n="footer.product">PRODUCT</a>
+                <a href="#impact"  data-i18n="footer.impact">IMPACT</a>
+                <a href="#team"    data-i18n="footer.team">TEAM</a>
+                <a href="mailto:actuators.os@gmail.com" data-i18n="footer.contact">CONTACT</a>
+            </nav>
+            <div class="footer-copy mono" data-i18n="footer.copy">
+                &copy; 2026 ACTUATORS
+            </div>
+        </div>
+    </footer>
+
+    <script src="translations.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
