@@ -398,6 +398,7 @@
   <!-- AGENT SELECTOR -->
   <aside class="agent-selector">
     <div class="selector-header">SELECT_AGENT</div>
+    <div id="agent-selector-list">
     <div class="agent-tab active" data-agent="legal">
       <div class="at-icon">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -427,6 +428,7 @@
       <div class="at-label">OPS_EXPERT</div>
       <div class="at-sub">Post-conflict operations</div>
     </div>
+    </div><!-- end agent-selector-list -->
   </aside>
 
   <!-- CHAT AREA -->
@@ -471,6 +473,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 // ── AGENT DEFINITIONS ─────────────────────────────────
 const AGENTS = {
@@ -612,9 +615,21 @@ Response guidelines:
   }
 };
 
+// ── SUPABASE — dynamic agent loading ──────────────────
+const SUPABASE_URL  = 'https://usxcuocnvfeltcdcnqoy.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzeGN1b2NudmZlbHRjZGNucW95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMTQxMjMsImV4cCI6MjA4OTU5MDEyM30.6eTp6qeyna4WOdoUKUp6qvGJ0MuZD-hAzU58SID8zXU';
+const { createClient } = window.supabase || {};
+const _sb = createClient ? createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
 // ── STATE ─────────────────────────────────────────────
-const conversations = { legal: [], strategy: [], ops: [] };
-let currentAgent = 'legal';
+// agentList: array of agent objects (loaded from DB or fallback to AGENTS object)
+let agentList = [];
+const conversations = {};  // keyed by agent id/key
+let currentAgent = null;   // key into agentList
+
+function agentById(key) {
+  return agentList.find(a => a._key === key) || null;
+}
 
 // ── API KEY MANAGEMENT ────────────────────────────────
 function getApiKey() {
@@ -632,14 +647,14 @@ async function checkApiStatus() {
     const res = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] })
+      body: JSON.stringify({ model: 'anthropic/claude-3-haiku', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] })
     });
     if (res.status === 200 || res.status === 400) {
       dot.className = 'api-dot ok';
       label.textContent = 'API_READY';
     } else if (res.status === 500) {
       const data = await res.json();
-      if (data.error && data.error.includes('ANTHROPIC_API_KEY')) {
+      if (data.error && data.error.includes('OPENROUTER_API_KEY')) {
         dot.className = 'api-dot err';
         label.textContent = 'KEY_MISSING';
         openModal();
@@ -676,23 +691,101 @@ document.getElementById('modal-save-btn').addEventListener('click', () => {
 // ── AGENT SWITCHING ───────────────────────────────────
 function switchAgent(agentKey) {
   currentAgent = agentKey;
-  const agent = AGENTS[agentKey];
+  if (!conversations[agentKey]) conversations[agentKey] = [];
+  const agent = agentById(agentKey);
+  if (!agent) return;
   document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`[data-agent="${agentKey}"]`).classList.add('active');
+  const tab = document.querySelector(`[data-agent="${agentKey}"]`);
+  if (tab) tab.classList.add('active');
   document.getElementById('cah-name').textContent    = agent.name;
-  document.getElementById('cah-context').textContent = agent.context;
-  renderContextTopics(agent.topics);
+  document.getElementById('cah-context').textContent = agent.context_label || agent.context || '';
+  renderContextTopics(agent.topics || []);
   renderMessages();
 }
 
 function renderContextTopics(topics) {
-  document.getElementById('cp-topics').innerHTML = topics
+  document.getElementById('cp-topics').innerHTML = (topics || [])
     .map(t => `<div class="cp-topic">${t}</div>`).join('');
 }
 
-document.querySelectorAll('.agent-tab').forEach(tab => {
-  tab.addEventListener('click', () => switchAgent(tab.dataset.agent));
-});
+// ── AGENT SELECTOR — dynamic rendering ────────────────
+function renderAgentSelector(agents) {
+  const selector = document.getElementById('agent-selector-list');
+  if (!selector) return;
+  selector.innerHTML = agents.map(a => `
+    <div class="agent-tab" data-agent="${a._key}">
+      <div class="at-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          ${getAgentIcon(a.icon || '')}
+        </svg>
+      </div>
+      <div class="at-label">${a.name}</div>
+      <div class="at-sub">${a.context_label || ''}</div>
+    </div>
+  `).join('');
+  selector.querySelectorAll('.agent-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchAgent(tab.dataset.agent));
+  });
+}
+
+function getAgentIcon(iconName) {
+  const icons = {
+    shield: '<path d="M10 2L3 7v4c0 4 3.1 7.7 7 8.9C17 18.7 17 12 17 11V7L10 2z"/>',
+    chart:  '<polyline points="2,14 7,9 11,13 18,4"/><polyline points="14,4 18,4 18,8"/>',
+    ops:    '<circle cx="10" cy="10" r="3"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3M3.2 3.2l2.1 2.1M14.7 14.7l2.1 2.1M3.2 16.8l2.1-2.1M14.7 5.3l2.1-2.1"/>',
+    star:   '<polygon points="10,1 12.5,7.5 19,8.2 14,13 15.8,19.5 10,16 4.2,19.5 6,13 1,8.2 7.5,7.5"/>',
+    book:   '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  };
+  return icons[iconName] || icons.shield;
+}
+
+// ── LOAD AGENTS FROM SUPABASE ─────────────────────────
+async function loadAgentsFromDB() {
+  const fallback = Object.entries(AGENTS).map(([key, a]) => ({ _key: key, ...a }));
+
+  if (!_sb) {
+    agentList = fallback;
+    initAgents();
+    return;
+  }
+
+  try {
+    const { data, error } = await _sb
+      .from('agents')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at');
+
+    if (error || !data || data.length === 0) {
+      agentList = fallback;
+    } else {
+      // Map DB records to agentList format, using id as _key
+      agentList = data.map(a => ({
+        _key:          a.id,
+        name:          a.name,
+        context_label: a.context_label,
+        context:       a.context_label,
+        welcome:       a.welcome_message,
+        systemPrompt:  a.system_prompt,
+        topics:        a.topics || [],
+        model:         a.model || 'anthropic/claude-3-haiku',
+        icon:          a.icon || 'shield'
+      }));
+    }
+  } catch(e) {
+    agentList = fallback;
+  }
+
+  initAgents();
+}
+
+function initAgents() {
+  renderAgentSelector(agentList);
+  if (agentList.length > 0) {
+    switchAgent(agentList[0]._key);
+  }
+}
 
 // ── MESSAGE RENDERING ─────────────────────────────────
 function renderMessages() {
@@ -700,7 +793,8 @@ function renderMessages() {
   const msgs = conversations[currentAgent];
 
   if (msgs.length === 0) {
-    const welcome = AGENTS[currentAgent].welcome;
+    const agent = agentById(currentAgent);
+    const welcome = agent?.welcome || agent?.welcome_message || 'AGENT_ONLINE // Ready.';
     container.innerHTML = `<div class="msg-welcome">${escapeHtml(welcome).replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')}</div>`;
     return;
   }
@@ -765,25 +859,30 @@ async function sendMessage() {
   const typingEl = appendTypingIndicator();
 
   try {
-    const body = {
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system: AGENTS[currentAgent].systemPrompt,
-      messages: conversations[currentAgent]
-    };
+    const agent = agentById(currentAgent);
+    const model = agent?.model || 'anthropic/claude-3-haiku';
+    const systemPrompt = agent?.systemPrompt || agent?.system_prompt || '';
 
-    // Try Vercel proxy first; fall back to direct if session key provided
+    // OpenRouter / OpenAI-compatible format
+    const messages = [
+      ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+      ...conversations[currentAgent]
+    ];
+
+    const body = { model, max_tokens: 1024, messages };
+
+    // Use Vercel proxy (key stays server-side); fall back to direct call with session key
     let res;
     const sessionKey = getApiKey();
 
     if (sessionKey) {
-      res = await fetch('https://api.anthropic.com/v1/messages', {
+      res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': sessionKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
+          'Authorization': `Bearer ${sessionKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Actuators OS'
         },
         body: JSON.stringify(body)
       });
@@ -800,7 +899,7 @@ async function sendMessage() {
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       const errMsg = errData.error?.message || errData.error || `HTTP_${res.status}`;
-      if (res.status === 500 && errMsg.includes('ANTHROPIC_API_KEY')) {
+      if (res.status === 500 && errMsg.includes('OPENROUTER_API_KEY')) {
         openModal();
       }
       conversations[currentAgent].push({ role: 'assistant', content: `ERROR_${res.status}: ${errMsg}` });
@@ -809,7 +908,8 @@ async function sendMessage() {
     }
 
     const data = await res.json();
-    const reply = data.content?.[0]?.text || 'EMPTY_RESPONSE';
+    // OpenRouter returns OpenAI-compatible response: choices[0].message.content
+    const reply = data.choices?.[0]?.message?.content || data.error?.message || 'EMPTY_RESPONSE';
     conversations[currentAgent].push({ role: 'assistant', content: reply });
     renderMessages();
 
@@ -845,7 +945,7 @@ document.getElementById('clear-btn').addEventListener('click', () => {
 });
 
 // ── INIT ──────────────────────────────────────────────
-switchAgent('legal');
+loadAgentsFromDB();
 checkApiStatus();
 </script>
 </body>

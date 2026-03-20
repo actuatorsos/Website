@@ -29,7 +29,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; font-size: 20px; /* 16px × 1.25 — scales all rem values +25% */ }
 
 body {
     background-color: var(--bg);
@@ -143,6 +143,14 @@ body {
 
 .logo-container:hover .logo-wordmark-wrap .lw-default { opacity: 0; }
 .logo-container:hover .logo-wordmark-wrap .lw-hover   { opacity: 1; }
+
+.nav-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+    justify-content: center;
+}
 
 .main-nav {
     display: flex;

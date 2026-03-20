@@ -387,6 +387,13 @@
         </svg>
         NGO_PROFILES
       </a>
+      <a class="nav-item" data-panel="agents">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/>
+          <path d="M1 14c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M7 14c0-2.2 1.8-4 4-4s4 1.8 4 4"/>
+        </svg>
+        AI_AGENTS
+      </a>
       <a class="nav-item" data-panel="settings">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="8" cy="8" r="2.5"/>
@@ -482,6 +489,20 @@
       </div>
       <div class="ngo-grid" id="ngo-grid">
         <div class="ngo-empty" id="ngo-empty">No NGOs added yet</div>
+      </div>
+    </section>
+
+    <!-- AGENTS PANEL -->
+    <section id="panel-agents" class="admin-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">AI_AGENTS</div>
+          <div class="panel-sub">Configure agents shown on the /agents/ consultation page</div>
+        </div>
+        <button class="btn-action" id="add-agent-btn">+ ADD_AGENT</button>
+      </div>
+      <div class="ngo-grid" id="agents-grid">
+        <div class="ngo-empty" id="agents-empty">No agents configured yet</div>
       </div>
     </section>
 
@@ -664,6 +685,59 @@
   </div>
 </div>
 
+<!-- AGENT MODAL -->
+<div id="agent-modal" class="modal-overlay">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-head">
+      <span class="modal-title" id="agent-modal-title">ADD_AGENT</span>
+      <button class="modal-close" data-close="agent-modal">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ag-id">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">AGENT_NAME * <span style="color:var(--muted);font-size:0.55rem">(e.g. LEGAL_GUIDE)</span></label>
+          <input class="form-input" id="ag-name" placeholder="e.g. LEGAL_GUIDE" style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">MODEL <span style="color:var(--muted);font-size:0.55rem">(OpenRouter model ID)</span></label>
+          <input class="form-input" id="ag-model" placeholder="anthropic/claude-3-haiku" value="anthropic/claude-3-haiku">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">CONTEXT_LABEL <span style="color:var(--muted);font-size:0.55rem">(shown in chat header)</span></label>
+          <input class="form-input" id="ag-context" placeholder="e.g. Syrian commercial law context loaded">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">WELCOME_MESSAGE <span style="color:var(--muted);font-size:0.55rem">(first message shown in chat)</span></label>
+          <textarea class="form-textarea" id="ag-welcome" rows="3" placeholder="AGENT_ONLINE&#10;&#10;Context loaded. How can I help you?"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">SYSTEM_PROMPT * <span style="color:var(--muted);font-size:0.55rem">(instructions for the AI)</span></label>
+          <textarea class="form-textarea" id="ag-prompt" rows="8" placeholder="You are an expert in... Your knowledge covers:&#10;- Topic 1&#10;- Topic 2&#10;&#10;Response guidelines:&#10;- Be concise and practical"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">TOPICS <span style="color:var(--muted);font-size:0.55rem">(comma-separated, shown in context panel)</span></label>
+          <input class="form-input" id="ag-topics" placeholder="Company registration, Labor law, Sanctions, ...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">SORT_ORDER <span style="color:var(--muted);font-size:0.55rem">(display order, lower = first)</span></label>
+          <input class="form-input" id="ag-sort" type="number" placeholder="0" value="0">
+        </div>
+        <div class="form-group" style="justify-content:flex-end;padding-top:20px">
+          <div class="form-check">
+            <input type="checkbox" id="ag-active" checked>
+            <label for="ag-active">ACTIVE (visible on /agents/ page)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" data-close="agent-modal">CANCEL</button>
+      <button class="btn-action" id="save-agent-btn">SAVE_AGENT</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div id="confirm-modal" class="modal-overlay">
   <div class="modal-box confirm-box">
@@ -731,6 +805,7 @@ document.querySelectorAll('.nav-item[data-panel]').forEach(item => {
     document.getElementById('panel-' + item.dataset.panel).classList.add('active');
     if (item.dataset.panel === 'companies') loadCompanies();
     if (item.dataset.panel === 'ngos')      loadNGOs();
+    if (item.dataset.panel === 'agents')    loadAgents();
   });
 });
 
@@ -1026,13 +1101,15 @@ function confirmDeleteItem(type, id, name) {
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
   if (!pendingDelete) return;
   const { type, id } = pendingDelete;
-  const { error } = await sb.from(type === 'company' ? 'companies' : 'ngos').delete().eq('id', id);
+  const tableMap = { company: 'companies', ngo: 'ngos', agent: 'agents' };
+  const { error } = await sb.from(tableMap[type] || 'companies').delete().eq('id', id);
   if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
   closeModal('confirm-modal');
   toast('Deleted successfully');
   pendingDelete = null;
   if (type === 'company') { loadCompanies(); loadOverview(); }
-  else                    { loadNGOs(); loadOverview(); }
+  else if (type === 'ngo') { loadNGOs(); loadOverview(); }
+  else if (type === 'agent') { loadAgents(); }
 });
 
 // ── SETTINGS ──────────────────────────────────────────
@@ -1067,6 +1144,102 @@ document.getElementById('clear-btn').addEventListener('click', () => {
     toast('All data cleared');
     loadOverview(); loadCompanies(); loadNGOs();
   });
+});
+
+// ── AGENTS ────────────────────────────────────────────
+let allAgents = [];
+
+async function loadAgents() {
+  const { data, error } = await sb.from('agents').select('*').order('sort_order').order('created_at');
+  if (error) { toast('Failed to load agents: ' + error.message, 'error'); return; }
+  allAgents = data || [];
+  renderAgentsGrid();
+}
+
+function renderAgentsGrid() {
+  const grid = document.getElementById('agents-grid');
+  if (!allAgents.length) {
+    grid.innerHTML = '<div class="ngo-empty" id="agents-empty">No agents configured yet. Click + ADD_AGENT to create your first agent.</div>';
+    return;
+  }
+  grid.innerHTML = allAgents.map(a => `
+    <div class="ngo-card" style="opacity:${a.is_active ? 1 : 0.5}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div class="ngo-card-name">${a.name}</div>
+        <span class="badge ${a.is_active ? 'active' : 'pilot'}">${a.is_active ? 'ACTIVE' : 'INACTIVE'}</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">${a.model || 'anthropic/claude-3-haiku'}</div>
+      ${a.context_label ? `<div class="ngo-card-mission">${a.context_label}</div>` : ''}
+      ${(a.topics||[]).length ? `<div class="ngo-tags">${a.topics.slice(0,4).map(t => `<span class="ngo-tag">${t}</span>`).join('')}${a.topics.length > 4 ? `<span class="ngo-tag">+${a.topics.length-4}</span>` : ''}</div>` : ''}
+      <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);line-height:1.5;max-height:48px;overflow:hidden">
+        ${a.system_prompt ? a.system_prompt.slice(0, 120) + (a.system_prompt.length > 120 ? '...' : '') : ''}
+      </div>
+      <div class="ngo-card-footer">
+        <button class="btn-ghost btn-sm" onclick="editAgent('${a.id}')">EDIT</button>
+        <button class="btn-danger btn-sm" onclick="confirmDeleteItem('agent','${a.id}','${a.name.replace(/'/g,"\\'")}')">DEL</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('add-agent-btn').addEventListener('click', () => {
+  document.getElementById('agent-modal-title').textContent = 'ADD_AGENT';
+  document.getElementById('ag-id').value = '';
+  document.getElementById('ag-name').value    = '';
+  document.getElementById('ag-model').value   = 'anthropic/claude-3-haiku';
+  document.getElementById('ag-context').value = '';
+  document.getElementById('ag-welcome').value = '';
+  document.getElementById('ag-prompt').value  = '';
+  document.getElementById('ag-topics').value  = '';
+  document.getElementById('ag-sort').value    = '0';
+  document.getElementById('ag-active').checked = true;
+  openModal('agent-modal');
+});
+
+function editAgent(id) {
+  const a = allAgents.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('agent-modal-title').textContent = 'EDIT_AGENT';
+  document.getElementById('ag-id').value      = a.id;
+  document.getElementById('ag-name').value    = a.name || '';
+  document.getElementById('ag-model').value   = a.model || 'anthropic/claude-3-haiku';
+  document.getElementById('ag-context').value = a.context_label || '';
+  document.getElementById('ag-welcome').value = a.welcome_message || '';
+  document.getElementById('ag-prompt').value  = a.system_prompt || '';
+  document.getElementById('ag-topics').value  = (a.topics || []).join(', ');
+  document.getElementById('ag-sort').value    = a.sort_order ?? 0;
+  document.getElementById('ag-active').checked = a.is_active !== false;
+  openModal('agent-modal');
+}
+
+document.getElementById('save-agent-btn').addEventListener('click', async () => {
+  const name   = document.getElementById('ag-name').value.trim().toUpperCase();
+  const prompt = document.getElementById('ag-prompt').value.trim();
+  if (!name)   { toast('Agent name is required', 'error'); return; }
+  if (!prompt) { toast('System prompt is required', 'error'); return; }
+  const id = document.getElementById('ag-id').value;
+  const splitClean = v => v.split(',').map(s => s.trim()).filter(Boolean);
+  const data = {
+    name,
+    model:           document.getElementById('ag-model').value.trim() || 'anthropic/claude-3-haiku',
+    context_label:   document.getElementById('ag-context').value.trim() || null,
+    welcome_message: document.getElementById('ag-welcome').value.trim() || null,
+    system_prompt:   prompt,
+    topics:          splitClean(document.getElementById('ag-topics').value),
+    sort_order:      parseInt(document.getElementById('ag-sort').value) || 0,
+    is_active:       document.getElementById('ag-active').checked,
+    updated_at:      new Date().toISOString()
+  };
+  let error;
+  if (id) {
+    ({ error } = await sb.from('agents').update(data).eq('id', id));
+  } else {
+    ({ error } = await sb.from('agents').insert([data]));
+  }
+  if (error) { toast('Save failed: ' + error.message, 'error'); return; }
+  closeModal('agent-modal');
+  toast(id ? 'Agent updated' : 'Agent created');
+  loadAgents();
 });
 
 // ── INIT ──────────────────────────────────────────────
