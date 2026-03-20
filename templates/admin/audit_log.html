@@ -1,0 +1,107 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-text-primary">Audit Log / سجل التدقيق</h1>
+            <p class="text-text-secondary mt-1">Track all system changes and user actions</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-surface rounded-xl shadow-card border border-border p-4 mb-6">
+        <form id="audit-filters" class="flex flex-wrap items-end gap-4"
+            hx-get="/api/audit-log" hx-target="#audit-log-body" hx-trigger="submit" hx-swap="innerHTML">
+            <!-- Date Range -->
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">From</label>
+                <input type="date" name="from_date"
+                    class="input input-bordered input-sm bg-background border-border text-text-primary">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">To</label>
+                <input type="date" name="to_date"
+                    class="input input-bordered input-sm bg-background border-border text-text-primary">
+            </div>
+            <!-- Action Type Filter -->
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Action</label>
+                <select name="action_filter"
+                    class="select select-bordered select-sm bg-background border-border text-text-primary">
+                    <option value="">All Actions</option>
+                    <option value="create">Create</option>
+                    <option value="update">Update</option>
+                    <option value="delete">Delete</option>
+                    <option value="login">Login</option>
+                    <option value="archive">Archive</option>
+                </select>
+            </div>
+            <!-- Search -->
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Search</label>
+                <input type="text" name="search" placeholder="Search..."
+                    class="input input-bordered input-sm bg-background border-border text-text-primary">
+            </div>
+            <button type="submit"
+                class="btn btn-sm bg-accent hover:bg-accent-focus text-primary font-bold">
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Audit Log Table -->
+    <div class="bg-surface rounded-xl shadow-card border border-border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50/50 border-b border-border">
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            Timestamp</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            Actor</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            Action</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            Table</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            Record ID</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-log-body" class="divide-y divide-border">
+                    {% for entry in entries %}
+                    <tr class="hover:bg-background/50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-text-primary font-mono whitespace-nowrap">
+                            {{ entry.timestamp }}</td>
+                        <td class="px-6 py-4 text-sm text-text-primary">
+                            {{ entry.actor.as_deref().unwrap_or("-") }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-2 py-1 rounded text-xs font-bold uppercase
+                                {% if entry.action == "create" %}bg-green-100 text-green-700
+                                {% else if entry.action == "update" %}bg-blue-100 text-blue-700
+                                {% else if entry.action == "delete" %}bg-red-100 text-red-700
+                                {% else if entry.action == "archive" %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ entry.action }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-text-primary font-mono">
+                            {{ entry.table_name }}</td>
+                        <td class="px-6 py-4 text-sm text-text-secondary font-mono">
+                            {{ entry.record_id.as_deref().unwrap_or("-") }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    {% if entries.is_empty() %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-text-secondary">
+                            No audit log entries found.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

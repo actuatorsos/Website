@@ -1,0 +1,322 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_agents_13"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_agents_14"] }}</p>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div
+            class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-2xl p-4 border border-blue-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_agents_15"] }}</p>
+            <p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400" id="kpi-agents">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-2xl p-4 border border-yellow-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_agents_16"] }}</p>
+            <p class="text-2xl font-extrabold text-yellow-600 dark:text-yellow-400" id="kpi-pending">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl p-4 border border-green-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_agents_17"] }}</p>
+            <p class="text-2xl font-extrabold text-green-600 dark:text-green-400" id="kpi-policies">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-2xl p-4 border border-purple-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_agents_18"] }}</p>
+            <p class="text-2xl font-extrabold text-purple-600 dark:text-purple-400" id="kpi-ops">—</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showAgentTab('agents')" id="atab-agents"
+            class="atab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_agents_19"] }}</button>
+        <button onclick="showAgentTab('policies')" id="atab-policies"
+            class="atab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_agents_17"] }}</button>
+        <button onclick="showAgentTab('approvals')" id="atab-approvals"
+            class="atab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_agents_20"] }}</button>
+    </div>
+
+    <!-- Agents Tab -->
+    <div id="atab-content-agents">
+        <div class="flex justify-end mb-4">
+            <button onclick="document.getElementById('agent-modal').classList.remove('hidden')"
+                class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_agents_21"] }}</button>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_name"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["auto_agents_22"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_23"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_24"] }}</th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="agents-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policies Tab -->
+    <div id="atab-content-policies" class="hidden">
+        <div class="flex justify-end mb-4">
+            <button onclick="document.getElementById('policy-modal').classList.remove('hidden')"
+                class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_agents_25"] }}</button>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_26"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["auto_agents_27"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["auto_agents_28"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_29"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_30"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="policies-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approvals Tab -->
+    <div id="atab-content-approvals" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_31"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_26"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_agents_32"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["auto_agents_33"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}
+                            </th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvals-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Modal -->
+    <div id="agent-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_agents_34"] }}</h3>
+                <button onclick="document.getElementById('agent-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <form id="agent-form" class="space-y-4">
+                <input id="ag-name" type="text" placeholder="{{ t["auto_attr_agents_50"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="ag-desc" type="text" placeholder="{{ t["form_description"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="ag-scopes" type="text" placeholder="{{ t["auto_attr_agents_51"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="ag-rate" type="number" placeholder="{{ t["auto_attr_agents_52"] }}" value="100"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90">{{ t["auto_agents_35"] }}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Policy Modal -->
+    <div id="policy-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_agents_36"] }}</h3>
+                <button onclick="document.getElementById('policy-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <form id="policy-form" class="space-y-4">
+                <input id="pol-action" type="text" placeholder="{{ t["auto_attr_agents_53"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="pol-scope" type="text" placeholder="{{ t["auto_attr_agents_54"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <select id="pol-sens"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <option value="routine">{{ t["auto_agents_37"] }}</option>
+                    <option value="sensitive" selected>{{ t["auto_agents_38"] }}</option>
+                    <option value="critical">{{ t["auto_agents_39"] }}</option>
+                </select>
+                <textarea id="pol-desc" rows="2" placeholder="{{ t["auto_attr_agents_55"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none resize-y"></textarea>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90">{{ t["auto_agents_40"] }}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- API Key Display Modal -->
+    <div id="key-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-green-600">{{ t["auto_agents_41"] }}</h3>
+                <button onclick="document.getElementById('key-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <p class="text-sm text-red-500 font-bold mb-3">{{ t["auto_agents_42"] }}</p>
+            <div class="bg-background border border-border rounded-xl p-3 flex items-center gap-2">
+                <code id="api-key-display" class="text-xs font-mono flex-1 break-all text-primary select-all"></code>
+                <button onclick="navigator.clipboard.writeText(document.getElementById('api-key-display').textContent)"
+                    class="text-xs bg-secondary text-white px-3 py-1 rounded-lg hover:bg-secondary/90 shrink-0">{{ t["auto_agents_43"] }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAgentTab(name) {
+        document.querySelectorAll('[id^="atab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.atab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('atab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('atab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'policies') loadPolicies();
+        if (name === 'approvals') loadApprovals();
+    }
+
+    const sensColors = { routine: 'bg-green-100 text-green-700', sensitive: 'bg-yellow-100 text-yellow-700', critical: 'bg-red-100 text-red-700' };
+    const sensLabels = { routine: 'روتينية', sensitive: 'حساسة', critical: 'حرجة' };
+    const statusColors = { pending: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700', expired: 'bg-gray-100 text-gray-700' };
+    const prioColors = { low: 'text-gray-500', normal: 'text-blue-500', high: 'text-orange-500', urgent: 'text-red-600 font-bold' };
+
+    async function loadAgents() {
+        const res = await fetch('/api/agents');
+        const data = await res.json();
+        document.getElementById('kpi-agents').textContent = (data || []).filter(a => a.is_active).length;
+        const tbody = document.getElementById('agents-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_agents_45"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-bold">${r.name}</td>
+        <td class="px-6 py-4 text-xs">${(r.scopes || []).map(s => '<span class="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full mr-1 mb-1">' + s + '</span>').join('')}</td>
+        <td class="px-6 py-4 text-sm">${r.rate_limit}/hr</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.is_active ? 'نشط' : 'معطل'}</span></td>
+        <td class="px-6 py-4 text-xs text-text-secondary">${r.last_used_at?.split('T')[0] || 'لم يُستخدم'}</td>
+        <td class="px-6 py-4"><button onclick="toggleAgent('${r.id?.id || ''}',${!r.is_active})" class="text-xs ${r.is_active ? 'text-red-500' : 'text-green-500'} hover:underline">${r.is_active ? 'تعطيل' : 'تفعيل'}</button></td>
+    </tr>`).join('');
+    }
+
+    async function loadPolicies() {
+        const res = await fetch('/api/agents/policies');
+        const data = await res.json();
+        document.getElementById('kpi-policies').textContent = (data || []).length;
+        const tbody = document.getElementById('policies-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_agents_46"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-mono font-bold">${r.action}</td>
+        <td class="px-6 py-4 text-sm">${r.scope_required}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${sensColors[r.sensitivity] || ''}">${sensLabels[r.sensitivity] || r.sensitivity}</span></td>
+        <td class="px-6 py-4 text-sm">${r.requires_human ? '✅ نعم' : '❌ لا'}</td>
+        <td class="px-6 py-4 text-sm">${r.is_blocked ? '🚫 محظورة' : '—'}</td>
+    </tr>`).join('');
+    }
+
+    async function loadApprovals() {
+        const res = await fetch('/api/agents/approvals');
+        const data = await res.json();
+        document.getElementById('kpi-pending').textContent = (data || []).filter(a => a.status === 'pending').length;
+        const tbody = document.getElementById('approvals-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_agents_47"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm">${r.agent?.id || '—'}</td>
+        <td class="px-6 py-4 text-sm font-mono">${r.action}</td>
+        <td class="px-6 py-4 text-sm">${r.target_table}${r.target_id ? '/' + r.target_id : ''}</td>
+        <td class="px-6 py-4 text-sm ${prioColors[r.priority] || ''}">${r.priority}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColors[r.status] || 'bg-gray-100 text-gray-700'}">${r.status}</span></td>
+        <td class="px-6 py-4 text-xs text-text-secondary">${r.created_at?.split('T')[0] || '—'}</td>
+        <td class="px-6 py-4 flex gap-1">${r.status === 'pending' ? `
+            <button onclick="reviewApproval('${r.id?.id || ''}',true)" class="text-xs bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600">{{ t["auto_agents_48"] }}</button>
+            <button onclick="reviewApproval('${r.id?.id || ''}',false)" class="text-xs bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600">{{ t["auto_agents_49"] }}</button>` : ''}</td>
+    </tr>`).join('');
+    }
+
+    async function toggleAgent(id, active) {
+        if (!id) return;
+        await fetch(`/api/agents/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ is_active: active }) });
+        loadAgents();
+    }
+
+    async function reviewApproval(id, approved) {
+        if (!id) return;
+        await fetch(`/api/agents/approvals/${id}/review`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ approved }) });
+        loadApprovals();
+    }
+
+    document.getElementById('agent-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const scopes = document.getElementById('ag-scopes').value.split(',').map(s => s.trim()).filter(Boolean);
+        const res = await fetch('/api/agents', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: document.getElementById('ag-name').value, description: document.getElementById('ag-desc').value, scopes, rate_limit: parseInt(document.getElementById('ag-rate').value) })
+        });
+        const data = await res.json();
+        document.getElementById('agent-modal').classList.add('hidden');
+        this.reset();
+        if (data.api_key) {
+            document.getElementById('api-key-display').textContent = data.api_key;
+            document.getElementById('key-modal').classList.remove('hidden');
+        }
+        loadAgents();
+    });
+
+    document.getElementById('policy-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/agents/policies', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: document.getElementById('pol-action').value, scope_required: document.getElementById('pol-scope').value,
+                sensitivity: document.getElementById('pol-sens').value, description: document.getElementById('pol-desc').value
+            })
+        });
+        document.getElementById('policy-modal').classList.add('hidden');
+        this.reset(); loadPolicies();
+    });
+
+    loadAgents(); loadPolicies(); loadApprovals();
+</script>
+{% endblock %}

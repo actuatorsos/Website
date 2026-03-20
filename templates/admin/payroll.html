@@ -1,0 +1,162 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_payroll_349"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_payroll_350"] }}</p>
+        </div>
+        <button onclick="generatePayroll()"
+            class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            {{ t["auto_payroll_351"] }}
+        </button>
+    </div>
+
+    <!-- Month Selector -->
+    <div class="bg-surface rounded-2xl p-4 border border-border shadow-card mb-6 flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-text-secondary">{{ t["auto_payroll_352"] }}</label>
+            <input type="month" id="payroll-month"
+                class="bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none"
+                onchange="loadPayroll()">
+        </div>
+        <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-text-secondary">{{ t["auto_payroll_353"] }}</label>
+            <select id="payroll-status" onchange="loadPayroll()"
+                class="bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <option value="">{{ t["auto_leave_288"] }}</option>
+                <option value="draft">{{ t["auto_payroll_354"] }}</option>
+                <option value="approved">{{ t["auto_payroll_355"] }}</option>
+                <option value="paid">{{ t["auto_payroll_356"] }}</option>
+            </select>
+        </div>
+        <button onclick="loadPayroll()"
+            class="bg-secondary/10 text-secondary px-4 py-2 rounded-xl text-sm font-medium hover:bg-secondary/20 transition-colors">
+            {{ t["auto_payroll_357"] }}
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-2xl p-6 border border-blue-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_payroll_358"] }}</p>
+            <p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400" id="total-gross">—</p>
+        </div>
+        <div class="bg-gradient-to-br from-red-500/10 to-red-600/5 rounded-2xl p-6 border border-red-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_payroll_359"] }}</p>
+            <p class="text-2xl font-extrabold text-red-600 dark:text-red-400" id="total-deductions">—</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl p-6 border border-green-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_payroll_360"] }}</p>
+            <p class="text-2xl font-extrabold text-green-600 dark:text-green-400" id="total-net">—</p>
+        </div>
+    </div>
+
+    <!-- Payroll Table -->
+    <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+        <div class="p-6 border-b border-border bg-background/50">
+            <h2 class="text-xl font-bold text-primary">{{ t["auto_payroll_361"] }}</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-background/30 border-b border-border">
+                    <tr>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_employee"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_payroll_362"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_payroll_363"] }}
+                        </th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_payroll_364"] }}
+                        </th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">GOSI</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_payroll_365"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}</th>
+                        <th class="px-6 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody id="payroll-table" class="divide-y divide-border">
+                    <tr>
+                        <td colspan="8" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_payroll_366"] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set current month as default
+    const today = new Date();
+    document.getElementById('payroll-month').value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+
+    async function loadPayroll() {
+        const month = document.getElementById('payroll-month').value;
+        const status = document.getElementById('payroll-status').value;
+        if (!month) return;
+        try {
+            const res = await fetch(`/api/payroll/month/${month}${status ? '?status=' + status : ''}`);
+            const data = await res.json();
+            const tbody = document.getElementById('payroll-table');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_payroll_367"] }}</td></tr>';
+                document.getElementById('total-gross').textContent = '0 ريال';
+                document.getElementById('total-deductions').textContent = '0 ريال';
+                document.getElementById('total-net').textContent = '0 ريال';
+                return;
+            }
+            const statusColors = { draft: 'bg-gray-100 text-gray-700', approved: 'bg-blue-100 text-blue-700', paid: 'bg-green-100 text-green-700' };
+            const statusLabels = { draft: 'مسودة', approved: 'معتمد', paid: 'مدفوع' };
+            let totalGross = 0, totalDed = 0, totalNet = 0;
+            tbody.innerHTML = data.map(r => {
+                const gross = parseFloat(r.base_salary || 0);
+                const ded = parseFloat(r.deductions || 0);
+                const net = parseFloat(r.net_salary || 0);
+                const gosi = parseFloat(r.gosi_employee || 0);
+                totalGross += gross; totalDed += ded; totalNet += net;
+                const st = r.status || 'draft';
+                return `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-medium">${r.employee?.id || '—'}</td>
+        <td class="px-6 py-4 text-sm">${gross.toFixed(2)}</td>
+        <td class="px-6 py-4 text-sm text-green-600">+${(gross + ded + gosi - net).toFixed(2)}</td>
+        <td class="px-6 py-4 text-sm text-red-600">-${ded.toFixed(2)}</td>
+        <td class="px-6 py-4 text-sm text-orange-600">${gosi.toFixed(2)}</td>
+        <td class="px-6 py-4 text-sm font-bold text-primary">${net.toFixed(2)}</td>
+        <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${statusColors[st] || 'bg-gray-100 text-gray-700'}">${statusLabels[st] || st}</span></td>
+        <td class="px-6 py-4">
+          ${st === 'draft' ? `<button onclick="approvePayroll('${r.id?.id || ''}')" class="text-xs bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">{{ t["auto_payroll_369"] }}</button>` : ''}
+        </td>
+      </tr>`;
+            }).join('');
+            document.getElementById('total-gross').textContent = totalGross.toFixed(2) + ' ريال';
+            document.getElementById('total-deductions').textContent = totalDed.toFixed(2) + ' ريال';
+            document.getElementById('total-net').textContent = totalNet.toFixed(2) + ' ريال';
+        } catch (e) { console.error(e); }
+    }
+
+    async function generatePayroll() {
+        const monthSelector = document.getElementById('payroll-month').value;
+        if (!monthSelector) { showToast('اختر الشهر أولاً', 'error'); return; }
+        const [year, m] = monthSelector.split('-');
+        confirmAction(`هل تريد توليد رواتب ${m}/${year} لجميع الموظفين؟`, async function() {
+            const res = await fetch(`/api/payroll/generate`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ month: monthSelector })
+            });
+            const data = await res.json();
+            showToast(`تم توليد ${data.length || 0} كشف راتب`, 'success');
+            loadPayroll();
+        }, { type: 'danger', confirmText: 'تأكيد' });
+    }
+
+    async function approvePayroll(id) {
+        if (!id) return;
+        await fetch(`/api/payroll/${id}/approve`, { method: 'PUT' });
+        loadPayroll();
+    }
+
+    loadPayroll();
+</script>
+{% endblock %}

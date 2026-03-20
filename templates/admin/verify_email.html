@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد البريد الإلكتروني — Actuators</title>
+    <meta name="description" content="Actuators — تأكيد البريد الإلكتروني">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Actuators Brand System ── */
+        :root {
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+            --font-primary-ar: 'IBM Plex Sans Arabic', sans-serif;
+            --font-primary-en: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary-ar);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 16px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-section svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .login-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            padding: 32px;
+        }
+
+        .login-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .error-msg {
+            display: none;
+            background: rgba(255, 106, 42, 0.08);
+            border: 1px solid rgba(255, 106, 42, 0.3);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--activation-orange);
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        .success-msg {
+            display: none;
+            background: rgba(0, 183, 194, 0.08);
+            border: 1px solid rgba(0, 183, 194, 0.3);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--structure-cyan);
+        }
+
+        .success-msg.visible {
+            display: block;
+        }
+
+        /* ── Loading Spinner ── */
+        .verify-loading {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .verify-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--structure-cyan-muted);
+            border-top-color: var(--structure-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .verify-loading-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .structure-line {
+            width: 100%;
+            height: 1px;
+            background: var(--structure-cyan-muted);
+            margin: 24px 0;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .login-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .login-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s linear;
+            font-family: var(--font-primary-ar);
+        }
+
+        .login-links a:hover {
+            color: var(--structure-cyan);
+        }
+
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: 1px solid var(--structure-cyan-muted);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.15s linear;
+        }
+
+        .home-link:hover {
+            border-color: var(--structure-cyan);
+            color: var(--structure-cyan);
+        }
+
+        .assemble {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: assemble 0.3s linear forwards;
+        }
+
+        .assemble-1 { animation-delay: 0.05s; }
+        .assemble-2 { animation-delay: 0.1s; }
+        .assemble-3 { animation-delay: 0.15s; }
+
+        @keyframes assemble {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .corner-marks {
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+        }
+
+        .corner-marks::before,
+        .corner-marks::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--structure-cyan);
+            border-style: solid;
+        }
+
+        .corner-marks::before {
+            top: 0;
+            inset-inline-start: 0;
+            border-width: 1px 0 0 1px;
+        }
+
+        .corner-marks::after {
+            bottom: 0;
+            inset-inline-end: 0;
+            border-width: 0 1px 1px 0;
+        }
+
+        .corner-marks-alt::before {
+            top: 0;
+            inset-inline-end: 0;
+            inset-inline-start: auto;
+            border-width: 1px 1px 0 0;
+        }
+
+        .corner-marks-alt::after {
+            bottom: 0;
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+            border-width: 0 0 1px 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Logo -->
+        <div class="logo-section assemble assemble-1">
+            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
+                <use href="/static/icons.svg#icon-logo"></use>
+            </svg>
+            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
+                <use href="/static/icons.svg#icon-actuator-logo"></use>
+            </svg>
+            <div class="brand-sub">{{ t["auto_login_308"] }}</div>
+        </div>
+
+        <!-- Verify Email Card -->
+        <div class="login-card assemble assemble-2" style="position: relative;">
+            <div class="corner-marks"></div>
+            <div class="corner-marks corner-marks-alt"></div>
+
+            <h2>تأكيد البريد الإلكتروني</h2>
+
+            <!-- Loading -->
+            <div id="verify-loading" class="verify-loading">
+                <div class="verify-spinner"></div>
+                <div class="verify-loading-text">جاري التحقق من بريدك الإلكتروني...</div>
+            </div>
+
+            <!-- Error -->
+            <div id="verify-error" class="error-msg"></div>
+
+            <!-- Success -->
+            <div id="verify-success" class="success-msg"></div>
+
+            <div class="structure-line"></div>
+
+            <!-- Login Link -->
+            <div class="login-links">
+                <a href="/admin/login?lang={{ lang }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-inline-end:4px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    الذهاب لتسجيل الدخول
+                </a>
+            </div>
+        </div>
+
+        <!-- Home Button -->
+        <div style="text-align:center;" class="assemble assemble-3">
+            <a href="/?lang={{ lang }}" class="home-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+                </svg>
+                الصفحة الرئيسية
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer assemble assemble-3">
+            &copy; 2026 Actuators L.L.C
+        </div>
+    </div>
+
+    <script>
+        var verifyToken = '{{ token }}';
+
+        (async function() {
+            const loadingDiv = document.getElementById('verify-loading');
+            const errorDiv = document.getElementById('verify-error');
+            const successDiv = document.getElementById('verify-success');
+
+            try {
+                const res = await fetch('/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: verifyToken }),
+                });
+
+                const data = await res.json();
+                loadingDiv.style.display = 'none';
+
+                if (res.ok) {
+                    successDiv.textContent = 'تم تأكيد بريدك الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.';
+                    successDiv.classList.add('visible');
+                } else {
+                    throw new Error(data.error || 'فشل التحقق من البريد الإلكتروني');
+                }
+            } catch (err) {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                errorDiv.classList.add('visible');
+            }
+        })();
+    </script>
+</body>
+
+</html>

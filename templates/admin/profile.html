@@ -1,0 +1,235 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-4xl mx-auto animate-fade-in">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-primary">{{ t["profile_title"] }}</h1>
+        <p class="text-text-secondary mt-1">{{ t["profile_subtitle"] }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Avatar Section -->
+        <div class="md:col-span-1">
+            <div class="bg-surface rounded-2xl shadow-card p-6 border border-border text-center">
+                <div
+                    class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white font-bold text-4xl shadow-lg mb-4 overflow-hidden relative group">
+                    {% match account.avatar %}
+                    {% when Some with (avatar_string) %}
+                    {% if avatar_string.len() > 0 %}
+                    <img src="{{ avatar_string }}" class="w-full h-full object-cover">
+                    {% endif %}
+                    {% when None %}
+                    {{ user_email.chars().next().unwrap_or('A').to_uppercase() }}
+                    {% endmatch %}
+
+                    <button type="button" onclick="document.getElementById('avatar-modal').classList.remove('hidden')"
+                        class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-colors">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+                <h3 class="font-bold text-lg text-text-primary">{{ user_email }}</h3>
+                <p class="text-sm text-text-secondary uppercase tracking-wider mt-1">{{ user_role }}</p>
+            </div>
+        </div>
+
+        <!-- Password Update Section -->
+        <div class="md:col-span-2 space-y-6">
+            <div class="bg-surface rounded-2xl shadow-card p-6 border border-border">
+                <h3 class="text-xl font-bold text-primary mb-6">{{ t["change_password"] }}</h3>
+
+                <form id="password-form" onsubmit="updatePassword(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["current_password"]
+                            }}</label>
+                        <input type="password" id="current_password" required
+                            class="w-full px-4 py-2 bg-background border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary transition-smooth">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["new_password"]
+                            }}</label>
+                        <input type="password" id="new_password" required minlength="8"
+                            class="w-full px-4 py-2 bg-background border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary transition-smooth">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["confirm_password"]
+                            }}</label>
+                        <input type="password" id="confirm_password" required minlength="8"
+                            class="w-full px-4 py-2 bg-background border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary transition-smooth">
+                    </div>
+
+                    <div id="password-error"
+                        class="hidden p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">
+                    </div>
+                    <div id="password-success"
+                        class="hidden p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm">
+                        {{ t["password_updated"] }}</div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" id="password-submit-btn"
+                            class="px-6 py-2 bg-primary text-white hover:bg-secondary rounded-lg font-medium shadow-md shadow-primary/20 transition-all flex items-center gap-2">
+                            <span>{{ t["save_changes"] }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block modals %}
+<!-- Avatar Modal -->
+<div id="avatar-modal"
+    class="fixed inset-0 bg-black/50 z-[9999] hidden items-center justify-center backdrop-blur-sm transition-opacity">
+    <div
+        class="bg-surface rounded-2xl shadow-2xl border border-border w-full max-w-md overflow-hidden transform transition-all p-6">
+        <h3 class="text-xl font-bold text-primary mb-4">{{ t["update_avatar"] }}</h3>
+        <form id="avatar-form" onsubmit="updateAvatar(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-text-secondary mb-1">{% if lang == "ar" %}اختر صورة{% else
+                    %}Choose an image{% endif %}</label>
+                <input type="file" id="avatar_file" accept="image/*" required
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg text-text-primary focus:ring-2 focus:ring-secondary focus:border-secondary transition-smooth file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                <p class="text-xs text-text-secondary mt-2">{% if lang == "ar" %}سيتم تصغير الصورة تلقائياً لضمان الأداء
+                    ومراعاة المساحة.{% else %}Image will be automatically resized for better performance.{% endif %}</p>
+            </div>
+
+            <div id="avatar-error" class="hidden p-3 rounded-lg bg-red-100 text-red-600 text-sm"></div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-border mt-6">
+                <button type="button" onclick="document.getElementById('avatar-modal').classList.add('hidden')"
+                    class="px-4 py-2 text-text-secondary hover:bg-background border border-border rounded-lg transition-colors">
+                    {{ t["cancel"] }}
+                </button>
+                <button type="submit" id="avatar-submit-btn"
+                    class="px-4 py-2 bg-primary text-white hover:bg-secondary rounded-lg shadow-md shadow-primary/20 transition-colors flex items-center gap-2">
+                    {{ t["save"] }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    async function updatePassword(e) {
+        e.preventDefault();
+        const btn = document.getElementById('password-submit-btn');
+        const err = document.getElementById('password-error');
+        const succ = document.getElementById('password-success');
+
+        err.classList.add('hidden');
+        succ.classList.add('hidden');
+
+        const cur_pass = document.getElementById('current_password').value;
+        const new_pass = document.getElementById('new_password').value;
+        const conf_pass = document.getElementById('confirm_password').value;
+
+        if (new_pass !== conf_pass) {
+            err.textContent = '{{ t["passwords_do_not_match"] }}';
+            err.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>';
+
+        try {
+            const res = await fetch('/api/accounts/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ current_password: cur_pass, new_password: new_pass })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to update');
+
+            succ.classList.remove('hidden');
+            document.getElementById('password-form').reset();
+        } catch (error) {
+            err.textContent = error.message;
+            err.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span>{{ t["save_changes"] }}</span>';
+        }
+    }
+
+    async function updateAvatar(e) {
+        e.preventDefault();
+        const btn = document.getElementById('avatar-submit-btn');
+        const err = document.getElementById('avatar-error');
+        const fileInput = document.getElementById('avatar_file');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            err.textContent = 'Please select a file';
+            err.classList.remove('hidden');
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        err.classList.add('hidden');
+        btn.disabled = true;
+        btn.innerHTML = '...';
+
+        try {
+            // Resize and convert to base64
+            const base64Avatar = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 256;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+
+            const res = await fetch('/api/accounts/profile', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatar: base64Avatar })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to update');
+
+            window.location.reload();
+        } catch (error) {
+            err.textContent = error.message;
+            err.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = '{{ t["save"] }}';
+        }
+    }
+</script>
+{% endblock %}

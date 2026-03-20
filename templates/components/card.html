@@ -1,0 +1,13 @@
+{# DaisyUI Card Component #}
+{# Usage: {% include "components/card.html" %} with card_title, card_content #}
+
+<div class="card bg-base-200 shadow-xl">
+    <div class="card-body">
+        {% if card_title %}
+        <h2 class="card-title text-primary">{{ card_title }}</h2>
+        {% endif %}
+        <div class="text-base-content">
+            {{ card_content|safe }}
+        </div>
+    </div>
+</div>

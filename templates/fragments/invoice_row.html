@@ -1,0 +1,39 @@
+<tr class="border-b border-gray-700/30 hover:bg-white/5 transition-all duration-200"
+    id="invoice-{{ invoice.id_string() }}">
+    <td class="p-4 font-mono text-accent">{{ invoice.invoice_number }}</td>
+    <td class="p-4">{{ invoice.client_name.as_deref().unwrap_or("-") }}</td>
+    <td class="p-4">{{ invoice.invoice_date }}</td>
+    <td class="p-4">{{ invoice.due_date.as_deref().unwrap_or("-") }}</td>
+    <td class="p-4 font-bold">{{ invoice.total_display() }}</td>
+    <td class="p-4">{{ invoice.balance_display() }}</td>
+    <td class="p-4">
+        <span class="px-2 py-1 rounded-none border border-current text-xs font-semibold {{ invoice.status_class() }}">
+            {{ invoice.status }}
+        </span>
+    </td>
+    <td class="p-4">
+        <div class="flex gap-2">
+            {% if invoice.is_draft() %}
+            <form hx-post="/api/invoices/{{ invoice.id_string() }}/status"
+                hx-target="#invoice-{{ invoice.id_string() }}" hx-swap="outerHTML">
+                <input type="hidden" name="status" value="sent">
+                <button type="submit" class="text-blue-400 hover:text-blue-300 text-sm" title="إرسال">
+                    📤
+                </button>
+            </form>
+            <button hx-delete="/api/invoices/{{ invoice.id_string() }}" hx-target="#invoice-{{ invoice.id_string() }}"
+                hx-swap="outerHTML" hx-confirm="هل أنت متأكد من حذف هذه الفاتورة؟"
+                class="text-red-400 hover:text-red-300 text-sm" title="حذف">
+                <span class="font-tech text-red-500">[X]</span>
+            </button>
+            {% endif %}
+            {% if invoice.can_pay() %}
+            <button data-invoice-id="{{ invoice.id_string() }}" data-balance="{{ invoice.balance }}"
+                onclick="openPaymentModal(this.dataset.invoiceId, parseFloat(this.dataset.balance))"
+                class="text-green-400 hover:text-green-300 text-sm" title="تسجيل دفعة">
+                💰
+            </button>
+            {% endif %}
+        </div>
+    </td>
+</tr>

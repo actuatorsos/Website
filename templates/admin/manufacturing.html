@@ -1,0 +1,225 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_manufacturing_310"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_manufacturing_311"] }}</p>
+        </div>
+        <button onclick="document.getElementById('po-modal').classList.remove('hidden')"
+            class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            {{ t["auto_manufacturing_312"] }}
+        </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showMfgTab('orders')" id="mfgtab-orders"
+            class="mfgtab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_manufacturing_313"] }}</button>
+        <button onclick="showMfgTab('bom')" id="mfgtab-bom"
+            class="mfgtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_manufacturing_314"] }}</button>
+    </div>
+
+    <!-- Production Orders Tab -->
+    <div id="mfgtab-content-orders">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_manufacturing_315"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_manufacturing_316"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">BOM
+                            </th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-text-secondary uppercase">{{ t["table_quantity"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_manufacturing_317"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="prod-orders-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOM Tab -->
+    <div id="mfgtab-content-bom" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Add BOM -->
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_manufacturing_318"] }}</h2>
+                <form id="bom-form" class="space-y-3">
+                    <input id="b-product" type="text" placeholder="{{ t["auto_attr_manufacturing_335"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    <input id="b-title" type="text" placeholder="{{ t["auto_attr_manufacturing_336"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="b-labor" type="number" step="0.01" placeholder="{{ t["auto_attr_manufacturing_337"] }}"
+                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                        <input id="b-overhead" type="number" step="0.01" placeholder="{{ t["auto_attr_manufacturing_338"] }}"
+                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["auto_manufacturing_319"] }}</button>
+                </form>
+            </div>
+
+            <!-- BOM List -->
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-4 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_manufacturing_320"] }}</h2>
+                </div>
+                <div id="bom-list" class="divide-y divide-border">
+                    <div class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Production Order Modal -->
+    <div id="po-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_manufacturing_312"] }}</h3>
+                <button onclick="document.getElementById('po-modal').classList.add('hidden')"
+                    class="text-text-secondary">✕</button>
+            </div>
+            <form id="po-form" class="space-y-4">
+                <input id="po-product" type="text" placeholder="{{ t["auto_attr_manufacturing_335"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="po-bom" type="text" placeholder="{{ t["auto_attr_manufacturing_339"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="po-qty" type="number" min="1" placeholder="{{ t["auto_attr_manufacturing_340"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs text-text-secondary block mb-1">{{ t["auto_manufacturing_321"] }}</label>
+                        <input id="po-start" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div><label class="text-xs text-text-secondary block mb-1">{{ t["auto_manufacturing_322"] }}</label>
+                        <input id="po-end" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <select id="po-priority"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <option value="low">{{ t["auto_manufacturing_323"] }}</option>
+                    <option value="medium" selected>{{ t["auto_manufacturing_324"] }}</option>
+                    <option value="high">{{ t["auto_manufacturing_325"] }}</option>
+                    <option value="urgent">{{ t["auto_manufacturing_326"] }}</option>
+                </select>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_manufacturing_327"] }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showMfgTab(name) {
+        document.querySelectorAll('[id^="mfgtab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.mfgtab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('mfgtab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('mfgtab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'bom') loadBoms();
+    }
+
+    const statusColors = { draft: 'bg-gray-100 text-gray-700', in_production: 'bg-blue-100 text-blue-700', completed: 'bg-green-100 text-green-700', cancelled: 'bg-red-100 text-red-700' };
+    const statusLabels = { draft: 'مسودة', in_production: 'قيد الإنتاج', completed: 'مكتمل', cancelled: 'ملغى' };
+    const priorityColors = { low: 'text-gray-500', medium: 'text-yellow-600', high: 'text-orange-600', urgent: 'text-red-600' };
+
+    async function loadProductionOrders() {
+        const res = await fetch('/api/manufacturing/production-orders');
+        const data = await res.json();
+        const tbody = document.getElementById('prod-orders-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_manufacturing_329"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => {
+            const st = r.status || 'draft';
+            return `<tr class="hover:bg-background/50 transition-colors">
+      <td class="px-6 py-4 text-sm font-mono font-bold">${r.order_number || '—'}</td>
+      <td class="px-6 py-4 text-sm">${r.product?.id || '—'}</td>
+      <td class="px-6 py-4 text-sm text-text-secondary">${r.bom?.id || '—'}</td>
+      <td class="px-6 py-4 text-center font-bold text-primary">${r.quantity || 0}</td>
+      <td class="px-6 py-4 text-sm">${r.planned_start?.split('T')[0] || '—'}</td>
+      <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColors[st] || 'bg-gray-100 text-gray-700'}">${statusLabels[st] || st}</span></td>
+      <td class="px-6 py-4 flex gap-1">
+        ${st === 'draft' ? `<button onclick="consumeMaterials('${r.id?.id || ''}')" class="text-xs bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 whitespace-nowrap">{{ t["auto_manufacturing_330"] }}</button>` : ''}
+        ${st === 'in_production' ? `<button onclick="completeOrder('${r.id?.id || ''}')" class="text-xs bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">{{ t["auto_manufacturing_331"] }}</button>` : ''}
+      </td>
+    </tr>`;
+        }).join('');
+    }
+
+    async function loadBoms() {
+        const res = await fetch('/api/manufacturing/bom');
+        const data = await res.json();
+        const list = document.getElementById('bom-list');
+        if (!data || data.length === 0) { list.innerHTML = '<div class="px-6 py-8 text-center text-text-secondary">{{ t["auto_manufacturing_332"] }}</div>'; return; }
+        list.innerHTML = data.map(b => `<div class="px-6 py-4 hover:bg-background/50 transition-colors">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="font-semibold text-primary">${b.title || '—'}</p>
+        <p class="text-xs text-text-secondary mt-0.5">{{ t["auto_manufacturing_333"] }} <span class="font-mono">${b.bom_number || '—'}</span> · المنتج: ${b.product?.id || '—'}</p>
+      </div>
+      <span class="px-2 py-1 text-xs font-bold rounded-full ${b.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">${b.status || '—'}</span>
+    </div>
+  </div>`).join('');
+    }
+
+    async function consumeMaterials(id) {
+        if (!id) return;
+        confirmAction('سيتم خصم المواد من المخزون تلقائياً. متابعة؟', async function() {
+            const res = await fetch('/api/manufacturing/production-orders/' + id + '/consume', { method: 'POST' });
+            const data = await res.json();
+            showToast('تم خصم ' + (Array.isArray(data) ? data.length : 0) + ' مادة من المخزون', 'success');
+            loadProductionOrders();
+        }, { type: 'danger', confirmText: 'تأكيد' });
+    }
+
+    async function completeOrder(id) {
+        if (!id) return;
+        await fetch('/api/manufacturing/production-orders/' + id + '/status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'completed' }) });
+        loadProductionOrders();
+    }
+
+    document.getElementById('po-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/manufacturing/production-orders', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                product_id: document.getElementById('po-product').value, bom_id: document.getElementById('po-bom').value,
+                quantity: parseInt(document.getElementById('po-qty').value), planned_start: document.getElementById('po-start').value,
+                planned_end: document.getElementById('po-end').value, priority: document.getElementById('po-priority').value
+            })
+        });
+        document.getElementById('po-modal').classList.add('hidden'); this.reset(); loadProductionOrders();
+    });
+
+    document.getElementById('bom-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/manufacturing/bom', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                product_id: document.getElementById('b-product').value, title: document.getElementById('b-title').value,
+                labor_cost: parseFloat(document.getElementById('b-labor').value || 0), overhead_cost: parseFloat(document.getElementById('b-overhead').value || 0)
+            })
+        });
+        this.reset(); loadBoms();
+    });
+
+    loadProductionOrders();
+</script>
+{% endblock %}

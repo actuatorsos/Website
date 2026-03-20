@@ -1,0 +1,96 @@
+{# Bar Chart Component with ApexCharts + HTMX #}
+{# Usage: Include in dashboard for employee workload, repairs by month, etc. #}
+
+<div class="card bg-base-200 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-primary">{{ chart_title }}</h2>
+        <div id="{{ chart_id }}" class="h-80" hx-get="{{ chart_endpoint }}" hx-trigger="load, every 60s" hx-swap="none"
+            hx-on::after-request="renderBarChart_{{ chart_id }}(event.detail.xhr.responseText)">
+            <!-- Chart renders here -->
+            <div class="flex items-center justify-center h-full">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let barChart_{{ chart_id }};
+
+    function renderBarChart_{ { chart_id } } (jsonResponse) {
+        try {
+            const data = JSON.parse(jsonResponse);
+            const container = document.querySelector("#{{ chart_id }}");
+
+            // Clear loading state
+            container.innerHTML = '';
+
+            const options = {
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    background: 'transparent',
+                    foreColor: '#a6adbb',
+                    toolbar: { show: false }
+                },
+                series: [{
+                    name: '{{ chart_title }}',
+                    data: data.values
+                }],
+                xaxis: {
+                    categories: data.labels,
+                    labels: {
+                        style: {
+                            fontFamily: 'Alexandria, sans-serif'
+                        }
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            fontFamily: 'Alexandria, sans-serif'
+                        }
+                    }
+                },
+                theme: {
+                    mode: 'dark'
+                },
+                colors: ['#00d9ff'],
+                plotOptions: {
+                    bar: {
+                        borderRadius: 8,
+                        horizontal: false,
+                        columnWidth: '60%',
+                        distributed: true
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                legend: {
+                    show: false
+                },
+                grid: {
+                    borderColor: '#374151',
+                    strokeDashArray: 4
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: { height: 250 }
+                    }
+                }]
+            };
+
+            if (!barChart_{ { chart_id } }) {
+            barChart_{ { chart_id } } = new ApexCharts(container, options);
+            barChart_{ { chart_id } }.render();
+            } else {
+            barChart_{ { chart_id } }.updateSeries([{ data: data.values }]);
+            barChart_{ { chart_id } }.updateOptions({ xaxis: { categories: data.labels } });
+            }
+        } catch (e) {
+            console.error('Bar chart render error:', e);
+        }
+    }
+</script>

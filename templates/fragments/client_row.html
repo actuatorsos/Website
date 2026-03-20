@@ -1,0 +1,40 @@
+<tr class="hover:bg-surface border-l-2 border-l-transparent hover:border-l-cyan-struct transition-none transition-none group cursor-pointer" id="client-{{ client.id_string() }}"
+    onclick="window.location.href='/admin/documents/client/{{ client.id_string() }}'">
+    <td class="px-6 py-4 text-primary font-medium">{{ client.company_name }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ client.contact_display() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ client.email_display() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ client.phone_display() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ client.address_display() }}</td>
+    <td class="px-6 py-4">
+        <span class="px-3 py-1 rounded-none border border-current text-xs font-bold {{ client.status_class() }}">
+            {{ client.status }}
+        </span>
+    </td>
+    <td class="px-6 py-4">
+        <div class="flex gap-2">
+            {% if client.is_pending() %}
+            <form hx-post="/api/clients/{{ client.id_string() }}/status" hx-target="#client-{{ client.id_string() }}"
+                hx-swap="outerHTML">
+                <input type="hidden" name="status" value="active">
+                <button type="submit" class="text-green-500 hover:text-green-400 text-sm" title="تفعيل">
+                    <span class="font-tech">[Y]</span>
+                </button>
+            </form>
+            {% endif %}
+            {% if client.is_active() %}
+            <form hx-post="/api/clients/{{ client.id_string() }}/status" hx-target="#client-{{ client.id_string() }}"
+                hx-swap="outerHTML">
+                <input type="hidden" name="status" value="inactive">
+                <button type="submit" class="text-yellow-500 hover:text-yellow-400 text-sm" title="تعطيل">
+                    <span class="font-tech">[P]</span>
+                </button>
+            </form>
+            {% endif %}
+            <button hx-delete="/api/clients/{{ client.id_string() }}" hx-target="#client-{{ client.id_string() }}"
+                hx-swap="outerHTML" hx-confirm="هل أنت متأكد من حذف هذا العميل؟"
+                class="text-red-400 hover:text-red-300 text-sm" title="حذف">
+                <span class="font-tech text-red-500">[X]</span>
+            </button>
+        </div>
+    </td>
+</tr>

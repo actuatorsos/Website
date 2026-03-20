@@ -1,0 +1,237 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["invoices_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["invoices_subtitle"] }}</p>
+        </div>
+    </div>
+
+    <!-- Add Invoice Form -->
+    <div class="bg-surface rounded-lg shadow-card p-8 mb-8 border border-border">
+        <h2 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+            </svg>
+            {{ t["add_invoice"] }}
+        </h2>
+
+        <form hx-post="/api/invoices" hx-target="#invoices-table tbody" hx-swap="afterbegin"
+            hx-on::after-request="this.reset(); document.getElementById('items-container').innerHTML = itemTemplate();"
+            id="invoice-form">
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_customer_id"] }}</label>
+                    <select name="client_id" required id="client-select"
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                        <option value="">{{ t["form_select_client"] }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_invoice_date"] }}</label>
+                    <input type="date" name="invoice_date" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_due_date"] }}</label>
+                    <input type="date" name="due_date"
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_tax_rate"] }} (%)</label>
+                    <input type="number" name="tax_rate" step="0.01" value="0" min="0" max="100"
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                </div>
+            </div>
+
+            <!-- Invoice Items -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-primary">{{ t["invoice_items"] }}</h3>
+                    <button type="button" onclick="addItem()"
+                        class="bg-accent/20 text-accent px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-accent/30 transition-all">
+                        + {{ t["add_item"] }}
+                    </button>
+                </div>
+
+                <div class="bg-background/50 rounded-lg border border-border">
+                    <div
+                        class="grid grid-cols-12 gap-2 p-3 border-b border-border bg-gray-50/50 text-sm font-bold text-text-secondary">
+                        <div class="col-span-5">{{ t["table_description"] }}</div>
+                        <div class="col-span-2">{{ t["table_quantity"] }}</div>
+                        <div class="col-span-3">{{ t["table_unit_price"] }}</div>
+                        <div class="col-span-2"></div>
+                    </div>
+                    <div id="items-container">
+                        <!-- First item row -->
+                        <div class="grid grid-cols-12 gap-2 p-3 border-b border-border/50 item-row">
+                            <div class="col-span-5">
+                                <input type="text" name="item_description" required placeholder="..."
+                                    class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+                            </div>
+                            <div class="col-span-2">
+                                <input type="number" name="item_quantity" step="0.01" value="1" min="0.01" required
+                                    class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+                            </div>
+                            <div class="col-span-3">
+                                <input type="number" name="item_unit_price" step="0.01" min="0" required
+                                    class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+                            </div>
+                            <div class="col-span-2 flex items-center justify-center">
+                                <button type="button" onclick="removeItem(this)"
+                                    class="text-red-400 hover:text-red-300 text-lg">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_notes"] }}</label>
+                <textarea name="notes" rows="2"
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"></textarea>
+            </div>
+
+            <button type="submit"
+                class="bg-primary hover:bg-primary/90 text-white px-8 py-2.5 rounded-lg font-bold transition-all">
+                {{ t["form_create_invoice"] }}
+            </button>
+        </form>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="bg-surface rounded-lg shadow-card overflow-hidden border border-border">
+        <div class="p-6 border-b border-border bg-gray-50/50">
+            <h2 class="text-xl font-bold text-primary">{{ t["invoices_list"] }}</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="invoices-table" class="w-full">
+                <thead class="bg-gray-50/50">
+                    <tr>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{
+                            t["table_invoice_number"] }}</th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_customer"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["form_invoice_date"]
+                            }}</th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["form_due_date"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_total"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_balance"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_status"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_actions"] }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border" hx-get="/api/invoices" hx-trigger="load">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
+    style="display:none;">
+    <div class="bg-surface rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 border border-border">
+        <h3 class="text-xl font-bold text-primary mb-6">{{ t["record_payment"] }}</h3>
+        <form id="payment-form" hx-swap="outerHTML">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["payment_amount"] }}</label>
+                <input type="number" name="amount" step="0.01" min="0.01" required id="payment-amount"
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                <p class="text-sm text-text-secondary mt-1" id="payment-balance-hint"></p>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                    {{ t["confirm_payment"] }}
+                </button>
+                <button type="button" onclick="closePaymentModal()"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-bold transition-all">
+                    {{ t["cancel"] }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function itemTemplate() {
+        return `<div class="grid grid-cols-12 gap-2 p-3 border-b border-border/50 item-row">
+        <div class="col-span-5">
+            <input type="text" name="item_description" required placeholder="{{ t["form_description"] }}"
+                class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+        </div>
+        <div class="col-span-2">
+            <input type="number" name="item_quantity" step="0.01" value="1" min="0.01" required
+                class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+        </div>
+        <div class="col-span-3">
+            <input type="number" name="item_unit_price" step="0.01" min="0" required
+                class="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none text-sm">
+        </div>
+        <div class="col-span-2 flex items-center justify-center">
+            <button type="button" onclick="removeItem(this)" class="text-red-400 hover:text-red-300 text-lg">✕</button>
+        </div>
+    </div>`;
+    }
+
+    function addItem() {
+        document.getElementById('items-container').insertAdjacentHTML('beforeend', itemTemplate());
+    }
+
+    function removeItem(btn) {
+        const rows = document.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+            btn.closest('.item-row').remove();
+        }
+    }
+
+    function openPaymentModal(invoiceId, balance) {
+        const modal = document.getElementById('payment-modal');
+        const form = document.getElementById('payment-form');
+        const hint = document.getElementById('payment-balance-hint');
+        const amountInput = document.getElementById('payment-amount');
+
+        form.setAttribute('hx-post', '/api/invoices/' + invoiceId + '/payment');
+        form.setAttribute('hx-target', '#invoice-' + invoiceId);
+        htmx.process(form);
+
+        amountInput.max = balance;
+        hint.textContent = 'المبلغ المتبقي: ' + balance.toFixed(2);
+        modal.style.display = 'flex';
+    }
+
+    function closePaymentModal() {
+        document.getElementById('payment-modal').style.display = 'none';
+    }
+    async function loadClients() {
+        try {
+            const res = await fetch('/api/invoices/clients-json');
+            const data = await res.json();
+            const select = document.getElementById('client-select');
+            if (!Array.isArray(data) || data.length === 0) {
+                select.innerHTML = '<option value="">{{ t["auto_invoices_279"] }}</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">{{ t["auto_invoices_280"] }}</option>' +
+                data.map(c => `<option value="${c.id?.id || c.id}">${c.name || '—'}</option>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    loadClients();
+</script>
+{% endblock %}

@@ -1,0 +1,341 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_compliance_87"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_compliance_88"] }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showCompTab('warnings')" id="ctab-warnings"
+            class="ctab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_compliance_89"] }}</button>
+        <button onclick="showCompTab('eos')" id="ctab-eos"
+            class="ctab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_compliance_90"] }}</button>
+        <button onclick="showCompTab('overtime')" id="ctab-overtime"
+            class="ctab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_compliance_91"] }}</button>
+    </div>
+
+    <!-- Warnings Tab -->
+    <div id="ctab-content-warnings">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_compliance_92"] }}</h2>
+                <form id="warning-form" class="space-y-4">
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["table_employee"] }}</label>
+                        <select id="w-emp" required
+                            class="emp-select w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                            <option value="">{{ t["loading"] }}</option>
+                        </select>
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_compliance_93"] }}</label>
+                        <select id="w-type"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                            <option value="verbal">{{ t["auto_compliance_94"] }}</option>
+                            <option value="written_1">{{ t["auto_compliance_95"] }}</option>
+                            <option value="written_2">{{ t["auto_compliance_96"] }}</option>
+                            <option value="final">{{ t["auto_compliance_97"] }}</option>
+                        </select>
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_compliance_98"] }}</label>
+                        <textarea id="w-reason" rows="3"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none resize-none"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-red-500 text-white rounded-xl py-2.5 font-semibold hover:bg-red-600 transition-colors">{{ t["auto_compliance_99"] }}</button>
+                </form>
+            </div>
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-6 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_compliance_100"] }}</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-background/30 border-b border-border">
+                            <tr>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["table_employee"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_compliance_101"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_compliance_98"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["table_date"] }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warnings-table" class="divide-y divide-border">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EOS Calculator Tab -->
+    <div id="ctab-content-eos" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_compliance_102"] }}</h2>
+                <div class="space-y-4">
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["table_employee"] }}</label>
+                        <select id="eos-emp" required
+                            class="emp-select w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                            <option value="">{{ t["loading"] }}</option>
+                        </select>
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_compliance_103"] }}</label>
+                        <input id="eos-date" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_compliance_104"] }}</label>
+                        <select id="eos-reason"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                            <option value="resignation">{{ t["auto_compliance_105"] }}</option>
+                            <option value="termination">{{ t["auto_compliance_106"] }}</option>
+                            <option value="retirement">{{ t["auto_compliance_107"] }}</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateEos()"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_compliance_108"] }}</button>
+                </div>
+            </div>
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_compliance_109"] }}</h2>
+                <div id="eos-result" class="flex items-center justify-center h-40 text-text-secondary">
+                    {{ t["auto_compliance_110"] }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overtime Tab -->
+    <div id="ctab-content-overtime" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_compliance_111"] }}</h2>
+                <form id="overtime-form" class="space-y-4">
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["table_employee"] }}</label>
+                        <select id="ot-emp" required
+                            class="emp-select w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                            <option value="">{{ t["loading"] }}</option>
+                        </select>
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["form_total_hours"] }}</label>
+                        <input id="ot-hours" type="number" min="1"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div><label class="text-sm font-medium text-text-secondary block mb-1">{{ t["table_date"] }}</label>
+                        <input id="ot-date" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_compliance_112"] }}</button>
+                </form>
+            </div>
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-6 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_compliance_113"] }}</h2>
+                </div>
+                <div id="overtime-list" class="p-6 text-center text-text-secondary">{{ t["loading"] }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showToast(msg, type) {
+        const t = document.createElement('div');
+        t.className = type === 'success' ? 'toast-success' : 'toast-error';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    }
+
+    function showCompTab(name) {
+        document.querySelectorAll('[id^="ctab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.ctab').forEach(btn => {
+            btn.classList.remove('border-secondary', 'text-secondary');
+            btn.classList.add('border-transparent', 'text-text-secondary');
+        });
+        document.getElementById('ctab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('ctab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary');
+        btn.classList.remove('border-transparent', 'text-text-secondary');
+    }
+
+    function empName(emp) {
+        if (!emp) return '—';
+        if (typeof emp === 'object' && emp.name) return emp.name;
+        if (typeof emp === 'string') return emp.replace(/^employee:/, '');
+        return '—';
+    }
+
+    function thingId(thing) {
+        if (!thing) return '';
+        if (typeof thing === 'object' && thing.tb) return thing.tb + ':' + (thing.id || thing.Id || '');
+        if (typeof thing === 'object') return thing.id || thing.Id || '';
+        return String(thing);
+    }
+
+    async function loadWarnings() {
+        const tbody = document.getElementById('warnings-table');
+        try {
+            const res = await fetch('/api/compliance/warnings', { credentials: 'include' });
+            if (!res.ok) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">{{ t["auto_compliance_114"] }}</td></tr>';
+                return;
+            }
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_compliance_114"] }}</td></tr>'; return;
+            }
+            const typeLabels = { verbal: 'شفهي', written_1: 'كتابي أول', written_2: 'كتابي ثاني', final: 'نهائي' };
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+      <td class="px-6 py-4 text-sm">${empName(r.employee)}</td>
+      <td class="px-6 py-4 text-sm"><span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">${typeLabels[r.warning_type] || r.warning_type || '—'}</span></td>
+      <td class="px-6 py-4 text-sm">${r.description || '—'}</td>
+      <td class="px-6 py-4 text-sm text-text-secondary">${r.created_at ? r.created_at.split('T')[0] : '—'}</td>
+    </tr>`).join('');
+        } catch (e) {
+            console.error('loadWarnings error:', e);
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">{{ t["auto_compliance_114"] }}</td></tr>';
+        }
+    }
+
+    async function loadEmployeesDropdown() {
+        const selects = document.querySelectorAll('.emp-select');
+        try {
+            const res = await fetch('/api/employees', { credentials: 'include' });
+            if (!res.ok) {
+                selects.forEach(s => s.innerHTML = '<option value="">{{ t["auto_compliance_116"] }}</option>');
+                return;
+            }
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                selects.forEach(s => s.innerHTML = '<option value="">{{ t["auto_compliance_116"] }}</option>');
+                return;
+            }
+            const options = '<option value="">{{ t["auto_compliance_117"] }}</option>' +
+                data.map(e => `<option value="${thingId(e.id)}">${e.name || '—'}</option>`).join('');
+            selects.forEach(s => s.innerHTML = options);
+        } catch (e) {
+            console.error('loadEmployeesDropdown error:', e);
+            selects.forEach(s => s.innerHTML = '<option value="">{{ t["auto_compliance_116"] }}</option>');
+        }
+    }
+
+    async function calculateEos() {
+        const empId = document.getElementById('eos-emp').value;
+        const terminationDate = document.getElementById('eos-date').value;
+        const reason = document.getElementById('eos-reason').value;
+        const div = document.getElementById('eos-result');
+        if (!empId || !terminationDate) { showToast('أدخل رقم الموظف والتاريخ', 'error'); return; }
+        try {
+            const res = await fetch('/api/compliance/eos/calculate', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                body: JSON.stringify({ employee_id: empId, termination_date: terminationDate, termination_type: reason })
+            });
+            const data = await res.json();
+            if (!res.ok) { div.innerHTML = `<p class="text-red-500">${data.message || 'حدث خطأ'}</p>`; return; }
+            div.innerHTML = `
+    <div class="space-y-3 w-full">
+      <div class="flex justify-between border-b border-border pb-2"><span class="text-text-secondary">{{ t["auto_compliance_119"] }}</span><span class="font-bold text-primary">${parseFloat(data.total_years || 0).toFixed(2)} سنة</span></div>
+      <div class="flex justify-between border-b border-border pb-2"><span class="text-text-secondary">{{ t["auto_compliance_120"] }}</span><span class="font-bold text-green-600">${parseFloat(data.gross_amount || 0).toFixed(2)} ريال</span></div>
+      <div class="flex justify-between border-b border-border pb-2"><span class="text-text-secondary">{{ t["auto_compliance_121"] }}</span><span class="font-bold">${parseFloat(data.annual_leave_encashment || 0).toFixed(2)} ريال</span></div>
+      <div class="flex justify-between border-b border-border pb-2"><span class="text-text-secondary">{{ t["auto_compliance_122"] }}</span><span class="font-bold text-red-600">-${parseFloat(data.other_deductions || 0).toFixed(2)} ريال</span></div>
+      <div class="flex justify-between pt-2"><span class="text-primary font-bold text-lg">{{ t["table_total"] }}</span><span class="font-extrabold text-xl text-primary">${parseFloat(data.total_payout || 0).toFixed(2)} ريال</span></div>
+    </div>`;
+        } catch (e) {
+            console.error('calculateEos error:', e);
+            div.innerHTML = '<p class="text-red-500">حدث خطأ في الحساب</p>';
+        }
+    }
+
+    document.getElementById('warning-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const empVal = document.getElementById('w-emp').value;
+        if (!empVal) { showToast('اختر الموظف', 'error'); return; }
+        try {
+            const res = await fetch('/api/compliance/warnings', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                body: JSON.stringify({ employee_id: empVal, warning_type: document.getElementById('w-type').value, description: document.getElementById('w-reason').value })
+            });
+            if (!res.ok) { const err = await res.json().catch(() => null); showToast(err?.message || 'حدث خطأ', 'error'); return; }
+            showToast('تم إضافة الإنذار بنجاح', 'success');
+            this.reset(); loadWarnings();
+        } catch (e) { console.error('warning submit error:', e); showToast('حدث خطأ في الإرسال', 'error'); }
+    });
+
+    document.getElementById('overtime-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const empVal = document.getElementById('ot-emp').value;
+        const hoursVal = document.getElementById('ot-hours').value;
+        const dateVal = document.getElementById('ot-date').value;
+        if (!empVal) { showToast('اختر الموظف', 'error'); return; }
+        if (!hoursVal || !dateVal) { showToast('أدخل الساعات والتاريخ', 'error'); return; }
+        try {
+            const res = await fetch('/api/compliance/overtime', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                body: JSON.stringify({ employee_id: empVal, hours: parseFloat(hoursVal), date: dateVal })
+            });
+            if (!res.ok) { const err = await res.json().catch(() => null); showToast(err?.message || 'حدث خطأ', 'error'); return; }
+            showToast('تم تسجيل الوقت الإضافي بنجاح', 'success');
+            this.reset(); loadOvertime();
+        } catch (e) { console.error('overtime submit error:', e); showToast('حدث خطأ في الإرسال', 'error'); }
+    });
+
+    async function loadOvertime() {
+        const div = document.getElementById('overtime-list');
+        try {
+            const res = await fetch('/api/compliance/overtime', { credentials: 'include' });
+            if (!res.ok) {
+                div.innerHTML = '<p class="text-red-500 py-8">{{ t["auto_compliance_114"] }}</p>';
+                return;
+            }
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                div.innerHTML = '<p class="text-text-secondary py-8">{{ t["auto_compliance_114"] }}</p>'; return;
+            }
+            const statusLabels = { pending: 'قيد الانتظار', approved: 'موافق', rejected: 'مرفوض' };
+            const statusColors = { pending: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
+            div.innerHTML = `<table class="w-full"><thead class="bg-background/30 border-b border-border"><tr>
+                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_employee"] }}</th>
+                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}</th>
+                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_total_hours"] }}</th>
+                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}</th>
+                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_actions"] }}</th>
+            </tr></thead><tbody class="divide-y divide-border">` +
+            data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+                <td class="px-6 py-4 text-sm">${empName(r.employee)}</td>
+                <td class="px-6 py-4 text-sm">${r.date || '—'}</td>
+                <td class="px-6 py-4 text-sm">${r.hours != null ? r.hours : 0}</td>
+                <td class="px-6 py-4 text-sm"><span class="px-2 py-1 ${statusColors[r.status] || 'bg-gray-100 text-gray-700'} rounded-full text-xs font-bold">${statusLabels[r.status] || r.status || '—'}</span></td>
+                <td class="px-6 py-4 text-sm">${r.status === 'pending' ? `<button onclick="approveOvertime('${thingId(r.id)}')" class="text-green-600 hover:underline text-xs font-semibold">{{ t["auto_compliance_115"] }}</button>` : '—'}</td>
+            </tr>`).join('') + '</tbody></table>';
+        } catch (e) {
+            console.error('loadOvertime error:', e);
+            div.innerHTML = '<p class="text-red-500 py-8">{{ t["auto_compliance_114"] }}</p>';
+        }
+    }
+
+    async function approveOvertime(id) {
+        if (!id) return;
+        try {
+            const res = await fetch('/api/compliance/overtime/' + encodeURIComponent(id) + '/approve', { method: 'PUT', credentials: 'include' });
+            if (!res.ok) { const err = await res.json().catch(() => null); showToast(err?.message || 'حدث خطأ', 'error'); }
+            else { showToast('تمت الموافقة بنجاح', 'success'); }
+            loadOvertime();
+        } catch (e) { console.error('approveOvertime error:', e); }
+    }
+
+    loadWarnings();
+    loadOvertime();
+    loadEmployeesDropdown();
+</script>
+{% endblock %}

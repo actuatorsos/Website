@@ -1,0 +1,267 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_crm_124"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_crm_125"] }}</p>
+        </div>
+    </div>
+
+    <!-- Pipeline KPIs -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div
+            class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-2xl p-4 border border-blue-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_crm_126"] }}</p>
+            <p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400" id="stage-prospecting">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-2xl p-4 border border-yellow-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_crm_127"] }}</p>
+            <p class="text-2xl font-extrabold text-yellow-600 dark:text-yellow-400" id="stage-proposal">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-2xl p-4 border border-purple-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_crm_128"] }}</p>
+            <p class="text-2xl font-extrabold text-purple-600 dark:text-purple-400" id="stage-negotiation">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl p-4 border border-green-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_crm_129"] }}</p>
+            <p class="text-2xl font-extrabold text-green-600 dark:text-green-400" id="stage-won">—</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showCrmTab('opportunities')" id="crmtab-opportunities"
+            class="crmtab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_crm_130"] }}</button>
+        <button onclick="showCrmTab('contacts')" id="crmtab-contacts"
+            class="crmtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_crm_131"] }}</button>
+        <button onclick="showCrmTab('quotations')" id="crmtab-quotations"
+            class="crmtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_crm_132"] }}</button>
+        <button onclick="showCrmTab('interactions')" id="crmtab-interactions"
+            class="crmtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_crm_133"] }}</button>
+    </div>
+
+    <!-- Opportunities Tab -->
+    <div id="crmtab-content-opportunities">
+        <div class="flex justify-end mb-4">
+            <button onclick="document.getElementById('opp-modal').classList.remove('hidden')"
+                class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_crm_134"] }}</button>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_title"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_customer"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_value"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["auto_crm_135"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_crm_136"] }}
+                            </th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="opp-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacts Tab -->
+    <div id="crmtab-content-contacts" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_name"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_crm_137"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_phone"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_company"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotations Tab -->
+    <div id="crmtab-content-quotations" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_crm_138"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_customer"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["table_total"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotes-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactions Tab -->
+    <div id="crmtab-content-interactions" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+            <p class="text-text-secondary text-center py-8">{{ t["auto_crm_139"] }}</p>
+        </div>
+    </div>
+
+    <!-- Opportunity Modal -->
+    <div id="opp-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_crm_140"] }}</h3>
+                <button onclick="document.getElementById('opp-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <form id="opp-form" class="space-y-4">
+                <input id="opp-client" type="text" placeholder="{{ t["form_customer_id"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="opp-title" type="text" placeholder="{{ t["auto_attr_crm_150"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="opp-value" type="number" placeholder="{{ t["auto_attr_crm_151"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <select id="opp-stage"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <option value="prospecting">{{ t["auto_crm_126"] }}</option>
+                    <option value="qualification">{{ t["auto_crm_141"] }}</option>
+                    <option value="proposal">{{ t["auto_crm_142"] }}</option>
+                    <option value="negotiation">{{ t["auto_crm_128"] }}</option>
+                </select>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90">{{ t["auto_crm_143"] }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCrmTab(name) {
+        document.querySelectorAll('[id^="crmtab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.crmtab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('crmtab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('crmtab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'contacts') loadContacts();
+        if (name === 'quotations') loadQuotations();
+    }
+
+    const stageColors = { prospecting: 'bg-blue-100 text-blue-700', qualification: 'bg-yellow-100 text-yellow-700', proposal: 'bg-orange-100 text-orange-700', negotiation: 'bg-purple-100 text-purple-700', won: 'bg-green-100 text-green-700', lost: 'bg-red-100 text-red-700' };
+    const stageLabels = { prospecting: 'التنقيب', qualification: 'التأهيل', proposal: 'العرض', negotiation: 'التفاوض', won: 'فاز', lost: 'خسر' };
+
+    async function loadOpportunities() {
+        try {
+            const res = await fetch('/api/crm/opportunities');
+            let data = await res.json();
+            if (!Array.isArray(data)) data = [];
+            const tbody = document.getElementById('opp-table');
+            // Update KPIs
+            const counts = {};
+            data.forEach(o => { counts[o.stage] = (counts[o.stage] || 0) + 1; });
+            ['prospecting', 'proposal', 'negotiation', 'won'].forEach(s => {
+                const el = document.getElementById('stage-' + s); if (el) el.textContent = counts[s] || 0;
+            });
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_crm_145"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-medium">${r.title || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.client?.id || r.client || '—'}</td>
+        <td class="px-6 py-4 text-sm font-bold text-primary">${parseFloat(r.value || 0).toLocaleString()} ريال</td>
+        <td class="px-6 py-4 text-sm">${r.probability || 0}%</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${stageColors[r.stage] || 'bg-gray-100 text-gray-700'}">${stageLabels[r.stage] || r.stage}</span></td>
+        <td class="px-6 py-4 flex gap-1">
+          <button onclick="moveStage('${r.id?.id || r.id || ''}','won')" class="text-xs bg-green-500 text-white px-2 py-1 rounded-lg hover:bg-green-600">{{ t["auto_crm_146"] }}</button>
+          <button onclick="moveStage('${r.id?.id || r.id || ''}','lost')" class="text-xs bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600">{{ t["auto_crm_147"] }}</button>
+        </td>
+      </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadContacts() {
+        try {
+            const res = await fetch('/api/crm/contacts');
+            const data = await res.json();
+            const tbody = document.getElementById('contacts-table');
+            if (!Array.isArray(data) || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_crm_148"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-medium">${r.name || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.email || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.phone || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.client?.id || r.client || '—'}</td>
+      </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadQuotations() {
+        try {
+            const res = await fetch('/api/crm/quotations');
+            const data = await res.json();
+            const tbody = document.getElementById('quotes-table');
+            if (!Array.isArray(data) || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_crm_149"] }}</td></tr>'; return; }
+            const qColors = { draft: 'bg-gray-100 text-gray-700', sent: 'bg-blue-100 text-blue-700', accepted: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-bold font-mono">${r.quote_number || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.client?.id || r.client || '—'}</td>
+        <td class="px-6 py-4 text-sm font-bold text-primary">${parseFloat(r.total || 0).toFixed(2)} ريال</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${qColors[r.status] || 'bg-gray-100 text-gray-700'}">${r.status || '—'}</span></td>
+        <td class="px-6 py-4 text-sm text-text-secondary">${r.created_at?.split('T')[0] || '—'}</td>
+      </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function moveStage(id, stage) {
+        if (!id) return;
+        await fetch(`/api/crm/opportunities/${id}/stage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stage }) });
+        loadOpportunities();
+    }
+
+    document.getElementById('opp-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/crm/opportunities', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                client_id: document.getElementById('opp-client').value, title: document.getElementById('opp-title').value,
+                value: parseFloat(document.getElementById('opp-value').value || 0), stage: document.getElementById('opp-stage').value
+            })
+        });
+        document.getElementById('opp-modal').classList.add('hidden');
+        this.reset(); loadOpportunities();
+    });
+
+    loadOpportunities();
+</script>
+{% endblock %}

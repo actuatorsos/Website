@@ -1,0 +1,18 @@
+<tr class="hover:bg-surface border-l-2 border-l-transparent hover:border-l-cyan-struct transition-none transition-none">
+    <td class="px-6 py-4">
+        <div class="font-medium text-text-primary">{{ employee.name }}</div>
+    </td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ employee.phone }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ employee.role }}</td>
+    <td class="px-6 py-4">
+        <span class="px-2 py-1 text-xs rounded-none border border-current {{ employee.status_class() }}">
+            {{ employee.status }}
+        </span>
+    </td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ employee.hire_date }}</td>
+    <td class="px-6 py-4">
+        <button class="text-red-600 hover:text-red-800">
+            <span class="font-tech text-red-500">[X]</span>
+        </button>
+    </td>
+</tr>

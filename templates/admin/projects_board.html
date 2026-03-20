@@ -1,0 +1,814 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<style>
+    .board-list {
+        min-height: 120px;
+    }
+
+    .card-drag {
+        opacity: 0.5;
+    }
+
+    .card {
+        cursor: grab;
+    }
+
+    .card:active {
+        cursor: grabbing;
+    }
+
+    .list-ghost {
+        background: rgba(var(--color-secondary-rgb, 99 102 241), 0.1);
+        border: 2px dashed currentColor;
+        border-radius: 0.75rem;
+    }
+
+    /* Make the board area fill remaining viewport and scroll only horizontally */
+    .board-wrapper {
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .board-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .board-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .board-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+    }
+
+    .projects-page-layout {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 80px);
+    }
+</style>
+<div class="animate-fade-in projects-page-layout" dir="{{ dir }}">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["projects_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_projects_board_370"] }}</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="openMembersModal()" id="manage-members-btn"
+                class="hidden bg-surface text-text-secondary border border-border px-5 py-2.5 rounded-xl font-semibold hover:bg-background transition-colors flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {{ t["auto_projects_board_371"] }}
+            </button>
+            <button onclick="document.getElementById('new-project-modal').classList.remove('hidden')"
+                class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ t["auto_projects_board_372"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Projects Selector -->
+    <div class="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
+        <span class="text-sm font-medium text-text-secondary whitespace-nowrap">{{ t["auto_projects_board_373"] }}</span>
+        <div id="projects-tabs" class="flex gap-2">
+            <div class="w-6 h-6 rounded-full border-2 border-border border-dashed animate-pulse"></div>
+        </div>
+    </div>
+
+    <!-- Board Area -->
+    <div id="board-area" class="board-wrapper flex gap-4 pb-4">
+        <div class="flex items-center justify-center w-full py-16">
+            <div class="text-center text-text-secondary">
+                <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p class="font-medium">{{ t["auto_projects_board_374"] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Detail Modal -->
+    <div id="card-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-border m-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <input id="card-title-input" type="text"
+                        class="text-xl font-bold text-primary bg-transparent border-none outline-none w-full"
+                        placeholder="{{ t["auto_attr_projects_board_399"] }}">
+                    <p id="card-list-label" class="text-xs text-text-secondary mt-1">{{ t["auto_projects_board_375"] }}</p>
+                </div>
+                <button onclick="document.getElementById('card-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary ms-3 flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label class="text-xs font-semibold text-text-secondary uppercase mb-2 block">{{ t["form_description"] }}</label>
+                <textarea id="card-desc-input" rows="3" placeholder="{{ t["auto_attr_projects_board_400"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"></textarea>
+            </div>
+
+            <!-- Priority & Labels -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-xs font-semibold text-text-secondary uppercase mb-2 block">{{ t["auto_agents_33"] }}</label>
+                    <select id="card-priority"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                        <option value="low">{{ t["auto_manufacturing_323"] }}</option>
+                        <option value="medium">{{ t["auto_manufacturing_324"] }}</option>
+                        <option value="high">{{ t["auto_manufacturing_325"] }}</option>
+                        <option value="urgent">{{ t["auto_manufacturing_326"] }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-text-secondary uppercase mb-2 block">{{ t["auto_projects_board_376"] }}</label>
+                    <input id="card-due" type="date"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Checklist -->
+            <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs font-semibold text-text-secondary uppercase">{{ t["auto_projects_board_377"] }}</label>
+                    <button onclick="addChecklistItem()"
+                        class="text-xs text-secondary hover:text-secondary/80 font-medium">{{ t["auto_projects_board_378"] }}</button>
+                </div>
+                <div id="card-checklist" class="space-y-2"></div>
+                <input id="new-check-input" type="text" placeholder="{{ t["auto_attr_projects_board_401"] }}"
+                    class="w-full mt-2 bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none"
+                    onkeydown="if(event.key==='Enter'){addChecklistItem();}">
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-border">
+                <div class="flex items-center gap-3">
+                    <button id="card-complete-btn" onclick="toggleCardComplete()"
+                        class="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ t["auto_projects_board_379"] }}
+                    </button>
+                    <button onclick="deleteCurrentCard()"
+                        class="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        {{ t["btn_delete"] }}
+                    </button>
+                </div>
+                <button onclick="saveCard()"
+                    class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
+                    {{ t["save_changes"] }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="new-project-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_projects_board_372"] }}</h3>
+                <button onclick="document.getElementById('new-project-modal').classList.add('hidden')"
+                    class="text-text-secondary">✕</button>
+            </div>
+            <form id="project-form" class="space-y-4">
+                <input id="proj-name" type="text" placeholder="{{ t["auto_attr_projects_board_402"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                <textarea id="proj-desc" rows="3" placeholder="{{ t["auto_attr_projects_board_403"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none resize-none"></textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-xs text-text-secondary block mb-1">{{ t["auto_projects_board_380"] }}</label>
+                        <input id="proj-start" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div><label class="text-xs text-text-secondary block mb-1">{{ t["form_end_date"] }}</label>
+                        <input id="proj-end" type="date"
+                            class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-text-secondary block mb-1">{{ t["auto_projects_board_381"] }}</label>
+                    <input id="proj-budget" type="number" step="0.01"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_projects_board_382"] }}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Members Modal -->
+    <div id="members-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-border m-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_projects_board_383"] }}</h3>
+                <button onclick="document.getElementById('members-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-text-primary">✕</button>
+            </div>
+
+            <div class="mb-4">
+                <form id="add-member-form" class="flex gap-2">
+                    <select id="user-select"
+                        class="flex-1 bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none"
+                        required>
+                        <option value="">{{ t["auto_projects_board_384"] }}</option>
+                    </select>
+                    <select id="role-select"
+                        class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                        <option value="member">{{ t["auto_projects_board_385"] }}</option>
+                        <option value="admin">{{ t["auto_projects_board_386"] }}</option>
+                        <option value="viewer">{{ t["auto_projects_board_387"] }}</option>
+                    </select>
+                    <button type="submit"
+                        class="bg-secondary text-white px-4 py-2 rounded-xl font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["form_submit"] }}</button>
+                </form>
+            </div>
+
+            <div class="overflow-y-auto flex-1 pr-2">
+                <ul id="members-list" class="space-y-2">
+                    <!-- Members will be injected here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Card Modal -->
+    <div id="new-card-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-5 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-primary">{{ t["auto_projects_board_388"] }}</h3>
+                <button onclick="document.getElementById('new-card-modal').classList.add('hidden')"
+                    class="text-text-secondary">✕</button>
+            </div>
+            <form id="card-form" class="space-y-3">
+                <input id="new-card-title" type="text" placeholder="{{ t["auto_attr_projects_board_404"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                <select id="new-card-priority"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <option value="low">{{ t["auto_manufacturing_323"] }}</option>
+                    <option value="medium" selected>{{ t["auto_manufacturing_324"] }}</option>
+                    <option value="high">{{ t["auto_manufacturing_325"] }}</option>
+                    <option value="urgent">{{ t["auto_manufacturing_326"] }}</option>
+                </select>
+                <input id="new-card-due" type="date"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input type="hidden" id="new-card-list-id">
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["form_submit"] }}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New List Modal -->
+    <div id="new-list-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-5 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-primary">{{ t["auto_projects_board_389"] }}</h3>
+                <button onclick="document.getElementById('new-list-modal').classList.add('hidden')"
+                    class="text-text-secondary">✕</button>
+            </div>
+            <form id="list-form" class="space-y-3">
+                <input id="new-list-title" type="text" placeholder="{{ t["auto_attr_projects_board_405"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["auto_projects_board_390"] }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SortableJS for Drag & Drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+    let currentProjectId = null;
+    let currentBoardId = null;
+    let currentCardId = null;
+    let allProjects = [];
+
+    const priorityColors = {
+        low: 'bg-gray-100 text-gray-600',
+        medium: 'bg-yellow-100 text-yellow-700',
+        high: 'bg-orange-100 text-orange-700',
+        urgent: 'bg-red-100 text-red-700'
+    };
+    const priorityLabels = { low: 'منخفضة', medium: 'متوسطة', high: 'عالية', urgent: 'عاجلة' };
+
+    // Helper: extract raw ID from SurrealDB Thing {tb, id: {String: "..."}} or string
+    function rid(thing) {
+        if (!thing) return '';
+        if (typeof thing === 'string') return thing;
+        const inner = thing.id;
+        if (!inner) return '';
+        if (typeof inner === 'string') return inner;
+        if (inner.String) return inner.String;
+        return JSON.stringify(inner);
+    }
+
+    // =======================================================
+    // Load All Projects
+    // =======================================================
+    async function loadProjects() {
+        try {
+            const res = await fetch('/api/projects-adv/projects');
+            const data = await res.json();
+            allProjects = Array.isArray(data) ? data : [];
+        } catch (e) { console.error('loadProjects error:', e); allProjects = []; }
+        const tabsEl = document.getElementById('projects-tabs');
+        if (allProjects.length === 0) {
+            tabsEl.innerHTML = '<span class="text-sm text-text-secondary italic">{{ t["auto_projects_board_392"] }}</span>'; return;
+        }
+        tabsEl.innerHTML = allProjects.map(p => `
+    <div class="flex items-center gap-1">
+      <button onclick="selectProject('${rid(p.id)}')" id="proj-tab-${rid(p.id)}"
+        class="proj-tab px-4 py-2 rounded-s-xl text-sm font-semibold transition-colors border border-border text-text-secondary hover:text-primary hover:border-secondary whitespace-nowrap">
+        ${p.title || p.name || '—'}
+      </button>
+      <button onclick="event.stopPropagation(); deleteProject('${rid(p.id)}', '${(p.title || '').replace(/'/g, "\\'")}')"
+        class="px-2 py-2 rounded-e-xl text-xs text-red-400 hover:text-red-600 hover:bg-red-50 border border-s-0 border-border transition-colors" title="{{ t["auto_attr_projects_board_406"] }}">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </button>
+    </div>`).join('');
+        // Auto-select first
+        if (allProjects.length > 0) selectProject(rid(allProjects[0].id));
+    }
+
+    // =======================================================
+    // Select Project → Load its first Board
+    // =======================================================
+    async function selectProject(projectId) {
+        currentProjectId = projectId;
+        document.querySelectorAll('.proj-tab').forEach(btn => {
+            btn.classList.remove('bg-secondary', 'text-white', 'border-secondary');
+            btn.classList.add('text-text-secondary', 'border-border');
+        });
+        const activeBtn = document.getElementById('proj-tab-' + projectId);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-secondary', 'text-white', 'border-secondary');
+            activeBtn.classList.remove('text-text-secondary', 'border-border');
+        }
+
+        // Show manage members button if we have a project
+        const membersBtn = document.getElementById('manage-members-btn');
+        if (membersBtn) {
+            if (projectId) membersBtn.classList.remove('hidden');
+            else membersBtn.classList.add('hidden');
+        }
+
+        const res = await fetch('/api/projects-adv/projects/' + projectId + '/boards');
+        const boards = await res.json() || [];
+        if (boards.length > 0) {
+            currentBoardId = rid(boards[0].id);
+            loadBoard(currentBoardId);
+        } else {
+            document.getElementById('board-area').innerHTML = '<div class="flex items-center justify-center w-full py-16 text-text-secondary">{{ t["auto_projects_board_393"] }}</div>';
+        }
+    }
+
+    // =======================================================
+    // =======================================================
+    // Load Board → Lists & Cards
+    // =======================================================
+    let currentEventSource = null;
+
+    function getCookieValue(name) {
+        const matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
+
+    function setupEventSource(boardId) {
+        if (currentEventSource) {
+            currentEventSource.close();
+        }
+        if (!boardId) return;
+
+        const token = localStorage.getItem('auth_token') || getCookieValue('auth_token');
+        const url = `/api/projects-adv/boards/${boardId}/events${token ? '?token=' + token : ''}`;
+        currentEventSource = new EventSource(url);
+
+        const refreshEvents = ['list_created', 'list_deleted', 'card_created', 'card_updated', 'card_moved', 'card_deleted'];
+
+        refreshEvents.forEach(evtName => {
+            currentEventSource.addEventListener(evtName, (e) => {
+                console.log("Real-time update:", evtName);
+                loadBoard(boardId, true); // true avoids resetting EventSource infinitely
+            });
+        });
+
+        currentEventSource.onerror = (e) => {
+            console.error("SSE Error", e);
+        };
+    }
+
+    async function loadBoard(boardId, skipSseSetup = false) {
+        currentBoardId = boardId;
+        if (!skipSseSetup) setupEventSource(boardId);
+        try {
+            const res = await fetch('/api/projects-adv/boards/' + boardId + '/lists');
+            const lists = await res.json();
+            renderBoard(Array.isArray(lists) ? lists : []);
+        } catch (e) { console.error('loadBoard error:', e); renderBoard([]); }
+    }
+
+    function renderBoard(lists) {
+        const area = document.getElementById('board-area');
+        area.innerHTML = '';
+
+        lists.forEach(list => {
+            const listEl = document.createElement('div');
+            listEl.className = 'flex-shrink-0 w-72 bg-surface rounded-2xl border border-border shadow-card flex flex-col max-h-[80vh]';
+            listEl.innerHTML = `
+      <div class="p-4 border-b border-border flex items-center justify-between">
+        <h3 class="font-bold text-primary text-sm">${list.title || list.name || '—'}</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-text-secondary">${(list.cards || []).length} بطاقة</span>
+          <button onclick="event.stopPropagation(); deleteList('${rid(list.id)}', '${(list.title || '').replace(/'/g, "\\'")}')"
+            class="text-red-300 hover:text-red-500 transition-colors" title="{{ t["auto_attr_projects_board_407"] }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="list-${rid(list.id)}" class="board-list flex-1 overflow-y-auto p-3 space-y-2">
+        ${(list.cards || []).map(card => renderCard(card)).join('')}
+      </div>
+      <div class="p-3 border-t border-border">
+        <button onclick="openNewCard('${rid(list.id)}')"
+          class="flex items-center gap-2 w-full px-3 py-2 text-sm text-text-secondary hover:text-secondary hover:bg-secondary/5 rounded-xl transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          {{ t["auto_projects_board_394"] }}
+        </button>
+      </div>`;
+            area.appendChild(listEl);
+
+            // Init SortableJS on each list
+            new Sortable(document.getElementById('list-' + rid(list.id)), {
+                group: 'cards-' + currentBoardId,
+                animation: 150,
+                ghostClass: 'list-ghost',
+                dragClass: 'card-drag',
+                onEnd: async (evt) => {
+                    const cardId = evt.item.dataset.cardId;
+                    const newListId = evt.to.id.replace('list-', '');
+                    const newPosition = evt.newIndex;
+                    if (cardId && newListId) {
+                        await fetch('/api/projects-adv/cards/' + cardId + '/move', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ target_list_id: newListId, position: newPosition })
+                        });
+                    }
+                }
+            });
+        });
+
+        // Add "+" button for new list
+        const addListBtn = document.createElement('div');
+        addListBtn.className = 'flex-shrink-0 w-72';
+        addListBtn.innerHTML = `<button onclick="addList()" class="flex items-center gap-2 px-5 py-3 bg-surface/50 border border-dashed border-border rounded-2xl text-text-secondary hover:text-primary hover:border-secondary hover:bg-surface transition-colors w-full">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    <span class="text-sm font-medium">{{ t["auto_projects_board_395"] }}</span>
+  </button>`;
+        area.appendChild(addListBtn);
+    }
+
+    function renderCard(card) {
+        const priority = card.priority || 'medium';
+        const isCompleted = card.is_complete;
+        const due = card.due_date ? card.due_date.split('T')[0] : null;
+        const checklistCount = (card.checklist || []).length;
+        const checklistDone = (card.checklist || []).filter(c => c.is_checked).length;
+        return `<div class="card bg-background border border-border rounded-xl p-3 hover:border-secondary/50 hover:shadow-md transition-all ${isCompleted ? 'opacity-60' : ''}"
+    data-card-id="${rid(card.id)}" onclick="openCard('${rid(card.id)}')">
+    <div class="flex items-start justify-between gap-2 mb-2">
+      <p class="text-sm font-medium text-primary ${isCompleted ? 'line-through' : ''}">${card.title || '—'}</p>
+      <span class="px-1.5 py-0.5 rounded text-xs font-bold flex-shrink-0 ${priorityColors[priority] || 'bg-gray-100 text-gray-600'}">${priorityLabels[priority] || priority}</span>
+    </div>
+    ${due ? `<div class="flex items-center gap-1 text-xs text-text-secondary mt-1">
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      ${due}</div>` : ''}
+    ${checklistCount > 0 ? `<div class="flex items-center gap-1 mt-1">
+      <div class="flex-1 bg-border rounded-full h-1"><div class="bg-secondary h-1 rounded-full" style="width:${(checklistDone / checklistCount * 100).toFixed(0)}%"></div></div>
+      <span class="text-xs text-text-secondary">${checklistDone}/${checklistCount}</span>
+    </div>` : ''}
+  </div>`;
+    }
+
+    // =======================================================
+    // Card Operations
+    // =======================================================
+    let currentCard = null;
+
+    async function openCard(cardId) {
+        const res = await fetch('/api/projects-adv/cards/' + cardId);
+        currentCard = await res.json();
+        currentCardId = cardId;
+
+        document.getElementById('card-title-input').value = currentCard.title || '';
+        document.getElementById('card-desc-input').value = currentCard.description || '';
+        document.getElementById('card-priority').value = currentCard.priority || 'medium';
+        document.getElementById('card-due').value = currentCard.due_date ? currentCard.due_date.split('T')[0] : '';
+        document.getElementById('card-list-label').textContent = 'في القائمة: ' + rid(currentCard.board_list);
+        document.getElementById('card-complete-btn').className = currentCard.is_complete
+            ? 'text-sm font-medium text-text-secondary hover:text-green-700 flex items-center gap-1'
+            : 'text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1';
+
+        // Checklist
+        const checkEl = document.getElementById('card-checklist');
+        checkEl.innerHTML = (currentCard.checklist || []).map(item => `
+    <div class="flex items-center gap-3 group" id="check-${rid(item.id)}">
+      <input type="checkbox" ${item.is_checked ? 'checked' : ''} onchange="toggleCheck('${rid(item.id)}', this.checked)"
+        class="w-4 h-4 rounded accent-secondary cursor-pointer">
+      <span class="text-sm flex-1 ${item.is_checked ? 'line-through text-text-secondary' : 'text-text'}">${item.title || '—'}</span>
+    </div>`).join('');
+
+        document.getElementById('card-modal').classList.remove('hidden');
+    }
+
+    async function saveCard() {
+        if (!currentCardId) return;
+        await fetch('/api/projects-adv/cards/' + currentCardId, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: document.getElementById('card-title-input').value,
+                description: document.getElementById('card-desc-input').value,
+                priority: document.getElementById('card-priority').value,
+                due_date: document.getElementById('card-due').value || null
+            })
+        });
+        document.getElementById('card-modal').classList.add('hidden');
+        loadBoard(currentBoardId);
+    }
+
+    async function toggleCardComplete() {
+        if (!currentCardId) return;
+        const completed = !currentCard.is_complete;
+        await fetch('/api/projects-adv/cards/' + currentCardId + (completed ? '/complete' : '/reopen'), { method: 'POST' });
+        loadBoard(currentBoardId);
+        document.getElementById('card-modal').classList.add('hidden');
+    }
+
+    async function toggleCheck(checkId, checked) {
+        await fetch('/api/projects-adv/checklist-items/' + checkId + '/toggle', {
+            method: 'PUT'
+        });
+    }
+
+    async function addChecklistItem() {
+        const input = document.getElementById('new-check-input');
+        const title = input.value.trim();
+        if (!title || !currentCardId) return;
+        await fetch('/api/projects-adv/cards/' + currentCardId + '/checklists', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title })
+        });
+        input.value = '';
+        openCard(currentCardId);
+    }
+
+    function openNewCard(listId) {
+        document.getElementById('new-card-list-id').value = listId;
+        document.getElementById('new-card-modal').classList.remove('hidden');
+    }
+
+    // =======================================================
+    // Delete Operations
+    // =======================================================
+    async function deleteCurrentCard() {
+        if (!currentCardId) return;
+        confirmAction('هل أنت متأكد من حذف هذه البطاقة؟', async function() {
+            try {
+                await fetch('/api/projects-adv/cards/' + currentCardId, { method: 'DELETE' });
+            } catch (err) { console.error('Delete card error:', err); }
+            document.getElementById('card-modal').classList.add('hidden');
+            currentCardId = null;
+            loadBoard(currentBoardId);
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    async function deleteProject(projId, projTitle) {
+        confirmAction('هل أنت متأكد من حذف المشروع "' + projTitle + '"؟', async function() {
+            try {
+                await fetch('/api/projects-adv/projects/' + projId, { method: 'DELETE' });
+            } catch (err) { console.error('Delete project error:', err); }
+            if (currentProjectId === projId) {
+                currentProjectId = null;
+                currentBoardId = null;
+            }
+            loadProjects();
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    async function deleteList(listId, listTitle) {
+        confirmAction('هل أنت متأكد من حذف القائمة "' + listTitle + '" وجميع بطاقاتها؟', async function() {
+            try {
+                await fetch('/api/projects-adv/board-lists/' + listId, { method: 'DELETE' });
+            } catch (err) { console.error('Delete list error:', err); }
+            loadBoard(currentBoardId);
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    document.getElementById('card-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const listId = document.getElementById('new-card-list-id').value;
+        const title = document.getElementById('new-card-title').value.trim();
+        if (!title || !listId) { console.error('Card title or listId missing'); return; }
+        try {
+            const res = await fetch('/api/projects-adv/board-lists/' + listId + '/cards', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    priority: document.getElementById('new-card-priority').value,
+                    due_date: document.getElementById('new-card-due').value || null
+                })
+            });
+            if (!res.ok) { const txt = await res.text(); console.error('Create card failed:', res.status, txt); }
+        } catch (err) { console.error('Create card error:', err); }
+        document.getElementById('new-card-modal').classList.add('hidden');
+        this.reset(); loadBoard(currentBoardId);
+    });
+
+    function addList() {
+        if (!currentBoardId) return;
+        document.getElementById('new-list-modal').classList.remove('hidden');
+        document.getElementById('new-list-title').value = '';
+        setTimeout(() => document.getElementById('new-list-title').focus(), 100);
+    }
+
+    document.getElementById('list-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const title = document.getElementById('new-list-title').value.trim();
+        if (!title || !currentBoardId) return;
+        try {
+            const res = await fetch('/api/projects-adv/boards/' + currentBoardId + '/lists', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: title })
+            });
+            if (!res.ok) { const txt = await res.text(); console.error('Create list failed:', res.status, txt); }
+        } catch (err) { console.error('Create list error:', err); }
+        document.getElementById('new-list-modal').classList.add('hidden');
+        this.reset(); loadBoard(currentBoardId);
+    });
+
+    // =======================================================
+    // New Project
+    // =======================================================
+    document.getElementById('project-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const title = document.getElementById('proj-name').value.trim();
+        if (!title) { console.error('Project title is empty'); return; }
+        const startDate = document.getElementById('proj-start').value || null;
+        const endDate = document.getElementById('proj-end').value || null;
+        const budgetVal = document.getElementById('proj-budget').value;
+        const budget = budgetVal ? parseFloat(budgetVal) : null;
+        try {
+            const res = await fetch('/api/projects-adv/projects', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    description: document.getElementById('proj-desc').value || null,
+                    start_date: startDate,
+                    end_date: endDate,
+                    budget: budget
+                })
+            });
+            if (!res.ok) { const txt = await res.text(); console.error('Create project failed:', res.status, txt); }
+        } catch (err) { console.error('Create project error:', err); }
+        document.getElementById('new-project-modal').classList.add('hidden');
+        this.reset(); loadProjects();
+    });
+
+    // =======================================================
+    // Keyboard shortcut: ESC closes modals
+    // =======================================================
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.fixed[id$="-modal"]').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    // =======================================================
+    // Members Management
+    // =======================================================
+    async function openMembersModal() {
+        if (!currentProjectId) return;
+        document.getElementById('members-modal').classList.remove('hidden');
+        await Promise.all([loadAllAccounts(), loadProjectMembers()]);
+    }
+
+    async function loadAllAccounts() {
+        try {
+            const res = await fetch('/api/projects-adv/accounts');
+            if (!res.ok) throw new Error('Failed to load accounts');
+            const accounts = await res.json();
+            const select = document.getElementById('user-select');
+            select.innerHTML = '<option value="">{{ t["auto_projects_board_384"] }}</option>';
+            accounts.forEach(acc => {
+                select.innerHTML += `<option value="${acc.id.String || acc.id}">${acc.email} (${acc.role})</option>`;
+            });
+        } catch (err) { console.error('Error loading accounts:', err); }
+    }
+
+    async function loadProjectMembers() {
+        if (!currentProjectId) return;
+        try {
+            const res = await fetch(`/api/projects-adv/projects/${currentProjectId}/members`);
+            if (!res.ok) throw new Error('Failed to load members');
+            const members = await res.json();
+            const list = document.getElementById('members-list');
+            list.innerHTML = '';
+
+            if (members.length === 0) {
+                list.innerHTML = '<li class="text-sm text-text-secondary text-center py-4">{{ t["auto_projects_board_398"] }}</li>';
+                return;
+            }
+
+            members.forEach(m => {
+                const memberIdRaw = m.member.String || m.member;
+                list.innerHTML += `
+                    <li class="flex items-center justify-between p-3 bg-background rounded-xl border border-border">
+                        <div>
+                            <p class="text-sm font-semibold text-primary mb-0.5">${m.member_email || 'مستخدم غير معروف'}</p>
+                            <p class="text-xs text-text-secondary bg-surface inline-block px-2 py-0.5 rounded-md border border-border">${m.role}</p>
+                        </div>
+                        ${m.role !== 'owner' ? `
+                        <button onclick="removeProjectMember('${memberIdRaw}')" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        ` : ''}
+                    </li>
+                `;
+            });
+        } catch (err) { console.error('Error loading members:', err); }
+    }
+
+    document.getElementById('add-member-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        if (!currentProjectId) return;
+        const memberId = document.getElementById('user-select').value;
+        const role = document.getElementById('role-select').value;
+        if (!memberId) return;
+
+        try {
+            const res = await fetch(`/api/projects-adv/projects/${currentProjectId}/members`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ member_id: memberId, role: role })
+            });
+            if (res.ok) {
+                await loadProjectMembers();
+                document.getElementById('user-select').value = '';
+            } else {
+                console.error('Failed to add member:', await res.text());
+                showToast('فشلت إضافة العضو، قد يكون مضافاً مسبقاً.', 'error');
+            }
+        } catch (err) { console.error('Error adding member:', err); }
+    });
+
+    async function removeProjectMember(memberId) {
+        if (!currentProjectId) return;
+        confirmAction('هل أنت متأكد من إزالة هذا العضو من المشروع؟', async function() {
+            try {
+                const res = await fetch(`/api/projects-adv/projects/${currentProjectId}/members/${memberId}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    await loadProjectMembers();
+                } else {
+                    console.error('Failed to remove member:', await res.text());
+                }
+            } catch (err) { console.error('Error removing member:', err); }
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    // Init
+    loadProjects();
+</script>
+{% endblock %}

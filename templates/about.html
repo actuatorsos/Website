@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Institutional Header with Isometric Grid -->
+<section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-primary bg-isometric border-b border-cyan-muted">
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <!-- System Version Label -->
+        <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+            VERSION 1.1.0 // ISOMETRIC SYSTEM GOVERNANCE
+        </span>
+        
+        <h1 class="text-4xl md:text-6xl font-bold text-text-primary mb-8 tracking-tight font-inter" dir="rtl">
+            البنية التحتية الرقمية للاقتصاد الريادي
+        </h1>
+        
+        <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl" dir="rtl">
+            <strong>Actuators</strong> ليس مجرد منصة تقليدية، بل هو <strong>مؤسسة رقمية لامركزية ونظام تشغيل اقتصادي</strong> خفيف الوزن، يعمل كعمود فقري رقمي لتوحيد وتوجيه منظومة ريادة الأعمال المجزأة.
+        </p>
+
+        <div class="mt-12 flex justify-center gap-4">
+            <a href="/admin?lang={{ lang }}" class="px-8 py-3 bg-primary border border-orange-active text-text-primary font-tech text-sm uppercase hover:bg-orange-active hover:text-black transition-none">
+                INITIALIZE_SYSTEM
+            </a>
+            <a href="#architecture" class="px-8 py-3 bg-surface border border-cyan-struct text-text-primary font-tech text-sm uppercase hover:bg-cyan-struct hover:text-black transition-none">
+                VIEW_ARCHITECTURE
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Content Clusters -->
+<section id="architecture" class="py-24 bg-primary relative z-10 border-b border-cyan-muted">
+    <div class="max-w-6xl mx-auto px-6">
+        
+        <!-- Section: The Systemic Problem -->
+        <div class="mb-24">
+            <h2 class="text-xs font-tech text-text-muted mb-6 tracking-widest uppercase">NODE_01 // THE SYSTEMIC PROBLEM</h2>
+            <div class="brand-panel p-10 md:p-14 border-l-4 border-l-cyan-struct opacity-90 hover:opacity-100">
+                <h3 class="text-2xl font-bold text-text-primary mb-6" dir="rtl">المشكلة المنهجية</h3>
+                <ul class="text-lg md:text-xl text-text-muted leading-relaxed space-y-4" dir="rtl">
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>بيئة عمل هشة:</strong> اقتصاد غير رسمي مجزأ، عالي المخاطر، وتفكك في سلاسل القيمة الموثوقة.</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>فجوة الثقة والعزلة:</strong> عزلة المؤسسين المحليين عن الأسواق الدولية ورأس مال الشتات بسبب اللوائح المبهمة وانعدام الشفافية.</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>غياب التنسيق:</strong> وجود أكثر من 200 شركة ناشئة تعمل بمرونة عالية، ولكنها تختنق بسبب غياب "بنية تحتية رقمية موحدة".</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section: The Transformational Solution -->
+        <div class="mb-24">
+            <h2 class="text-xs font-tech text-text-muted mb-6 tracking-widest uppercase text-right">NODE_02 // TRANSFORMATIONAL SOLUTION</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- ERP -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-dashboards"></use>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">نظام الإدارة (ERP)</h3>
+                    <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                        أدوات تشغيلية رقمية شفافة (إدارة مهام، موارد بشرية، مبيعات) مبنية للعمل في بيئات الإنترنت الضعيفة وتمنح الشركات هيكلة رصينة.
+                    </p>
+                </div>
+
+                <!-- Diaspora -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-links"></use>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">بوابة الاستثمار والشتات</h3>
+                    <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                        جسر يُربط المؤسسين بالشتات عبر حوض البحر المتوسط (تركيا، اليونان، إيطاليا) لتدفق الإرشاد والاستثمار الشفاف.
+                    </p>
+                </div>
+
+                <!-- LMS -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-growth"></use>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">مسارات تعليمية (LMS)</h3>
+                    <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                        منصة لدمج مسار التعلم مع مسار التنفيذ المهني لسد الفجوة المعرفية وتعويض غياب المؤسسات التدريبية للفرق.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Business Model & Impact -->
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+            <div class="brand-panel p-10 border-t-4 border-t-orange-active">
+                <h3 class="text-2xl font-bold text-text-primary mb-6" dir="rtl">مستويات الوصول (Business Model)</h3>
+                <div class="space-y-4 text-text-muted" dir="rtl">
+                    <p><strong class="text-text-primary">الوصول الأساسي (Freemium):</strong> مجاني لتأسيس الشباب المحلي وتوفير وحدات ERP الأساسية، لإزالة عوائق الدخول.</p>
+                    <p><strong class="text-text-primary">الخدمات المتميزة (Premium):</strong> تُقدم للجهات المانحة والمستثمرين مقابل الوصول لتحليلات المنظومة وتقارير الشفافية.</p>
+                </div>
+            </div>
+
+            <div class="brand-panel p-10 border-t-4 border-t-cyan-struct bg-isometric">
+                <h3 class="text-2xl font-bold text-text-primary mb-6" dir="rtl">إطار إدارة التأثير (IMM Framework)</h3>
+                <div class="space-y-4 text-text-muted" dir="rtl">
+                    <p><span class="text-cyan-struct font-tech">OUTPUTS:</span> الشركات المسجلة، المسارات المكتملة.</p>
+                    <p><span class="text-cyan-struct font-tech">OUTCOMES:</span> الشراكات عبر الحدود، تمويل مدفوع بالبيانات.</p>
+                    <p><span class="text-cyan-struct font-tech">SYSTEMIC IMPACT:</span> معدل استمرار الشركات والانتقال من البقاء إلى تغيير الأنظمة (SDGs 4,8,10).</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

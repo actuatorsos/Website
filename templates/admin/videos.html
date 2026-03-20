@@ -1,0 +1,365 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}الفيديوهات التعليمية — Dr. Machine{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6" dir="{{ dir }}">
+
+  <!-- ══════════════════════════════════════════════════
+       Page Header
+  ══════════════════════════════════════════════════ -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-text flex items-center gap-2">
+        <svg class="w-7 h-7 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        الفيديوهات التعليمية
+      </h1>
+      <p class="text-sm text-text-secondary mt-1">ارفع وشاهد فيديوهات التدريب والتعليم الخاصة بالشركة</p>
+    </div>
+
+    {% if user_role == "admin" %}
+    <!-- زر فتح نموذج الرفع -->
+    <button onclick="document.getElementById('upload-modal').classList.remove('hidden')"
+      class="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl hover:bg-secondary/80 transition-smooth shadow-lg shadow-secondary/20 font-medium text-sm">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      رفع فيديو جديد
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       Stats Bar
+  ══════════════════════════════════════════════════ -->
+  <div class="flex items-center gap-3 px-4 py-3 bg-surface border border-border rounded-xl text-sm text-text-secondary">
+    <svg class="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>إجمالي الفيديوهات: <strong class="text-text">{{ videos.len() }}</strong></span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       Video Gallery Grid
+  ══════════════════════════════════════════════════ -->
+  {% if videos.is_empty() %}
+  <div class="flex flex-col items-center justify-center py-24 text-center">
+    <div class="w-20 h-20 bg-surface rounded-2xl flex items-center justify-center mb-4 border border-border">
+      <svg class="w-10 h-10 text-text-secondary opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-text mb-1">لا توجد فيديوهات بعد</h3>
+    <p class="text-text-secondary text-sm max-w-xs">
+      {% if user_role == "admin" %}
+      ابدأ بالضغط على "رفع فيديو جديد" لإضافة أول فيديو تعليمي.
+      {% else %}
+      لم يرفع المسؤول أي فيديوهات بعد. تابع لاحقاً.
+      {% endif %}
+    </p>
+  </div>
+  {% else %}
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="video-gallery">
+    {% for video in videos %}
+    <div class="bg-surface border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group"
+         id="video-card-{{ video.id }}">
+
+      <!-- مشغّل الفيديو HTML5 -->
+      <div class="relative bg-black aspect-video">
+        <video
+          class="w-full h-full object-contain"
+          controls
+          preload="metadata"
+          poster=""
+          src="/admin/videos/stream/{{ video.id }}">
+          متصفّحك لا يدعم تشغيل الفيديو.
+        </video>
+        <!-- شارة نوع الملف -->
+        <div class="absolute top-2 end-2 pointer-events-none">
+          <span class="px-2 py-0.5 bg-black/70 text-white text-[10px] rounded-md font-mono uppercase">
+            {{ video.mime_type }}
+          </span>
+        </div>
+      </div>
+
+      <!-- معلومات الفيديو -->
+      <div class="p-4 space-y-3">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <h3 class="font-semibold text-text truncate text-sm leading-snug">{{ video.title }}</h3>
+            {% match video.description %}
+            {% when Some with (desc) %}
+            <p class="text-xs text-text-secondary mt-0.5 line-clamp-2">{{ desc }}</p>
+            {% when None %}{% endmatch %}
+          </div>
+          {% if user_role == "admin" %}
+          <!-- زر الحذف — HTMX -->
+          <button
+            hx-delete="/admin/videos/{{ video.id }}"
+            hx-confirm="هل أنت متأكد من حذف هذا الفيديو؟"
+            hx-target="#video-card-{{ video.id }}"
+            hx-swap="outerHTML swap:0.3s"
+            class="shrink-0 p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-smooth opacity-0 group-hover:opacity-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Footer المعلومات -->
+        <div class="flex items-center gap-3 text-xs text-text-secondary border-t border-border pt-2">
+          <span class="flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582 4 8 4s8 1.79 8 4" />
+            </svg>
+            {{ video.formatted_size() }}
+          </span>
+          <span class="flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {{ video.created_at }}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     Upload Modal (Admin Only)
+══════════════════════════════════════════════════ -->
+{% if user_role == "admin" %}
+<div id="upload-modal"
+  class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+  <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg ring-1 ring-border overflow-hidden">
+
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-background/50">
+      <h2 class="font-bold text-text text-lg flex items-center gap-2">
+        <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        رفع فيديو تعليمي
+      </h2>
+      <button onclick="closeUploadModal()"
+        class="p-2 rounded-lg hover:bg-background text-text-secondary hover:text-text transition-smooth">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Upload Form -->
+    <form id="upload-form" class="p-6 space-y-4">
+      <!-- العنوان -->
+      <div>
+        <label for="video-title" class="block text-sm font-medium text-text mb-1.5">
+          عنوان الفيديو <span class="text-red-500">*</span>
+        </label>
+        <input type="text" id="video-title" name="title" required
+          placeholder="مثال: دورة السلامة المهنية — الجزء الأول"
+          class="input input-bordered w-full bg-background border-border text-text placeholder-text-secondary focus:border-secondary focus:ring-secondary/20" />
+      </div>
+
+      <!-- الوصف -->
+      <div>
+        <label for="video-desc" class="block text-sm font-medium text-text mb-1.5">الوصف (اختياري)</label>
+        <textarea id="video-desc" name="description" rows="2"
+          placeholder="وصف مختصر لمحتوى الفيديو..."
+          class="textarea textarea-bordered w-full bg-background border-border text-text placeholder-text-secondary focus:border-secondary resize-none"></textarea>
+      </div>
+
+      <!-- اختيار الملف -->
+      <div>
+        <label class="block text-sm font-medium text-text mb-1.5">
+          ملف الفيديو <span class="text-red-500">*</span>
+        </label>
+        <div id="drop-zone"
+          class="relative border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-secondary transition-colors cursor-pointer"
+          onclick="document.getElementById('video-file').click()"
+          ondragover="handleDragOver(event)"
+          ondrop="handleDrop(event)">
+          <input type="file" id="video-file" name="video" accept="video/*" class="hidden"
+            onchange="handleFileSelect(event)" />
+          <svg class="w-8 h-8 text-text-secondary mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <p id="drop-label" class="text-sm text-text-secondary">اسحب وأفلت الفيديو هنا، أو <span class="text-secondary font-medium">انقر للاختيار</span></p>
+          <p class="text-xs text-text-secondary mt-1 opacity-60">MP4, WebM, AVI, MOV — حتى 500 MB</p>
+        </div>
+      </div>
+
+      <!-- شريط التقدم -->
+      <div id="progress-container" class="hidden space-y-1">
+        <div class="flex justify-between text-xs text-text-secondary">
+          <span>جارٍ الرفع...</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="w-full h-2 bg-background rounded-full overflow-hidden border border-border">
+          <div id="progress-bar"
+            class="h-2 bg-gradient-to-r from-secondary to-accent rounded-full transition-all duration-200"
+            style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- رسالة Feedback -->
+      <div id="upload-feedback" class="hidden"></div>
+
+      <!-- أزرار -->
+      <div class="flex gap-3 pt-2">
+        <button type="submit" id="upload-btn"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-medium text-sm hover:bg-secondary/80 transition-smooth disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          رفع الفيديو
+        </button>
+        <button type="button" onclick="closeUploadModal()"
+          class="px-4 py-2.5 border border-border rounded-xl text-sm font-medium text-text-secondary hover:bg-background transition-smooth">
+          إلغاء
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ── Modal Control ──────────────────────────────────
+  function closeUploadModal() {
+    document.getElementById('upload-modal').classList.add('hidden');
+    document.getElementById('upload-form').reset();
+    document.getElementById('drop-label').textContent = 'اسحب وأفلت الفيديو هنا، أو ';
+    document.getElementById('progress-container').classList.add('hidden');
+    document.getElementById('upload-feedback').classList.add('hidden');
+    document.getElementById('progress-bar').style.width = '0%';
+    document.getElementById('progress-pct').textContent = '0%';
+  }
+
+  // ── Drag & Drop ────────────────────────────────────
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.add('border-secondary', 'bg-secondary/5');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    const dz = document.getElementById('drop-zone');
+    dz.classList.remove('border-secondary', 'bg-secondary/5');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const input = document.getElementById('video-file');
+      // تعيين الملف على الـ input لاستخدامه لاحقاً في submit
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      updateDropLabel(file.name, file.size);
+    }
+  }
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) updateDropLabel(file.name, file.size);
+  }
+
+  function updateDropLabel(name, size) {
+    const sizeStr = size > 1024 * 1024
+      ? (size / (1024 * 1024)).toFixed(1) + ' MB'
+      : (size / 1024).toFixed(0) + ' KB';
+    document.getElementById('drop-label').innerHTML =
+      `<span class="text-text font-medium">${name}</span> <span class="text-text-secondary text-xs">(${sizeStr})</span>`;
+  }
+
+  // ── Upload with XHR (Progress Bar) ────────────────
+  document.getElementById('upload-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const title = document.getElementById('video-title').value.trim();
+    const file = document.getElementById('video-file').files[0];
+    const btn = document.getElementById('upload-btn');
+
+    if (!title) {
+      showFeedback('error', 'الرجاء إدخال عنوان للفيديو.');
+      return;
+    }
+    if (!file) {
+      showFeedback('error', 'الرجاء اختيار ملف فيديو.');
+      return;
+    }
+    if (file.size > 500 * 1024 * 1024) {
+      showFeedback('error', 'حجم الملف يتجاوز الحد الأقصى (500 MB).');
+      return;
+    }
+
+    const formData = new FormData(this);
+    const xhr = new XMLHttpRequest();
+
+    // إظهار شريط التقدم
+    document.getElementById('progress-container').classList.remove('hidden');
+    btn.disabled = true;
+
+    // تحديث شريط التقدم
+    xhr.upload.onprogress = function (evt) {
+      if (evt.lengthComputable) {
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-pct').textContent = pct + '%';
+      }
+    };
+
+    xhr.onload = function () {
+      btn.disabled = false;
+      document.getElementById('progress-container').classList.add('hidden');
+      if (xhr.status === 200) {
+        showFeedback('success', 'تم رفع الفيديو بنجاح! سيتم تحديث الصفحة...');
+        setTimeout(() => { window.location.reload(); }, 2000);
+      } else {
+        showFeedback('error', 'فشل الرفع. تحقق من الملف وحاول مجدداً.');
+      }
+    };
+
+    xhr.onerror = function () {
+      btn.disabled = false;
+      document.getElementById('progress-container').classList.add('hidden');
+      showFeedback('error', 'خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.');
+    };
+
+    xhr.open('POST', '/admin/videos/upload');
+    xhr.send(formData);
+  });
+
+  function showFeedback(type, msg) {
+    const el = document.getElementById('upload-feedback');
+    el.classList.remove('hidden');
+    const isSuccess = type === 'success';
+    el.innerHTML = `<div class="p-3 rounded-lg text-sm font-medium ${isSuccess
+      ? 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+      : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'}">${msg}</div>`;
+  }
+
+  // إغلاق المودال بالضغط على Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('upload-modal');
+      if (!modal.classList.contains('hidden')) closeUploadModal();
+    }
+  });
+</script>
+{% endif %}
+
+{% endblock %}

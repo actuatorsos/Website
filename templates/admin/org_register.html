@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب تسجيل منظمة — Actuators</title>
+    <meta name="description" content="Actuators — Organization Registration Request">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Actuators Brand System ── */
+        :root {
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+            --success-green: #22C55E;
+            --font-primary-ar: 'IBM Plex Sans Arabic', sans-serif;
+            --font-primary-en: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary-ar);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 32px 0;
+        }
+
+        /* ── Isometric Grid Background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* ── Node Map Decoration ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ── Main Container ── */
+        .register-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 520px;
+            padding: 16px;
+        }
+
+        /* ── Logo Section ── */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-section svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Card ── */
+        .register-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            padding: 32px;
+        }
+
+        .register-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .register-card .subtitle {
+            font-size: 13px;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* ── Form Elements ── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--activation-orange);
+            margin-inline-start: 2px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-start: 12px;
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            padding-inline-start: 40px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            color: var(--text-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s linear;
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: var(--structure-cyan);
+        }
+
+        .form-select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .no-icon {
+            padding-inline-start: 12px;
+        }
+
+        /* ── Error / Success Messages ── */
+        .msg-box {
+            display: none;
+            border-radius: 2px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .msg-box.visible {
+            display: block;
+        }
+
+        .msg-box.error {
+            background: rgba(255, 106, 42, 0.08);
+            border: 1px solid rgba(255, 106, 42, 0.3);
+            color: var(--activation-orange);
+        }
+
+        .msg-box.success {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--success-green);
+        }
+
+        .msg-box.shake {
+            animation: shake 0.4s linear;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--activation-orange);
+            color: var(--bg-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s linear;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(11, 26, 42, 0.3);
+            border-top-color: var(--bg-primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .spinner.visible {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Structural Decoration Lines ── */
+        .structure-line {
+            width: 100%;
+            height: 1px;
+            background: var(--structure-cyan-muted);
+            margin: 24px 0;
+        }
+
+        /* ── Footer ── */
+        .register-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* ── Links Section ── */
+        .register-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .register-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s linear;
+            font-family: var(--font-primary-ar);
+        }
+
+        .register-links a:hover {
+            color: var(--structure-cyan);
+        }
+
+        /* ── Home Button ── */
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: 1px solid var(--structure-cyan-muted);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.15s linear;
+        }
+
+        .home-link:hover {
+            border-color: var(--structure-cyan);
+            color: var(--structure-cyan);
+        }
+
+        /* ── Sequential Assembly Animation ── */
+        .assemble {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: assemble 0.3s linear forwards;
+        }
+
+        .assemble-1 { animation-delay: 0.05s; }
+        .assemble-2 { animation-delay: 0.1s; }
+        .assemble-3 { animation-delay: 0.15s; }
+
+        @keyframes assemble {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Corner Markers ── */
+        .corner-marks {
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+        }
+
+        .corner-marks::before,
+        .corner-marks::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--structure-cyan);
+            border-style: solid;
+        }
+
+        .corner-marks::before {
+            top: 0;
+            inset-inline-start: 0;
+            border-width: 1px 0 0 1px;
+        }
+
+        .corner-marks::after {
+            bottom: 0;
+            inset-inline-end: 0;
+            border-width: 0 1px 1px 0;
+        }
+
+        .corner-marks-alt::before {
+            top: 0;
+            inset-inline-end: 0;
+            inset-inline-start: auto;
+            border-width: 1px 1px 0 0;
+        }
+
+        .corner-marks-alt::after {
+            bottom: 0;
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+            border-width: 0 0 1px 1px;
+        }
+
+        @media (max-width: 540px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <!-- Logo -->
+        <div class="logo-section assemble assemble-1">
+            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
+                <use href="/static/icons.svg#icon-logo"></use>
+            </svg>
+            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
+                <use href="/static/icons.svg#icon-actuator-logo"></use>
+            </svg>
+            <div class="brand-sub">Organization Registration Request</div>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="register-card assemble assemble-2" style="position: relative;">
+            <div class="corner-marks"></div>
+            <div class="corner-marks corner-marks-alt"></div>
+
+            <h2>طلب تسجيل منظمة</h2>
+            <p class="subtitle">Organization Registration Request</p>
+
+            <!-- Messages -->
+            <div id="msg-box" class="msg-box"></div>
+
+            <form id="org-register-form">
+                <!-- Organization Name -->
+                <div class="form-group">
+                    <label class="form-label">اسم المنظمة <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <input type="text" id="org-name" name="name" required
+                            placeholder="مثال: شركة التقنية المتقدمة" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Organization Type -->
+                <div class="form-group">
+                    <label class="form-label">نوع المنظمة <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                        <select id="org-type" name="org_type" required class="form-select form-input">
+                            <option value="startup">شركة ناشئة — Startup</option>
+                            <option value="volunteer_team">فريق تطوعي — Volunteer Team</option>
+                            <option value="ngo">منظمة غير ربحية — NGO</option>
+                            <option value="company">شركة — Company</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <!-- Contact Email -->
+                    <div class="form-group">
+                        <label class="form-label">البريد الإلكتروني <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <input type="email" id="contact-email" name="contact_email" required
+                                placeholder="info@example.com" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Contact Phone -->
+                    <div class="form-group">
+                        <label class="form-label">رقم الهاتف</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            <input type="tel" id="contact-phone" name="contact_phone"
+                                placeholder="+966 5x xxx xxxx" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <!-- City -->
+                    <div class="form-group">
+                        <label class="form-label">المدينة / الموقع</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <input type="text" id="city" name="city"
+                                placeholder="الرياض" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Website -->
+                    <div class="form-group">
+                        <label class="form-label">الموقع الإلكتروني</label>
+                        <div class="input-wrapper">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                            </svg>
+                            <input type="url" id="website" name="website"
+                                placeholder="https://example.com" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Size -->
+                <div class="form-group">
+                    <label class="form-label">عدد أعضاء الفريق</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <input type="number" id="team-size" name="team_size" min="1"
+                            placeholder="10" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">نبذة مختصرة عن المنظمة</label>
+                    <textarea id="description" name="description" rows="3"
+                        placeholder="اكتب نبذة مختصرة عن نشاط المنظمة وأهدافها..."
+                        class="form-textarea no-icon"></textarea>
+                </div>
+
+                <div class="structure-line"></div>
+
+                <!-- Submit -->
+                <button type="submit" id="submit-btn" class="btn-submit">
+                    <span id="btn-text">إرسال طلب التسجيل</span>
+                    <div id="btn-spinner" class="spinner"></div>
+                </button>
+
+                <!-- Links -->
+                <div class="register-links">
+                    <a href="/admin/login?lang={{ lang }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-inline-end:4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        تسجيل الدخول
+                    </a>
+                    <a href="/?lang={{ lang }}">
+                        الصفحة الرئيسية
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Home Button -->
+        <div style="text-align:center;" class="assemble assemble-3">
+            <a href="/?lang={{ lang }}" class="home-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+                </svg>
+                الصفحة الرئيسية
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="register-footer assemble assemble-3">
+            &copy; 2026 Actuators L.L.C
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('org-register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('btn-spinner');
+            const msgBox = document.getElementById('msg-box');
+
+            btn.disabled = true;
+            btnText.textContent = 'جاري الإرسال...';
+            spinner.classList.add('visible');
+            msgBox.classList.remove('visible', 'error', 'success');
+
+            const payload = {
+                name: document.getElementById('org-name').value.trim(),
+                org_type: document.getElementById('org-type').value,
+                contact_email: document.getElementById('contact-email').value.trim(),
+                contact_phone: document.getElementById('contact-phone').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                website: document.getElementById('website').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                team_size: parseInt(document.getElementById('team-size').value) || 0,
+            };
+
+            try {
+                const res = await fetch('/api/auth/org-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    msgBox.textContent = data.message || 'تم إرسال طلب التسجيل بنجاح';
+                    msgBox.classList.add('visible', 'success');
+                    btnText.textContent = 'تم الإرسال';
+                    spinner.classList.remove('visible');
+                    document.getElementById('org-register-form').reset();
+                } else {
+                    throw new Error(data.error || 'فشل في إرسال الطلب');
+                }
+            } catch (err) {
+                msgBox.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                msgBox.classList.add('visible', 'error', 'shake');
+                setTimeout(() => msgBox.classList.remove('shake'), 400);
+
+                btn.disabled = false;
+                btnText.textContent = 'إرسال طلب التسجيل';
+                spinner.classList.remove('visible');
+            }
+        });
+    </script>
+</body>
+
+</html>

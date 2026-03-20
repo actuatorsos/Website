@@ -1,0 +1,11 @@
+{# DaisyUI Stat Card Component #}
+{# Usage: {% include "components/stat.html" %} with stat_title, stat_value, stat_desc, stat_icon #}
+
+<div class="stat bg-base-200 rounded-xl shadow-lg">
+    <div class="stat-figure text-primary">
+        {{ stat_icon|safe }}
+    </div>
+    <div class="stat-title text-base-content/70">{{ stat_title }}</div>
+    <div class="stat-value text-primary">{{ stat_value }}</div>
+    <div class="stat-desc text-base-content/50">{{ stat_desc }}</div>
+</div>

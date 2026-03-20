@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}" class="dark antialiased">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t["meta_title"] }}</title>
+    <meta name="description" content="{{ t["meta_desc"] }}">
+
+    <!-- Favicon (SVG) -->
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ t["meta_title"] }}">
+    <meta property="og:description" content="{{ t["meta_desc"] }}">
+    <meta property="og:site_name" content="Actuators">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ t["meta_title"] }}">
+    <meta name="twitter:description" content="{{ t["meta_desc"] }}">
+
+    <!-- Theme Color (Actuators Navy) -->
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- DaisyUI + TailwindCSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter, IBM Plex Sans Arabic, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- ApexCharts for KPI Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.48.0/dist/apexcharts.min.js"></script>
+
+    <!-- HTMX CDN -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- System Preferences Auto-Detection (Theme & Lang) -->
+    <script>
+        // Force dark mode for public site (Premium Tech Look), unless explicitly light in localstorage
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Language auto-detection (if not set in cookie)
+        if (!document.cookie.includes('lang=')) {
+            const sysLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
+            document.cookie = 'lang=' + sysLang + ';path=/;max-age=31536000';
+
+            // Reload if system language differs from default server language (Arabic)
+            if (sysLang === 'en' && !window.location.search.includes('lang=')) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('lang', 'en');
+                window.location.replace(url.toString());
+            }
+        }
+    </script>
+
+    <!-- Removed Alexandria, using Google Fonts -->
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': 'var(--text-primary)',
+                        'background': 'var(--bg-primary)',
+                        'surface': 'var(--bg-surface)',
+                        'border': 'var(--structure-cyan-muted)',
+                        'cyan-struct': 'var(--structure-cyan)',
+                        'cyan-muted': 'var(--structure-cyan-muted)',
+                        'secondary': 'var(--structure-cyan)',
+                        'accent': 'var(--activation-orange)',
+                        'orange-active': 'var(--activation-orange)',
+                        'success': '#10B981',
+                        'error': '#EF4444',
+                        'warning': '#F59E0B',
+                        'text': 'var(--text-primary)',
+                        'text-primary': 'var(--text-primary)',
+                        'text-secondary': 'var(--text-muted)',
+                        'text-muted': 'var(--text-muted)',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'arabic': ['IBM Plex Sans Arabic', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'none': 'none',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            /* Light Theme (Default Presentation) */
+            --bg-primary: #F8FAFC;
+            --bg-surface: #FFFFFF;
+            --text-primary: #0B1A2A;
+            --text-muted: #475569;
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+        }
+
+        .dark {
+            /* Dark Theme (For UI Panels & Dashboards) */
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            /* Using Arabic font for RTL, Inter for LTR handled below */
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0s, color 0s; /* No elastic transition */
+        }
+
+        [dir="rtl"] body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        [dir="ltr"] body { font-family: 'Inter', sans-serif; }
+        .font-tech { font-family: 'JetBrains Mono', monospace; }
+
+        /* Actuators Structured Components */
+        .brand-nav {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--structure-cyan-muted);
+        }
+
+        .brand-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px; /* strict geometric */
+            transition: all 0.2s linear;
+            position: relative;
+        }
+        
+        /* Isometric/Geometric hover state */
+        .brand-panel:hover {
+            border-color: var(--structure-cyan);
+            background: var(--bg-primary);
+            box-shadow: none;
+        }
+
+        /* Isometric background grid overlay for root containers */
+        .bg-isometric {
+            background-image: 
+                linear-gradient(to right, var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* RTL/LTR Support for spacing */
+        [dir="rtl"] .nav-gap { gap: 2rem; }
+        [dir="ltr"] .nav-gap { gap: 2rem; }
+
+        /* Animation Classes */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Nav Link Underline Hover */
+        .nav-link {
+            position: relative;
+            color: var(--text-muted);
+            transition: color 0s;
+        }
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background-color: var(--structure-cyan);
+            transition: all 0.2s linear;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Form inputs - proper contrast in both modes */
+        input, select, textarea {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--structure-cyan-muted);
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--structure-cyan);
+            outline: none;
+        }
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* DaisyUI theme overrides - prevent DaisyUI from overriding our colors */
+        [data-theme], .dark, :root {
+            --b1: var(--bg-primary);
+            --b2: var(--bg-surface);
+            --b3: var(--bg-surface);
+            --bc: var(--text-primary);
+            --p: var(--structure-cyan);
+            --pc: var(--text-primary);
+            --s: var(--structure-cyan);
+            --sc: var(--text-primary);
+            --a: var(--activation-orange);
+            --ac: #FFFFFF;
+            --n: var(--bg-surface);
+            --nc: var(--text-primary);
+        }
+
+        /* Force DaisyUI input/select/textarea to use our theme */
+        .input, .select, .textarea,
+        .input-bordered, .select-bordered, .textarea-bordered {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--structure-cyan-muted) !important;
+        }
+        .input:focus, .select:focus, .textarea:focus {
+            border-color: var(--structure-cyan) !important;
+            outline: none !important;
+        }
+
+        /* Ensure subtitle / muted text is visible in dark mode */
+        .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800, .text-gray-900,
+        .text-slate-500, .text-slate-600, .text-slate-700, .text-slate-800, .text-slate-900 {
+            color: var(--text-muted) !important;
+        }
+
+        /* Fix bg-primary to use background color (since 'primary' color now maps to text) */
+        .bg-primary { background-color: var(--bg-primary) !important; }
+
+        /* Modal/dialog overlays */
+        .modal-box, [class*="bg-white"], .bg-base-100, .bg-base-200, .bg-base-300 {
+            background-color: var(--bg-surface) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Fix headings that use text-gray in dark mode */
+        .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+            color: var(--text-primary);
+        }
+
+        /* Better error toast styling */
+        .toast-error {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            padding: 0.75rem 1.5rem;
+            background: #0B1A2A;
+            border: 1px solid #EF4444;
+            color: #EF4444;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: toastIn 0.2s linear;
+        }
+        .toast-success {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            padding: 0.75rem 1.5rem;
+            background: #0B1A2A;
+            border: 1px solid #10B981;
+            color: #10B981;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: toastIn 0.2s linear;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Fix select/option text in dark mode */
+        select option {
+            background-color: #0B1A2A;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+
+<body class="bg-primary min-h-screen flex flex-col antialiased">
+    <!-- Structured Nav -->
+    {% block navbar %}
+    <nav class="brand-nav sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center h-24">
+                <!-- Logo (Larger, prominent) -->
+                <a href="/?lang={{ lang }}" class="flex items-center gap-4 group">
+                    <svg class="h-14 w-14 md:h-16 md:w-16 transition-transform duration-0">
+                        <use href="/static/icons.svg#icon-logo"></use>
+                    </svg>
+                    <span class="text-2xl md:text-3xl font-bold text-text-primary tracking-tight group-hover:text-orange-active transition-colors duration-0 uppercase font-tech">Actuators</span>
+                </a>
+
+                <!-- Navigation Links & Actions -->
+                <div class="hidden md:flex items-center nav-gap">
+                    <a href="/?lang={{ lang }}#home" class="nav-link font-bold text-xs tracking-widest uppercase font-tech">{{ t["nav_home"] }}</a>
+                    <a href="/?lang={{ lang }}#about" class="nav-link font-bold text-xs tracking-widest uppercase font-tech">{{ t["nav_about"] }}</a>
+                    <a href="/?lang={{ lang }}#services" class="nav-link font-bold text-xs tracking-widest uppercase font-tech">{{ t["nav_services"] }}</a>
+
+                    <!-- Strict Geometric Admin Button -->
+                    <a href="/admin/login?lang={{ lang }}" id="nav-admin-btn" class="ml-4 px-6 py-2 border border-cyan-struct text-text-primary font-bold text-xs uppercase hover:bg-cyan-struct hover:text-black transition-none font-tech">
+                        {{ t["nav_login"] }}
+                    </a>
+
+                    <!-- Controls (Lang & Theme) -->
+                    <div class="flex items-center gap-1 border-s border-cyan-muted ps-6 ms-2">
+                        <a href="?lang=ar" class="px-2 py-1 text-xs font-bold transition-none font-tech {% if lang == "ar" %}text-orange-active{% else %}text-text-muted hover:text-text-primary{% endif %}">AR</a>
+                        <span class="text-text-muted">/</span>
+                        <a href="?lang=en" class="px-2 py-1 text-xs font-bold transition-none font-tech {% if lang == "en" %}text-orange-active{% else %}text-text-muted hover:text-text-primary{% endif %}">EN</a>
+
+                        <!-- Dark Mode Toggle -->
+                        <button onclick="toggleDarkMode()" id="dark-mode-btn" class="ml-2 p-2 text-text-muted hover:text-cyan-struct hover:bg-surface border border-transparent hover:border-cyan-muted transition-none focus:outline-none" title="Toggle Theme">
+                            <svg id="sun-icon" class="hidden w-5 h-5 text-cyan-struct" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="square" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <svg id="moon-icon" class="w-5 h-5 text-cyan-struct" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="square" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <!-- Structured Footer -->
+    <footer class="bg-primary border-t border-cyan-struct pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <!-- Branding & Intro -->
+                <div class="md:col-span-1">
+                    <a href="/?lang={{ lang }}" class="inline-block mb-6 font-tech text-cyan-struct text-xl font-bold uppercase">
+                        ACTUATORS_
+                    </a>
+                    <p class="text-text-muted text-sm leading-relaxed mb-6 font-tech">
+                        {{ t["footer_rights"] }}
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-8 h-8 bg-surface border border-cyan-muted flex items-center justify-center text-text-muted hover:text-orange-active hover:border-orange-active transition-none">
+                            <span class="text-xs font-tech">X</span>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-surface border border-cyan-muted flex items-center justify-center text-text-muted hover:text-orange-active hover:border-orange-active transition-none">
+                            <span class="text-xs font-tech">IN</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Spacer for layout -->
+                <div class="hidden md:block"></div>
+
+                <!-- Navigation Links -->
+                <div>
+                    <h3 class="text-text-primary font-bold mb-6 tracking-widest uppercase text-xs font-tech">NODE_LINKS</h3>
+                    <ul class="space-y-4">
+                        <li><a href="/?lang={{ lang }}#home" class="text-text-muted hover:text-orange-active transition-none text-sm font-tech">[{{ t["nav_home"] }}]</a></li>
+                        <li><a href="/?lang={{ lang }}#about" class="text-text-muted hover:text-orange-active transition-none text-sm font-tech">[{{ t["nav_about"] }}]</a></li>
+                        <li><a href="/?lang={{ lang }}#services" class="text-text-muted hover:text-orange-active transition-none text-sm font-tech">[{{ t["nav_services"] }}]</a></li>
+                        <li><a href="/admin?lang={{ lang }}" class="text-text-muted hover:text-orange-active transition-none text-sm font-tech">[{{ t["nav_admin"] }}]</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h3 class="text-text-primary font-bold mb-6 tracking-widest uppercase text-xs font-tech">CONTACT_POINT</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3 text-text-muted text-sm font-tech">
+                            <span class="text-cyan-struct">[MAIL]</span>
+                            <span>data@actuators.me</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-text-muted text-sm font-tech">
+                            <span class="text-cyan-struct">[NODE]</span>
+                            <span>System Operations, Mediterranean</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Divider & Copyright -->
+            <div class="pt-8 border-t border-cyan-muted flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-text-muted text-xs uppercase tracking-widest font-tech">STATUS: ACTIVE // © 2026 ACTUATORS</p>
+                <p class="text-text-muted text-xs font-tech">Infrastructure Governance Layer</p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script>
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            document.cookie = 'theme=' + (isDark ? 'dark' : 'light') + ';path=/;max-age=31536000';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateDarkModeIcons(isDark);
+        }
+
+        function updateDarkModeIcons(isDark) {
+            const sun = document.getElementById('sun-icon');
+            const moon = document.getElementById('moon-icon');
+            if (sun && moon) {
+                sun.classList.toggle('hidden', !isDark);
+                moon.classList.toggle('hidden', isDark);
+            }
+        }
+
+        // Initialize icons on load
+        updateDarkModeIcons(document.documentElement.classList.contains('dark'));
+    </script>
+
+    <script>
+    // Check auth and update nav button
+    (function() {
+        fetch('/api/auth/me', { credentials: 'include' })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(user) {
+                if (user && (user.role === 'admin' || user.role === 'manager' || user.user_type === 'startup_owner' || user.user_type === 'team_leader')) {
+                    ['nav-admin-btn', 'nav-admin-btn-mobile'].forEach(function(id) {
+                        var btn = document.getElementById(id);
+                        if (btn) { btn.href = '/admin?lang=' + document.documentElement.lang; btn.textContent = '{{ t["nav_admin"] }}'; }
+                    });
+                }
+            })
+            .catch(function() {});
+    })();
+    </script>
+</body>
+
+</html>

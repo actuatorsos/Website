@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Institutional Services Header -->
+<section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-primary bg-isometric border-b border-cyan-muted">
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <!-- System Version Label -->
+        <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+            NODE_03 // CORE CAPABILITIES
+        </span>
+        
+        <h1 class="text-4xl md:text-6xl font-bold text-text-primary mb-8 tracking-tight font-inter" dir="rtl">
+            قدرات النظام التشغيلية
+        </h1>
+        
+        <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl" dir="rtl">
+            تقدم <strong>Actuators</strong> بنية تحتية برمجية قياسية تمكن الكيانات من أداء وظائفها التشغيلية والمالية بدقة وشفافية على مستوى الشبكة.
+        </p>
+
+        <div class="mt-12 flex justify-center gap-4">
+            <a href="/admin?lang={{ lang }}" class="px-8 py-3 bg-primary border border-cyan-struct text-text-primary font-tech text-sm uppercase hover:bg-cyan-struct hover:text-black transition-none">
+                INITIALIZE_SYSTEM
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Services Grid -->
+<section class="py-24 bg-primary relative z-10">
+    <div class="max-w-6xl mx-auto px-6">
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Service 1: Dashboard -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-dashboards"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">لوحات التحكم الحية</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    إدارة متكاملة ومراقبة لحظية لموارد المنظومة، مع أدوات تحليل ومقاييس الأداء لضمان الاستمرارية التشغيلية بأعلى كفاءة.
+                </p>
+            </div>
+
+            <!-- Service 2: Workflows -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-orange-active">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-workflows"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">أتمتة العمليات (Workflows)</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    مسارات عمل مؤتمتة لتوحيد سير الإجراءات بدءاً من المصادقة وحتى إنهاء المهام بشكل منهجي لا يقبل الخطأ.
+                </p>
+            </div>
+
+            <!-- Service 3: Teams -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-teams"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">الفرق والموارد (Teams)</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    نظام مركزي لإدارة الموارد البشرية، تقسيم الأدوار وتحديد الصلاحيات بشكل أفقي بما يتناسب مع الشبكات الموزعة.
+                </p>
+            </div>
+
+            <!-- Service 4: Verification -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-verification"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">نظام التوثيق والتحقق</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    إصدار ومصادقة الوثائق والشهادات بشكل غير قابل للتلاعب (Tamper-Proof)، لبناء سجل موثوق من الحقائق التشغيلية.
+                </p>
+            </div>
+
+            <!-- Service 5: Layers -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-orange-active">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-layers"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">البنية الهيكلية (Layers)</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    تنظيم طبقي لمنظومة البيانات، يفصل بين المدخلات، المنطق التشغيلي، وواجهة المستخدم، لتمكين التوسعة الآمنة (Scaling).
+                </p>
+            </div>
+
+            <!-- Service 6: Access -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-access"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4" dir="rtl">أنظمة الوصول الآمن</h3>
+                <p class="text-text-muted leading-relaxed text-sm" dir="rtl">
+                    بوابات عبور لربط الكيانات بشكل مشفر، وتأمين تدفق رأس المال، المعرفة، والبيانات بين عقد النظام.
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+{% endblock %}

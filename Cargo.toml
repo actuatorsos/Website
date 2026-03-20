@@ -1,0 +1,116 @@
+[package]
+name = "Actuators"
+version = "0.1.0"
+edition = "2024"
+authors = ["Dr. Machine L.L.C."]
+description = "Actuators Platform"
+
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+
+[features]
+hydrate = []
+ssr = []
+
+[dependencies]
+# Web Framework
+axum = { version = "0.8", features = ["macros", "ws", "multipart"] }
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["fs", "trace", "limit"] }
+futures = "0.3"
+
+# Database
+surrealdb = { version = "2", features = ["protocol-ws"] }
+
+# Templating
+askama = { version = "0.12", features = ["with-axum"] }
+askama_axum = "0.4"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+thiserror = "2"
+base64 = "0.22"
+dotenvy = "0.15"
+tower-cookies = "0.11.0"
+chrono = { version = "0.4", features = ["serde"] }
+rust_decimal = { version = "1", features = ["serde-with-str"] }
+
+# Security & Crypto
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+rand = "0.8"
+subtle = "2.5"
+argon2 = "0.5"
+jsonwebtoken = "9"
+validator = { version = "0.20", features = ["derive"] }
+
+# Email
+lettre = { version = "0.11", features = ["tokio1-native-tls"] }
+
+# Screenshot
+headless_chrome = "1"
+
+# PDF Generation
+printpdf = "0.7"
+image = { version = "0.25", default-features = false, features = [
+    "jpeg",
+    "png",
+] }
+rusttype = "0.9"
+uuid = { version = "1", features = ["v4"] }
+tokio-stream = { version = "0.1.18", features = ["sync"] }
+tokio-util = { version = "0.7", features = ["io", "codec"] }
+
+[package.metadata.leptos]
+# The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
+output-name = "Actuators"
+# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
+site-root = "target/site"
+# The site-root relative folder where all compiled output (JS, WASM and CSS) is written
+site-pkg-dir = "pkg"
+# Assets source dir. All files found here will be copied and synchronized to site-root.
+# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
+assets-dir = "static"
+# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+site-addr = "127.0.0.1:3000"
+# The port to use for automatic reload monitoring
+reload-port = 3001
+# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
+#   [Windows] for non-WSL use "npx.cmd playwright test"
+#   This binary name can be checked in Powershell with Get-Command npx
+end2end-cmd = "npx.cmd playwright test"
+#  The browserlist query used for optimizing the CSS.
+browserquery = "defaults"
+# Set by cargo-leptos watch when building with that tool. Controls whether autoreload JS will be included in the head
+env = "DEV"
+# The features to use when compiling the bin target
+#
+# Optional. Can be over-ridden with the command line parameter --bin-features
+bin-features = ["ssr"]
+# If the --no-default-features flag should be used for compiling the bin target
+#
+# Optional. Defaults to false.
+bin-default-features = false
+# The features to use when compiling the lib target
+#
+# Optional. Can be over-ridden with the command line parameter --lib-features
+lib-features = ["hydrate"]
+# If the --no-default-features flag should be used for compiling the lib target
+#
+# Optional. Defaults to false.
+lib-default-features = false
+# The profile to use for the lib target when compiling for release
+#
+# Optional. Defaults to "release".
+lib-profile-release = "wasm-release"

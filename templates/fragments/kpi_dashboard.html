@@ -1,0 +1,234 @@
+{# KPI Dashboard Fragment #}
+{# HTMX partial for the main admin dashboard with charts and stats #}
+
+<div class="p-6 bg-base-100 min-h-screen" data-theme="dark">
+    {# Page Header #}
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t.get("dashboard_title").unwrap_or(&"لوحة
+                التحكم".to_string()) }}</h1>
+            <p class="text-base-content/60 mt-1">{{ t.get("dashboard_subtitle").unwrap_or(&"نظرة عامة على
+                النظام".to_string()) }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <kbd class="kbd kbd-sm">Ctrl</kbd>
+            <span class="text-base-content/50">+</span>
+            <kbd class="kbd kbd-sm">K</kbd>
+            <span class="text-base-content/50 text-sm">للبحث السريع</span>
+        </div>
+    </div>
+
+    {# Stats Row #}
+    <div class="stats stats-vertical lg:stats-horizontal shadow-xl bg-base-200 w-full mb-8">
+        <div class="stat" hx-get="/api/stats/employees" hx-trigger="load, every 60s" hx-swap="innerHTML">
+            <div class="stat-figure text-primary">
+                <svg class="w-8 h-8">
+                    <use href="/static/icons.svg#icon-teams"></use>
+                </svg>
+            </div>
+            <div class="stat-title">الموظفون</div>
+            <div class="stat-value text-primary">--</div>
+            <div class="stat-desc">موظف نشط</div>
+        </div>
+
+        <div class="stat" hx-get="/api/stats/assets" hx-trigger="load, every 60s" hx-swap="innerHTML">
+            <div class="stat-figure text-secondary">
+                <svg class="w-8 h-8">
+                    <use href="/static/icons.svg#icon-layers"></use>
+                </svg>
+            </div>
+            <div class="stat-title">الأصول</div>
+            <div class="stat-value text-secondary">--</div>
+            <div class="stat-desc">إجمالي الأصول</div>
+        </div>
+
+        <div class="stat" hx-get="/api/stats/machines" hx-trigger="load, every 60s" hx-swap="innerHTML">
+            <div class="stat-figure text-accent">
+                <svg class="w-8 h-8">
+                    <use href="/static/icons.svg#icon-nodes"></use>
+                </svg>
+            </div>
+            <div class="stat-title">الآلات</div>
+            <div class="stat-value text-accent">--</div>
+            <div class="stat-desc">آلة مسجلة</div>
+        </div>
+
+        <div class="stat" hx-get="/api/stats/repairs" hx-trigger="load, every 60s" hx-swap="innerHTML">
+            <div class="stat-figure text-warning">
+                <svg class="w-8 h-8">
+                    <use href="/static/icons.svg#icon-workflows"></use>
+                </svg>
+            </div>
+            <div class="stat-title">عمليات الإصلاح</div>
+            <div class="stat-value text-warning">--</div>
+            <div class="stat-desc">قيد التنفيذ</div>
+        </div>
+    </div>
+
+    {# Charts Grid #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {# Assets by Status Chart #}
+        <div class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-primary">حالة الأصول</h2>
+                <div id="assets-status-chart" class="h-80" hx-get="/api/charts/assets-by-status"
+                    hx-trigger="load, every 60s" hx-swap="none"
+                    hx-on::after-request="renderAssetsChart(event.detail.xhr.responseText)">
+                    <div class="flex items-center justify-center h-full">
+                        <span class="loading loading-spinner loading-lg text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Repairs by Month Chart #}
+        <div class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-secondary">عمليات الإصلاح الشهرية</h2>
+                <div id="repairs-month-chart" class="h-80" hx-get="/api/charts/repairs-by-month"
+                    hx-trigger="load, every 60s" hx-swap="none"
+                    hx-on::after-request="renderRepairsChart(event.detail.xhr.responseText)">
+                    <div class="flex items-center justify-center h-full">
+                        <span class="loading loading-spinner loading-lg text-secondary"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Employee Workload Chart #}
+        <div class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-accent">توزيع المهام على الموظفين</h2>
+                <div id="workload-chart" class="h-80" hx-get="/api/charts/employee-workload"
+                    hx-trigger="load, every 60s" hx-swap="none"
+                    hx-on::after-request="renderWorkloadChart(event.detail.xhr.responseText)">
+                    <div class="flex items-center justify-center h-full">
+                        <span class="loading loading-spinner loading-lg text-accent"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Asset Value by Category #}
+        <div class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-warning">قيمة الأصول حسب الفئة</h2>
+                <div id="value-category-chart" class="h-80" hx-get="/api/charts/asset-value-by-category"
+                    hx-trigger="load, every 60s" hx-swap="none"
+                    hx-on::after-request="renderValueChart(event.detail.xhr.responseText)">
+                    <div class="flex items-center justify-center h-full">
+                        <span class="loading loading-spinner loading-lg text-warning"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart instances
+    let assetsChart, repairsChart, workloadChart, valueChart;
+
+    // Donut chart for assets by status
+    function renderAssetsChart(json) {
+        try {
+            const data = JSON.parse(json);
+            const container = document.querySelector("#assets-status-chart");
+            container.innerHTML = '';
+
+            const options = {
+                chart: { type: 'donut', height: 300, background: 'transparent', foreColor: '#a6adbb', toolbar: { show: false } },
+                series: data.values,
+                labels: data.labels,
+                theme: { mode: 'dark' },
+                colors: ['#00d9ff', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                legend: { position: 'bottom', fontFamily: 'Alexandria, sans-serif' },
+                plotOptions: { pie: { donut: { size: '55%' } } }
+            };
+
+            if (!assetsChart) {
+                assetsChart = new ApexCharts(container, options);
+                assetsChart.render();
+            } else {
+                assetsChart.updateSeries(data.values);
+            }
+        } catch (e) { console.error('Assets chart error:', e); }
+    }
+
+    // Bar chart for repairs by month
+    function renderRepairsChart(json) {
+        try {
+            const data = JSON.parse(json);
+            const container = document.querySelector("#repairs-month-chart");
+            container.innerHTML = '';
+
+            const options = {
+                chart: { type: 'bar', height: 300, background: 'transparent', foreColor: '#a6adbb', toolbar: { show: false } },
+                series: [{ name: 'عمليات الإصلاح', data: data.values }],
+                xaxis: { categories: data.labels },
+                theme: { mode: 'dark' },
+                colors: ['#0ea5e9'],
+                plotOptions: { bar: { borderRadius: 8, columnWidth: '60%' } },
+                dataLabels: { enabled: false }
+            };
+
+            if (!repairsChart) {
+                repairsChart = new ApexCharts(container, options);
+                repairsChart.render();
+            } else {
+                repairsChart.updateSeries([{ data: data.values }]);
+            }
+        } catch (e) { console.error('Repairs chart error:', e); }
+    }
+
+    // Horizontal bar chart for employee workload
+    function renderWorkloadChart(json) {
+        try {
+            const data = JSON.parse(json);
+            const container = document.querySelector("#workload-chart");
+            container.innerHTML = '';
+
+            const options = {
+                chart: { type: 'bar', height: 300, background: 'transparent', foreColor: '#a6adbb', toolbar: { show: false } },
+                series: [{ name: 'المهام', data: data.values }],
+                xaxis: { categories: data.labels },
+                theme: { mode: 'dark' },
+                colors: ['#22d3ee'],
+                plotOptions: { bar: { borderRadius: 8, horizontal: true, columnWidth: '60%' } },
+                dataLabels: { enabled: true }
+            };
+
+            if (!workloadChart) {
+                workloadChart = new ApexCharts(container, options);
+                workloadChart.render();
+            } else {
+                workloadChart.updateSeries([{ data: data.values }]);
+            }
+        } catch (e) { console.error('Workload chart error:', e); }
+    }
+
+    // Pie chart for asset value by category
+    function renderValueChart(json) {
+        try {
+            const data = JSON.parse(json);
+            const container = document.querySelector("#value-category-chart");
+            container.innerHTML = '';
+
+            const options = {
+                chart: { type: 'pie', height: 300, background: 'transparent', foreColor: '#a6adbb', toolbar: { show: false } },
+                series: data.values,
+                labels: data.labels,
+                theme: { mode: 'dark' },
+                colors: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6'],
+                legend: { position: 'bottom', fontFamily: 'Alexandria, sans-serif' }
+            };
+
+            if (!valueChart) {
+                valueChart = new ApexCharts(container, options);
+                valueChart.render();
+            } else {
+                valueChart.updateSeries(data.values);
+            }
+        } catch (e) { console.error('Value chart error:', e); }
+    }
+</script>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t["auto_login_307"] }}</title>
+    <meta name="description" content="Actuators — تسجيل الدخول">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Actuators Brand System ── */
+        :root {
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+            --font-primary-ar: 'IBM Plex Sans Arabic', sans-serif;
+            --font-primary-en: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary-ar);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── Isometric Grid Background ── */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* ── Node Map Decoration ── */
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ── Main Container ── */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 16px;
+        }
+
+        /* ── Logo Section ── */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-section svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .brand-name {
+            font-family: var(--font-primary-en);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Login Card ── */
+        .login-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            padding: 32px;
+        }
+
+        .login-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        /* ── Form Elements ── */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-start: 12px;
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px 10px 12px;
+            padding-inline-start: 40px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            color: var(--text-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s linear;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .form-input:focus {
+            border-color: var(--structure-cyan);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .form-input {
+            padding-inline-end: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-end: 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            transition: color 0.2s linear;
+        }
+
+        .toggle-password:hover {
+            color: var(--structure-cyan);
+        }
+
+        /* ── Error Message ── */
+        .error-msg {
+            display: none;
+            background: rgba(255, 106, 42, 0.08);
+            border: 1px solid rgba(255, 106, 42, 0.3);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--activation-orange);
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        .error-msg.shake {
+            animation: shake 0.4s linear;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--activation-orange);
+            color: var(--bg-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s linear;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(11, 26, 42, 0.3);
+            border-top-color: var(--bg-primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .spinner.visible {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Structural Decoration Lines ── */
+        .structure-line {
+            width: 100%;
+            height: 1px;
+            background: var(--structure-cyan-muted);
+            margin: 24px 0;
+        }
+
+        /* ── Footer ── */
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* ── Links Section ── */
+        .login-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .login-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s linear;
+            font-family: var(--font-primary-ar);
+        }
+
+        .login-links a:hover {
+            color: var(--structure-cyan);
+        }
+
+        /* ── Home Button ── */
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: 1px solid var(--structure-cyan-muted);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.15s linear;
+        }
+
+        .home-link:hover {
+            border-color: var(--structure-cyan);
+            color: var(--structure-cyan);
+        }
+
+        /* ── Sequential Assembly Animation ── */
+        .assemble {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: assemble 0.3s linear forwards;
+        }
+
+        .assemble-1 { animation-delay: 0.05s; }
+        .assemble-2 { animation-delay: 0.1s; }
+        .assemble-3 { animation-delay: 0.15s; }
+
+        @keyframes assemble {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Activation Pulse on Logo Center Cube ── */
+        .logo-pulse .cube-center {
+            animation: pulse 3s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ── Corner Markers ── */
+        .corner-marks {
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+        }
+
+        .corner-marks::before,
+        .corner-marks::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--structure-cyan);
+            border-style: solid;
+        }
+
+        .corner-marks::before {
+            top: 0;
+            inset-inline-start: 0;
+            border-width: 1px 0 0 1px;
+        }
+
+        .corner-marks::after {
+            bottom: 0;
+            inset-inline-end: 0;
+            border-width: 0 1px 1px 0;
+        }
+
+        .corner-marks-alt::before {
+            top: 0;
+            inset-inline-end: 0;
+            inset-inline-start: auto;
+            border-width: 1px 1px 0 0;
+        }
+
+        .corner-marks-alt::after {
+            bottom: 0;
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+            border-width: 0 0 1px 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Logo -->
+        <div class="logo-section assemble assemble-1">
+            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
+                <use href="/static/icons.svg#icon-logo"></use>
+            </svg>
+            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
+                <use href="/static/icons.svg#icon-actuator-logo"></use>
+            </svg>
+            <div class="brand-sub">{{ t["auto_login_308"] }}</div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card assemble assemble-2" style="position: relative;">
+            <div class="corner-marks"></div>
+            <div class="corner-marks corner-marks-alt"></div>
+
+            <h2>{{ t["nav_login"] }}</h2>
+
+            <!-- Error -->
+            <div id="login-error" class="error-msg"></div>
+
+            <form id="login-form">
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">{{ t["form_email"] }}</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                            placeholder="admin@actuators.com" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label">{{ t["auto_accounts_6"] }}</label>
+                    <div class="input-wrapper password-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <input type="password" id="password" name="password" required
+                            autocomplete="current-password" placeholder="••••••••" class="form-input">
+                        <button type="button" onclick="togglePassword()" class="toggle-password" aria-label="Toggle password">
+                            <svg id="eye-closed" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                            </svg>
+                            <svg id="eye-open" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="structure-line"></div>
+
+                <!-- Submit -->
+                <button type="submit" id="login-btn" class="btn-submit">
+                    <span id="btn-text">{{ t["auto_login_309"] }}</span>
+                    <div id="btn-spinner" class="spinner"></div>
+                </button>
+
+                <!-- Forgot Password & Register Links -->
+                <div class="login-links">
+                    <a href="/forgot-password?lang={{ lang }}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-inline-end:4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        نسيت كلمة المرور؟
+                    </a>
+                    <a href="/admin/register?lang={{ lang }}">
+                        إنشاء حساب جديد
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Home Button -->
+        <div style="text-align:center;" class="assemble assemble-3">
+            <a href="/?lang={{ lang }}" class="home-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+                </svg>
+                الصفحة الرئيسية
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer assemble assemble-3">
+            &copy; 2026 Actuators L.L.C
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const eyeClosed = document.getElementById('eye-closed');
+            const eyeOpen = document.getElementById('eye-open');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeClosed.style.display = 'none';
+                eyeOpen.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeClosed.style.display = 'block';
+                eyeOpen.style.display = 'none';
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('btn-spinner');
+            const errorDiv = document.getElementById('login-error');
+
+            btn.disabled = true;
+            btnText.textContent = 'جاري الدخول...';
+            spinner.classList.add('visible');
+            errorDiv.classList.remove('visible');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    document.cookie = `auth_token=${data.token};path=/;max-age=${60 * 60 * 24};SameSite=Strict`;
+
+                    btnText.textContent = 'تم الدخول';
+                    spinner.classList.remove('visible');
+
+                    setTimeout(() => {
+                        const params = new URLSearchParams(window.location.search);
+                        const redirect = params.get('redirect') || '/admin';
+                        window.location.href = redirect;
+                    }, 400);
+                } else {
+                    throw new Error(data.error || 'فشل تسجيل الدخول');
+                }
+            } catch (err) {
+                errorDiv.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                errorDiv.classList.add('visible');
+                errorDiv.classList.add('shake');
+                setTimeout(() => errorDiv.classList.remove('shake'), 400);
+
+                btn.disabled = false;
+                btnText.textContent = 'دخول';
+                spinner.classList.remove('visible');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            }
+        });
+
+    </script>
+</body>
+
+</html>

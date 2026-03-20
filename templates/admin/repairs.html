@@ -1,0 +1,87 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["repairs_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["repairs_subtitle"] }}</p>
+        </div>
+    </div>
+
+    <!-- Add Repair Form -->
+    <div class="bg-surface rounded-lg shadow-card p-8 mb-8 border border-border">
+        <h2 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+            </svg>
+            {{ t["add_repair"] }}
+        </h2>
+
+        <form hx-post="/api/repairs" hx-target="#repairs-table tbody" hx-swap="afterbegin"
+            hx-on::after-request="this.reset()" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_machine_id"] }}</label>
+                <input type="text" name="machine_id" required
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_employee_id"] }}</label>
+                <input type="text" name="employee_id" required
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_project_id"] }}</label>
+                <input type="text" name="project_id"
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+            </div>
+
+            <div class="lg:col-span-4">
+                <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_description"] }}</label>
+                <textarea name="description" required rows="2"
+                    class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"></textarea>
+            </div>
+
+            <div class="flex items-end lg:col-span-4">
+                <button type="submit"
+                    class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                    {{ t["form_submit"] }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Repairs Table -->
+    <div class="bg-surface rounded-lg shadow-card overflow-hidden border border-border">
+        <div class="p-6 border-b border-border bg-gray-50/50">
+            <h2 class="text-xl font-bold text-primary">{{ t["repairs_list"] }}</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="repairs-table" class="w-full">
+                <thead class="bg-gray-50/50">
+                    <tr>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_machine"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_employee"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_description"]
+                            }}</th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_status"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_cost"] }}
+                        </th>
+                        <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_date"] }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border" hx-get="/api/repairs" hx-trigger="load">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

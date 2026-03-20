@@ -1,0 +1,279 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_hr_org_213"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_hr_org_214"] }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border" id="hr-tabs">
+        <button onclick="showTab('departments')" id="tab-departments"
+            class="tab-btn px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">
+            {{ t["auto_hr_org_215"] }}
+        </button>
+        <button onclick="showTab('positions')" id="tab-positions"
+            class="tab-btn px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">
+            {{ t["auto_hr_org_216"] }}
+        </button>
+    </div>
+
+    <!-- Departments Tab -->
+    <div id="tab-content-departments">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Add Department Form -->
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_hr_org_217"] }}</h2>
+                <form id="dept-form" class="space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_hr_org_218"] }}</label>
+                        <input id="d-code" type="text" placeholder="{{ t["auto_attr_hr_org_236"] }}" required
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_hr_org_219"] }}</label>
+                        <input id="d-name" type="text" placeholder="{{ t["hr_section"] }}" required
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">
+                        {{ t["auto_hr_org_221"] }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Departments List -->
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-6 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_hr_org_222"] }}</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-background/30 border-b border-border">
+                            <tr>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_hr_org_223"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_hr_org_224"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_hr_org_225"] }}</th>
+                                <th class="px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="depts-table" class="divide-y divide-border">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["loading"] }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Positions Tab -->
+    <div id="tab-content-positions" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Add Position Form -->
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card h-fit">
+                <h2 class="text-lg font-bold text-primary mb-6">{{ t["auto_hr_org_226"] }}</h2>
+                <form id="pos-form" class="space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_hr_org_227"] }}</label>
+                        <input id="p-title" type="text" required placeholder="{{ t["auto_attr_hr_org_237"] }}"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_hr_org_228"] }}</label>
+                        <select id="p-dept" required
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                            <option value="">{{ t["auto_attr_hr_org_238"] }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_hr_org_229"] }}</label>
+                        <input id="p-level" type="text" placeholder="{{ t["auto_attr_hr_org_239"] }}"
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">
+                        {{ t["auto_hr_org_230"] }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Positions List -->
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-6 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_hr_org_231"] }}</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-background/30 border-b border-border">
+                            <tr>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_hr_org_227"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_hr_org_228"] }}</th>
+                                <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_hr_org_232"] }}</th>
+                                <th class="px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="positions-table" class="divide-y divide-border">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["loading"] }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function showTab(name) {
+        document.querySelectorAll('[id^="tab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-secondary', 'text-secondary');
+            btn.classList.add('border-transparent', 'text-text-secondary');
+        });
+        document.getElementById('tab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('tab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary');
+        btn.classList.remove('border-transparent', 'text-text-secondary');
+    }
+
+    async function loadDepartments() {
+        try {
+            const res = await fetch('/api/hr-org/departments');
+            const data = await res.json();
+            const tbody = document.getElementById('depts-table');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["auto_hr_org_233"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+          <td class="px-6 py-4 font-bold text-primary">${r.name || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.manager || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.employee_count || 0}</td>
+          <td class="px-6 py-4 text-end"><button onclick="deleteDept('${r.id?.id || ''}')" class="text-text-secondary hover:text-red-500">✕</button></td>
+        </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadPositions() {
+        try {
+            const res = await fetch('/api/hr-org/positions');
+            const data = await res.json();
+            const tbody = document.getElementById('positions-table');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["auto_hr_org_234"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+          <td class="px-6 py-4 font-bold text-primary">${r.title || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.department || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.grade || '—'}</td>
+          <td class="px-6 py-4 text-end"><button onclick="deletePos('${r.id?.id || ''}')" class="text-text-secondary hover:text-red-500">✕</button></td>
+        </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    document.getElementById('pos-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        try {
+            const res = await fetch('/api/hr-org/positions', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: 'POS-' + Math.floor(Math.random() * 1000),
+                    title: document.getElementById('p-title').value,
+                    department_id: document.getElementById('p-dept').value,
+                    grade: document.getElementById('p-level').value,
+                    min_salary: null,
+                    max_salary: null
+                })
+            });
+            if (res.ok) {
+                showToast('تم الحفظ بنجاح', 'success');
+                this.reset(); loadPositions();
+            } else {
+                showToast('فشل الحفظ', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('فشل الحفظ', 'error');
+        }
+    });
+
+    document.getElementById('dept-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        try {
+            const res = await fetch('/api/hr-org/departments', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: document.getElementById('d-code').value,
+                    name: document.getElementById('d-name').value
+                })
+            });
+            if (res.ok) {
+                showToast('تم الحفظ بنجاح', 'success');
+                this.reset(); loadDepartments(); loadDepartmentOptions();
+            } else {
+                showToast('فشل الحفظ', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('فشل الحفظ', 'error');
+        }
+    });
+
+    async function deleteDept(id) {
+        confirmAction('هل أنت متأكد من الحذف؟', async function() {
+            try {
+                const res = await fetch('/api/hr-org/departments/' + id, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('تم الحذف بنجاح', 'success');
+                    loadDepartments();
+                    loadDepartmentOptions();
+                } else {
+                    showToast('فشل الحذف', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('فشل الحذف', 'error');
+            }
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    async function deletePos(id) {
+        confirmAction('هل أنت متأكد من الحذف؟', async function() {
+            try {
+                const res = await fetch('/api/hr-org/positions/' + id, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('تم الحذف بنجاح', 'success');
+                    loadPositions();
+                } else {
+                    showToast('فشل الحذف', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('فشل الحذف', 'error');
+            }
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    async function loadDepartmentOptions() {
+        try {
+            const res = await fetch('/api/hr-org/departments/options');
+            const html = await res.text();
+            const select = document.getElementById('p-dept');
+            select.innerHTML = '<option value="">{{ t["auto_attr_hr_org_238"] }}</option>' + html;
+        } catch (e) { console.error(e); }
+    }
+
+    loadDepartments(); loadPositions(); loadDepartmentOptions();
+</script>
+{% endblock %}

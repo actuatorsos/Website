@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Machine - Certificate Verification</title>
+    <meta name="description" content="Verify Dr. Machine training certificates">
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <style>
+        @font-face {
+            font-family: 'Alexandria';
+            src: url('/static/fonts/Alexandria-Regular.ttf') format('truetype');
+            font-weight: 400;
+        }
+
+        @font-face {
+            font-family: 'Alexandria';
+            src: url('/static/fonts/Alexandria-Medium.ttf') format('truetype');
+            font-weight: 500;
+        }
+
+        @font-face {
+            font-family: 'Alexandria';
+            src: url('/static/fonts/Alexandria-Bold.ttf') format('truetype');
+            font-weight: 700;
+        }
+
+        body {
+            font-family: 'Alexandria', sans-serif;
+        }
+
+        .gradient-hero {
+            background: linear-gradient(135deg, #1D1B42 0%, #1e3a5f 50%, #00D4FF 100%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glow-pulse {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+            }
+        }
+    </style>
+</head>
+
+<body class="gradient-hero min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+        <svg class="h-20 w-20 mx-auto mb-4 drop-shadow-lg text-[#00B7C2]">
+            <use href="/static/icons.svg#icon-logo"></use>
+        </svg>
+        <h1 class="text-3xl font-bold text-white">Dr. Machine L.L.C.</h1>
+        <p class="text-white/70 mt-2">Certificate Verification / التحقق من الشهادات</p>
+    </div>
+
+    <!-- Verification Card -->
+    <div class="glass-card rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div class="text-center mb-6">
+            <div
+                class="w-16 h-16 bg-transparent border border-[#00B7C2] flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-[#00B7C2]">
+                    <use href="/static/icons.svg#icon-verification"></use>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Verify Certificate</h2>
+            <p class="text-gray-500 text-sm mt-1">أدخل رمز التحقق (Credential ID)</p>
+        </div>
+
+        <form hx-get="/verify/check" hx-target="#result" hx-swap="innerHTML">
+            <div class="mb-4">
+                <input type="text" name="credential_id" required
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00D4FF] focus:border-[#00D4FF] outline-none text-center font-mono text-lg tracking-widest uppercase"
+                    placeholder="XXXXXXXX" maxlength="8">
+            </div>
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-[#1D1B42] to-[#2969A4] text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                <svg class="inline-block w-5 h-5 mr-2">
+                    <use href="/static/icons.svg#icon-access"></use>
+                </svg>
+                Verify / تحقق
+            </button>
+        </form>
+
+        <div id="result" class="mt-6"></div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-white/40 text-xs mt-8">© 2026 Dr. Machine L.L.C. All Rights Reserved.</p>
+</body>
+
+</html>

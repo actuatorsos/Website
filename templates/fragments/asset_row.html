@@ -1,0 +1,21 @@
+<tr class="hover:bg-surface border-l-2 border-l-transparent hover:border-l-cyan-struct transition-none transition-none">
+    <td class="px-6 py-4 font-medium text-text-primary">{{ asset.name }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ asset.category }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">
+        {% match asset.serial_number %}
+        {% when Some with (sn) %}{{ sn }}{% when None %}-{% endmatch %}
+    </td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">
+        {% match asset.location %}
+        {% when Some with (loc) %}{{ loc }}{% when None %}-{% endmatch %}
+    </td>
+    <td class="px-6 py-4">
+        <span class="px-2 py-1 text-xs rounded-none border border-current {{ asset.status_class() }}">
+            {{ asset.status }}
+        </span>
+    </td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">
+        {% match asset.assigned_employee_name %}
+        {% when Some with (name) %}{{ name }}{% when None %}-{% endmatch %}
+    </td>
+</tr>

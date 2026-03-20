@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 01: HERO
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-primary bg-isometric border-b border-cyan-muted flex flex-col items-center justify-center min-h-[85vh]">
+
+    <div class="max-w-5xl mx-auto px-6 text-center relative z-10 w-full">
+
+        <!-- Technical Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 border border-cyan-struct bg-surface text-cyan-struct text-xs font-bold tracking-widest mb-12 font-tech">
+            <span class="w-2 h-2 rounded-none bg-orange-active animate-none"></span>
+            ACTUATORS // CORE NODE
+        </div>
+
+        <!-- Sleek Typography -->
+        <h1 class="text-5xl md:text-7xl lg:text-[80px] font-bold text-text-primary mb-8 leading-[1.1] tracking-tight font-inter">
+            {{ t["hero_title"] }}
+            <br/>
+            <span class="text-cyan-struct font-tech uppercase tracking-widest">Actuators.</span>
+        </h1>
+
+        <p class="text-lg md:text-2xl text-text-muted mb-14 max-w-2xl mx-auto leading-relaxed rtl:font-arabic">
+            {{ t["hero_subtitle"] }}
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+            <a href="/admin/login?lang={{ lang }}" id="hero-login-btn"
+                class="inline-flex items-center justify-center bg-cyan-struct text-black border border-cyan-struct px-8 py-3.5 font-bold transition-none hover:bg-transparent hover:text-cyan-struct w-full sm:w-auto text-sm tracking-widest uppercase font-tech">
+                [ {{ t["nav_login"] }} ]
+            </a>
+
+            <a href="/admin/register?lang={{ lang }}"
+                class="inline-flex items-center justify-center bg-surface border border-cyan-muted text-text-primary px-8 py-3.5 font-bold transition-none hover:bg-primary hover:border-cyan-struct w-full sm:w-auto text-sm tracking-widest uppercase font-tech">
+                [ {{ t["nav_register"] }} ]
+            </a>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <a href="/org-register?lang={{ lang }}"
+                class="inline-flex items-center justify-center border border-orange-active text-orange-active px-6 py-2.5 font-bold transition-none hover:bg-orange-active hover:text-black text-xs tracking-widest uppercase font-tech">
+                {{ t["nav_register_startup"] }}
+            </a>
+            <a href="#about"
+                class="inline-flex items-center justify-center text-text-muted px-6 py-2.5 font-bold transition-none hover:text-cyan-struct text-xs tracking-widest uppercase font-tech">
+                {{ t["nav_read_docs"] }}
+            </a>
+        </div>
+
+        <!-- Script to check auth and show dashboard button -->
+        <script>
+        (function() {
+            fetch('/api/auth/me', { credentials: 'include' })
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(user) {
+                    if (user && (user.role === 'admin' || user.role === 'manager' || user.user_type === 'startup_owner' || user.user_type === 'team_leader')) {
+                        var btn = document.getElementById('hero-login-btn');
+                        btn.href = '/admin?lang={{ lang }}';
+                        btn.innerHTML = '[ {{ t["nav_admin"] }} ]';
+                    } else if (user) {
+                        var btn = document.getElementById('hero-login-btn');
+                        btn.href = '/admin/profile?lang={{ lang }}';
+                        btn.innerHTML = '[ {{ t["nav_profile"] }} ]';
+                    }
+                })
+                .catch(function() {});
+        })();
+        </script>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 02: SYSTEM STATS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="border-b border-cyan-muted bg-surface relative z-20">
+    <div class="max-w-6xl mx-auto px-6 py-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-cyan-muted rtl:divide-x-reverse font-tech">
+            <div>
+                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">3<span class="text-cyan-struct">+</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest">ECOSYSTEM_PARTNERS</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">20<span class="text-cyan-struct">+</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest">SYSTEM_MODULES</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">2<span class="text-cyan-struct">x</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest">LANGUAGES</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-bold text-cyan-struct mb-2">∞</div>
+                <div class="text-xs text-text-muted uppercase tracking-widest">SCALABILITY</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 03: ABOUT
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="about" class="py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_01 // ABOUT_SYSTEM
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["nav_about"] }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["about_intro_text"]|safe }}
+            </p>
+        </div>
+
+        <!-- The Systemic Problem -->
+        <div class="mb-20">
+            <h3 class="text-xs font-tech text-text-muted mb-6 tracking-widest uppercase">NODE_01.1 // THE SYSTEMIC PROBLEM</h3>
+            <div class="brand-panel p-10 md:p-14 border-t-4 border-t-cyan-struct opacity-90 hover:opacity-100">
+                <h4 class="text-2xl font-bold text-text-primary mb-6">{{ t["about_problem_title"] }}</h4>
+                <ul class="text-lg md:text-xl text-text-muted leading-relaxed space-y-4">
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>{{ t["about_problem_1_label"] }}</strong> {{ t["about_problem_1_desc"] }}</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>{{ t["about_problem_2_label"] }}</strong> {{ t["about_problem_2_desc"] }}</span>
+                    </li>
+                    <li class="flex gap-4">
+                        <span class="text-orange-active font-tech">■</span>
+                        <span><strong>{{ t["about_problem_3_label"] }}</strong> {{ t["about_problem_3_desc"] }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Transformational Solution -->
+        <div class="mb-20">
+            <h3 class="text-xs font-tech text-text-muted mb-6 tracking-widest uppercase text-right">NODE_01.2 // TRANSFORMATIONAL SOLUTION</h3>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- ERP -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-dashboards"></use>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-text-primary mb-4">{{ t["about_sol_erp_title"] }}</h4>
+                    <p class="text-text-muted leading-relaxed text-sm">
+                        {{ t["about_sol_erp_desc"] }}
+                    </p>
+                </div>
+
+                <!-- Diaspora -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-links"></use>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-text-primary mb-4">{{ t["about_sol_diaspora_title"] }}</h4>
+                    <p class="text-text-muted leading-relaxed text-sm">
+                        {{ t["about_sol_diaspora_desc"] }}
+                    </p>
+                </div>
+
+                <!-- LMS -->
+                <div class="brand-panel p-8 flex flex-col group">
+                    <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                        <svg class="w-6 h-6">
+                            <use href="/static/icons.svg#icon-growth"></use>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-text-primary mb-4">{{ t["about_sol_lms_title"] }}</h4>
+                    <p class="text-text-muted leading-relaxed text-sm">
+                        {{ t["about_sol_lms_desc"] }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Model & Impact -->
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="brand-panel p-10 border-t-4 border-t-orange-active">
+                <h4 class="text-2xl font-bold text-text-primary mb-6">{{ t["about_biz_title"] }}</h4>
+                <div class="space-y-4 text-text-muted">
+                    <p><strong class="text-text-primary">{{ t["about_biz_free_label"] }}</strong> {{ t["about_biz_free"] }}</p>
+                    <p><strong class="text-text-primary">{{ t["about_biz_premium_label"] }}</strong> {{ t["about_biz_premium"] }}</p>
+                </div>
+            </div>
+
+            <div class="brand-panel p-10 border-t-4 border-t-cyan-struct bg-isometric">
+                <h4 class="text-2xl font-bold text-text-primary mb-6">{{ t["about_imm_title"] }}</h4>
+                <div class="space-y-4 text-text-muted">
+                    <p><span class="text-cyan-struct font-tech">OUTPUTS:</span> {{ t["about_imm_outputs"] }}</p>
+                    <p><span class="text-cyan-struct font-tech">OUTCOMES:</span> {{ t["about_imm_outcomes"] }}</p>
+                    <p><span class="text-cyan-struct font-tech">SYSTEMIC IMPACT:</span> {{ t["about_imm_impact"] }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 04: SERVICES
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="services" class="py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_02 // CORE CAPABILITIES
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["nav_services"] }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["services_intro"]|safe }}
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Service 1: Dashboard -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-dashboards"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_dashboard_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_dashboard_desc"] }}
+                </p>
+            </div>
+
+            <!-- Service 2: Workflows -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-orange-active">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-workflows"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_workflows_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_workflows_desc"] }}
+                </p>
+            </div>
+
+            <!-- Service 3: Teams -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-teams"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_teams_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_teams_desc"] }}
+                </p>
+            </div>
+
+            <!-- Service 4: Verification -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-verification"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_verify_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_verify_desc"] }}
+                </p>
+            </div>
+
+            <!-- Service 5: Layers -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-orange-active">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-layers"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_layers_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_layers_desc"] }}
+                </p>
+            </div>
+
+            <!-- Service 6: Access -->
+            <div class="brand-panel p-8 flex flex-col group border-t-4 border-t-cyan-struct">
+                <div class="w-12 h-12 bg-primary border border-cyan-muted flex items-center justify-center mb-8 text-cyan-struct">
+                    <svg class="w-6 h-6">
+                        <use href="/static/icons.svg#icon-access"></use>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["svc_access_title"] }}</h3>
+                <p class="text-text-muted leading-relaxed text-sm">
+                    {{ t["svc_access_desc"] }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 05: ECOSYSTEM PARTNERS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="partners" class="py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-primary">
+                NODE_03 // ACTIVE NODES
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["partners_title"] }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["partners_desc"] }}
+            </p>
+        </div>
+
+        <!-- Partners Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Partner: 3D Titans -->
+            <a href="https://3dtitans.org/" target="_blank" rel="noopener noreferrer"
+                class="brand-panel p-0 group overflow-hidden border-t-4 border-t-orange-active hover:border-t-cyan-struct block">
+                <!-- Preview Image -->
+                <div class="relative w-full h-44 bg-primary overflow-hidden">
+                    <img src="/api/screenshot?url=https://3dtitans.org/"
+                        loading="lazy"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        alt="3D Titans"
+                        class="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="absolute inset-0 bg-primary bg-isometric items-center justify-center hidden">
+                        <span class="text-cyan-struct font-tech text-2xl font-bold tracking-widest">3D TITANS</span>
+                    </div>
+                </div>
+                <!-- Info -->
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold text-text-primary group-hover:text-cyan-struct transition-colors duration-200">3D Titans</h3>
+                        <span class="text-xs font-tech text-orange-active border border-orange-active px-2 py-0.5">{{ t["org_type_startup"] }}</span>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed mb-4">
+                        {% if lang == "ar" %}خدمات طباعة ثلاثية الأبعاد متميزة وسوق للمبدعين والمصممين.{% else %}Premium 3D printing services and marketplace for creators.{% endif %}
+                    </p>
+                    <div class="flex items-center gap-2 text-cyan-struct text-xs font-tech group-hover:gap-3 transition-all duration-200">
+                        <span>{{ t["partners_visit"] }}</span>
+                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Partner: RoboTronics -->
+            <a href="https://www.robotronicsevo.com/" target="_blank" rel="noopener noreferrer"
+                class="brand-panel p-0 group overflow-hidden border-t-4 border-t-orange-active hover:border-t-cyan-struct block">
+                <div class="relative w-full h-44 bg-primary overflow-hidden">
+                    <img src="/api/screenshot?url=https://www.robotronicsevo.com/"
+                        loading="lazy"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        alt="RoboTronics"
+                        class="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="absolute inset-0 bg-primary bg-isometric items-center justify-center hidden">
+                        <span class="text-cyan-struct font-tech text-2xl font-bold tracking-widest">ROBOTRONICS</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold text-text-primary group-hover:text-cyan-struct transition-colors duration-200">RoboTronics</h3>
+                        <span class="text-xs font-tech text-orange-active border border-orange-active px-2 py-0.5">{{ t["org_type_startup"] }}</span>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed mb-4">
+                        {% if lang == "ar" %}حلول روبوتية متقدمة وأنظمة أتمتة ذكية للقطاع الصناعي والتعليمي.{% else %}Advanced robotics solutions and smart automation systems for industrial and educational sectors.{% endif %}
+                    </p>
+                    <div class="flex items-center gap-2 text-cyan-struct text-xs font-tech group-hover:gap-3 transition-all duration-200">
+                        <span>{{ t["partners_visit"] }}</span>
+                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Partner: Eyronix -->
+            <a href="https://eyronix.com/" target="_blank" rel="noopener noreferrer"
+                class="brand-panel p-0 group overflow-hidden border-t-4 border-t-orange-active hover:border-t-cyan-struct block">
+                <div class="relative w-full h-44 bg-primary overflow-hidden">
+                    <img src="/api/screenshot?url=https://eyronix.com/"
+                        loading="lazy"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        alt="Eyronix"
+                        class="w-full h-full object-cover object-top opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="absolute inset-0 bg-primary bg-isometric items-center justify-center hidden">
+                        <span class="text-cyan-struct font-tech text-2xl font-bold tracking-widest">EYRONIX</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold text-text-primary group-hover:text-cyan-struct transition-colors duration-200">Eyronix Syria</h3>
+                        <span class="text-xs font-tech text-orange-active border border-orange-active px-2 py-0.5">{{ t["org_type_startup"] }}</span>
+                    </div>
+                    <p class="text-text-muted text-sm leading-relaxed mb-4">
+                        {% if lang == "ar" %}أنظمة مراقبة ذكية وكاميرات أمنية وحلول بنية تحتية للطاقة الشمسية.{% else %}Intelligent CCTV, security systems, and solar infrastructure solutions.{% endif %}
+                    </p>
+                    <div class="flex items-center gap-2 text-cyan-struct text-xs font-tech group-hover:gap-3 transition-all duration-200">
+                        <span>{{ t["partners_visit"] }}</span>
+                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 06: CTA
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-24 border-t border-cyan-muted bg-surface">
+    <div class="max-w-4xl mx-auto px-6">
+        <div class="brand-panel p-12 text-center relative overflow-hidden bg-isometric">
+
+            <div class="relative z-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-6">{{ t["cta_title"] }}</h2>
+                <p class="text-text-muted mb-10 text-lg max-w-2xl mx-auto">{{ t["cta_desc"] }}</p>
+
+                <a href="mailto:data@actuators.me"
+                    class="inline-flex items-center justify-center bg-cyan-struct text-black border border-cyan-struct px-8 py-3.5 font-bold transition-none hover:bg-transparent hover:text-cyan-struct text-sm tracking-widest font-tech">
+                    [ {{ t["cta_btn"] }} ]
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

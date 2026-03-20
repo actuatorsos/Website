@@ -1,0 +1,33 @@
+<tr class="hover:bg-surface border-l-2 border-l-transparent hover:border-l-cyan-struct transition-none transition-none group" id="cert-{{ certificate.id_string() }}">
+    <td class="px-6 py-4 font-mono text-secondary font-bold">{{ certificate.credential_id }}</td>
+    <td class="px-6 py-4 text-text-primary font-medium">{{ certificate.trainee_name }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ certificate.course_title }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ certificate.total_hours }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ certificate.start_date }} → {{ certificate.end_date }}</td>
+    <td class="px-6 py-4">
+        <span class="px-3 py-1 rounded-none border border-current text-xs font-bold {{ certificate.status_class() }}">
+            {{ certificate.status_text() }}
+        </span>
+    </td>
+    <td class="px-6 py-4">
+        <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-smooth">
+            <a href="/api/pdf/certificate/{{ certificate.credential_id }}" target="_blank"
+                class="p-1.5 rounded-none border border-cyan-muted text-info hover:bg-info/10 transition-smooth" title="تحميل PDF">
+                <span class="font-tech text-info">[PDF]</span>
+            </a>
+            {% if certificate.status.to_string() == "issued" %}
+            <button hx-post="/api/certificates/{{ certificate.id_string() }}/revoke"
+                hx-target="#cert-{{ certificate.id_string() }}" hx-swap="outerHTML"
+                class="p-1.5 rounded-none border border-cyan-muted text-warning hover:bg-warning/10 transition-smooth" title="إلغاء">
+                <span class="font-tech text-warning">[R]</span>
+            </button>
+            {% endif %}
+            <button hx-delete="/api/certificates/{{ certificate.id_string() }}"
+                hx-target="#cert-{{ certificate.id_string() }}" hx-swap="outerHTML"
+                hx-confirm="هل تريد حذف هذه الشهادة؟"
+                class="p-1.5 rounded-none border border-cyan-muted text-error hover:bg-error/10 transition-smooth" title="حذف">
+                <span class="font-tech text-red-500">[X]</span>
+            </button>
+        </div>
+    </td>
+</tr>

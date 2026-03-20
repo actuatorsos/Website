@@ -1,0 +1,263 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["form_email"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_email_159"] }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showTab('config')" id="tab-config"
+            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_email_160"] }}</button>
+        <button onclick="showTab('templates')" id="tab-templates"
+            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_161"] }}</button>
+        <button onclick="showTab('logs')" id="tab-logs"
+            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_162"] }}</button>
+        <button onclick="showTab('compose')" id="tab-compose"
+            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_163"] }}</button>
+    </div>
+
+    <!-- Config Tab -->
+    <div id="tab-content-config">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+            <h3 class="text-lg font-bold text-primary mb-4">{{ t["auto_email_164"] }}</h3>
+            <form id="smtp-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_165"] }}</label>
+                    <input id="smtp-host" type="text" placeholder="smtp.gmail.com"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_166"] }}</label>
+                    <input id="smtp-port" type="number" value="587"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_167"] }}</label>
+                    <input id="smtp-username" type="text" placeholder="email@domain.com"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_accounts_6"] }}</label>
+                    <input id="smtp-password" type="password"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_168"] }}</label>
+                    <input id="smtp-from" type="email" placeholder="noreply@drmachine.com"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_169"] }}</label>
+                    <input id="smtp-from-name" type="text" value="Dr. Machine"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div class="md:col-span-2 flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-sm text-text-secondary">
+                        <input id="smtp-tls" type="checkbox" checked class="rounded border-border text-secondary">
+                        {{ t["auto_email_170"] }}
+                    </label>
+                </div>
+                <div class="md:col-span-2 flex gap-3">
+                    <button type="submit"
+                        class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_171"] }}</button>
+                    <button type="button" onclick="testSmtp()"
+                        class="bg-accent/20 text-secondary px-6 py-2.5 rounded-xl font-semibold hover:bg-accent/30 transition-colors">{{ t["auto_email_172"] }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Templates Tab -->
+    <div id="tab-content-templates" class="hidden">
+        <div class="flex justify-end mb-4">
+            <button onclick="document.getElementById('tpl-modal').classList.remove('hidden')"
+                class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_173"] }}</button>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_174"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_name"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_175"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tpl-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Tab -->
+    <div id="tab-content-logs" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_176"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_175"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compose Tab -->
+    <div id="tab-content-compose" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+            <h3 class="text-lg font-bold text-primary mb-4">{{ t["auto_email_177"] }}</h3>
+            <form id="compose-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_178"] }}</label>
+                    <input id="compose-to" type="text" placeholder="user1@mail.com, user2@mail.com"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_175"] }}</label>
+                    <input id="compose-subject" type="text"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_179"] }}</label>
+                    <textarea id="compose-body" rows="8"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary resize-y"></textarea>
+                </div>
+                <button type="submit"
+                    class="bg-secondary text-white px-8 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_180"] }}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="tpl-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_email_181"] }}</h3>
+                <button onclick="document.getElementById('tpl-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <form id="tpl-form" class="space-y-4">
+                <input id="tpl-code" type="text" placeholder="WELCOME" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="tpl-name" type="text" placeholder="{{ t["auto_attr_email_186"] }}" required
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <input id="tpl-subject" type="text" placeholder="{{ t["auto_attr_email_187"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                <textarea id="tpl-body" rows="5" placeholder="{{ t["auto_attr_email_188"] }}"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none resize-y"></textarea>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90">{{ t["auto_email_182"] }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(name) {
+        document.querySelectorAll('[id^="tab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.etab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('tab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('tab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'templates') loadTemplates();
+        if (name === 'logs') loadLogs();
+    }
+
+    async function loadTemplates() {
+        const res = await fetch('/api/email/templates');
+        const data = await res.json();
+        const tbody = document.getElementById('tpl-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_email_183"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-mono font-bold">${r.code || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.name || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.subject || '—'}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-700'}">${r.is_active ? 'مفعل' : 'معطل'}</span></td>
+    </tr>`).join('');
+    }
+
+    async function loadLogs() {
+        const res = await fetch('/api/email/logs');
+        const data = await res.json();
+        const tbody = document.getElementById('logs-table');
+        const statusColors = { sent: 'bg-green-100 text-green-700', failed: 'bg-red-100 text-red-700', pending: 'bg-yellow-100 text-yellow-700' };
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_email_184"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm">${(r.recipients || []).join(', ')}</td>
+        <td class="px-6 py-4 text-sm">${r.subject || '—'}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColors[r.status] || 'bg-gray-100 text-gray-700'}">${r.status}</span></td>
+        <td class="px-6 py-4 text-sm text-text-secondary">${r.sent_at?.split('T')[0] || '—'}</td>
+    </tr>`).join('');
+    }
+
+    document.getElementById('smtp-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/email/config', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                smtp_host: document.getElementById('smtp-host').value,
+                smtp_port: parseInt(document.getElementById('smtp-port').value),
+                smtp_username: document.getElementById('smtp-username').value,
+                smtp_password: document.getElementById('smtp-password').value,
+                from_email: document.getElementById('smtp-from').value,
+                from_name: document.getElementById('smtp-from-name').value,
+                use_tls: document.getElementById('smtp-tls').checked
+            })
+        });
+        showToast('تم حفظ الإعدادات', 'success');
+    });
+
+    document.getElementById('compose-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const recipients = document.getElementById('compose-to').value.split(',').map(s => s.trim());
+        await fetch('/api/email/send', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipients, subject: document.getElementById('compose-subject').value, body: document.getElementById('compose-body').value })
+        });
+        showToast('تم الإرسال', 'success'); this.reset();
+    });
+
+    document.getElementById('tpl-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/email/templates', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: document.getElementById('tpl-code').value, name: document.getElementById('tpl-name').value,
+                subject: document.getElementById('tpl-subject').value, body_html: document.getElementById('tpl-body').value
+            })
+        });
+        document.getElementById('tpl-modal').classList.add('hidden');
+        this.reset(); loadTemplates();
+    });
+
+    loadTemplates();
+</script>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto relative z-10">
+    <!-- Header — Strict geometric -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-[var(--structure-cyan-muted)]">
+        <div>
+            <p class="text-[10px] font-bold tracking-[0.3em] uppercase font-mono text-[var(--structure-cyan)] mb-2">DASHBOARD // CONTROL_PANEL</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">{{ t["admin_title"] }}</h1>
+            <p class="text-sm text-[var(--text-muted)] mt-1">{{ t["admin_subtitle"] }}</p>
+        </div>
+        <div class="hidden md:flex items-center gap-3">
+            <div class="flex items-center gap-2 px-4 py-2 border border-[var(--structure-cyan-muted)] bg-[var(--bg-surface)]">
+                <span class="w-2 h-2 bg-[var(--activation-orange)] animate-pulse"></span>
+                <span class="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">{{ t["admin_welcome"] }}</span>
+                <span class="text-xs font-mono font-bold text-[var(--structure-cyan)]">{{ user_email }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid — Wireframe panels -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--structure-cyan-muted)] mb-10 border border-[var(--structure-cyan-muted)]">
+        <!-- Organizations -->
+        <div class="stat-panel bg-[var(--bg-surface)] p-6 relative group" style="animation: panelSnap 0.3s linear 0.05s both">
+            <div class="absolute top-0 start-0 w-1 h-full bg-[var(--structure-cyan)] opacity-0 group-hover:opacity-100 transition-opacity duration-100"></div>
+            <div class="flex items-start justify-between mb-4">
+                <svg class="w-5 h-5 text-[var(--structure-cyan)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" stroke-linejoin="miter" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span class="text-[8px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">ORG_COUNT</span>
+            </div>
+            <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">{{ t["stat_organizations"] }}</p>
+            <h3 class="text-4xl font-bold font-mono text-[var(--text-primary)] tabular-nums">{{ stats.organizations }}</h3>
+        </div>
+
+        <!-- Events -->
+        <div class="stat-panel bg-[var(--bg-surface)] p-6 relative group" style="animation: panelSnap 0.3s linear 0.1s both">
+            <div class="absolute top-0 start-0 w-1 h-full bg-[var(--structure-cyan)] opacity-0 group-hover:opacity-100 transition-opacity duration-100"></div>
+            <div class="flex items-start justify-between mb-4">
+                <svg class="w-5 h-5 text-[var(--structure-cyan)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" stroke-linejoin="miter" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-[8px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">EVT_COUNT</span>
+            </div>
+            <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">{{ t["stat_events"] }}</p>
+            <h3 class="text-4xl font-bold font-mono text-[var(--text-primary)] tabular-nums">{{ stats.events }}</h3>
+        </div>
+
+        <!-- Employees -->
+        <div class="stat-panel bg-[var(--bg-surface)] p-6 relative group" style="animation: panelSnap 0.3s linear 0.15s both">
+            <div class="absolute top-0 start-0 w-1 h-full bg-[var(--activation-orange)] opacity-0 group-hover:opacity-100 transition-opacity duration-100"></div>
+            <div class="flex items-start justify-between mb-4">
+                <svg class="w-5 h-5 text-[var(--structure-cyan)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" stroke-linejoin="miter" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-[8px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">EMP_COUNT</span>
+            </div>
+            <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">{{ t["stat_employees"] }}</p>
+            <h3 class="text-4xl font-bold font-mono text-[var(--activation-orange)] tabular-nums">{{ stats.employees }}</h3>
+        </div>
+
+        <!-- Projects -->
+        <div class="stat-panel bg-[var(--bg-surface)] p-6 relative group" style="animation: panelSnap 0.3s linear 0.2s both">
+            <div class="absolute top-0 start-0 w-1 h-full bg-[var(--structure-cyan)] opacity-0 group-hover:opacity-100 transition-opacity duration-100"></div>
+            <div class="flex items-start justify-between mb-4">
+                <svg class="w-5 h-5 text-[var(--structure-cyan)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" stroke-linejoin="miter" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span class="text-[8px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">PRJ_COUNT</span>
+            </div>
+            <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-1">{{ t["stat_projects"] }}</p>
+            <h3 class="text-4xl font-bold font-mono text-[var(--text-primary)] tabular-nums">{{ stats.projects }}</h3>
+        </div>
+    </div>
+
+    <!-- Main Grid: Table + Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="animation: panelSnap 0.3s linear 0.3s both">
+
+        <!-- Organizations Table -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="border border-[var(--structure-cyan-muted)] bg-[var(--bg-surface)] overflow-hidden">
+                <div class="px-6 py-4 border-b border-[var(--structure-cyan-muted)] flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 bg-[var(--structure-cyan)]"></span>
+                        <h2 class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{{ t["org_list_title"] }}</h2>
+                    </div>
+                    <a href="/admin/organizations"
+                        class="text-xs font-mono font-medium text-[var(--structure-cyan)] hover:text-[var(--activation-orange)] transition-colors duration-100 uppercase tracking-wider">{{ t["auto_dashboard_152"] }} &rarr;</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-start border-collapse">
+                        <thead>
+                            <tr class="border-b border-[var(--structure-cyan-muted)]">
+                                <th class="px-6 py-3 text-start text-[10px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.2em]">
+                                    {{ t["org_col_name"] }}</th>
+                                <th class="px-6 py-3 text-start text-[10px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.2em]">
+                                    {{ t["org_col_type"] }}</th>
+                                <th class="px-6 py-3 text-start text-[10px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.2em]">
+                                    {{ t["org_col_status"] }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="px-6 py-10 text-center">
+                                    <div class="flex flex-col items-center gap-2">
+                                        <svg class="w-8 h-8 text-[var(--structure-cyan-muted)]" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                        </svg>
+                                        <p class="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">{{ t["org_empty"] }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Quick Actions + Activity -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="border border-[var(--structure-cyan-muted)] bg-[var(--bg-surface)]">
+                <div class="px-6 py-4 border-b border-[var(--structure-cyan-muted)] flex items-center gap-3">
+                    <svg class="w-4 h-4 text-[var(--activation-orange)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <h2 class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{{ t["dashboard_quick_actions"] }}</h2>
+                </div>
+                <div class="p-4 grid grid-cols-2 gap-px bg-[var(--structure-cyan-muted)]">
+                    <a href="/admin/organizations"
+                        class="flex flex-col items-center justify-center p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                        <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="square" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span class="text-[10px] font-mono font-medium uppercase tracking-wider">{{ t["add_organization"] }}</span>
+                    </a>
+                    <a href="/admin/events"
+                        class="flex flex-col items-center justify-center p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                        <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="square" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span class="text-[10px] font-mono font-medium uppercase tracking-wider">{{ t["add_event"] }}</span>
+                    </a>
+                    <a href="/admin/projects"
+                        class="flex flex-col items-center justify-center p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                        <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="square" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        <span class="text-[10px] font-mono font-medium uppercase tracking-wider">{{ t["add_project"] }}</span>
+                    </a>
+                    <button onclick="openCommandPalette()"
+                        class="flex flex-col items-center justify-center p-4 bg-[var(--bg-surface)] hover:bg-[var(--bg-primary)] text-[var(--text-muted)] hover:text-[var(--activation-orange)] transition-colors duration-100 group focus:outline-none">
+                        <svg class="w-5 h-5 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="square" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span class="text-[10px] font-mono font-medium uppercase tracking-wider">{{ t["cmd_palette_shortcut"] }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="border border-[var(--structure-cyan-muted)] bg-[var(--bg-surface)]">
+                <div class="px-6 py-4 border-b border-[var(--structure-cyan-muted)] flex items-center gap-3">
+                    <svg class="w-4 h-4 text-[var(--structure-cyan)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h2 class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{{ t["dashboard_recent_activity"] }}</h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-col items-center gap-3 py-6">
+                        <div class="w-px h-8 bg-[var(--structure-cyan-muted)]"></div>
+                        <span class="w-3 h-3 border border-[var(--structure-cyan-muted)] rotate-45"></span>
+                        <p class="text-xs font-mono text-[var(--text-muted)] uppercase tracking-wider">
+                            {% if lang == "ar" %}لا توجد نشاطات حالياً{% else %}No recent activity{% endif %}
+                        </p>
+                        <div class="w-px h-8 bg-[var(--structure-cyan-muted)]"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status Indicator -->
+            <div class="border border-[var(--structure-cyan-muted)] bg-[var(--bg-surface)] p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 bg-[var(--activation-orange)] animate-pulse"></span>
+                        <span class="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-[0.2em]">SYSTEM_STATUS</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-[var(--structure-cyan)] uppercase tracking-wider">ONLINE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes panelSnap {
+        0% { opacity: 0; transform: translateY(8px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_leave_281"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_leave_282"] }}</p>
+        </div>
+        <button onclick="document.getElementById('leave-modal').classList.remove('hidden')"
+            class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            {{ t["auto_leave_283"] }}
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-2xl p-6 border border-yellow-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_leave_284"] }}</p>
+            <p class="text-3xl font-extrabold text-yellow-600 dark:text-yellow-400" id="pending-count">—</p>
+        </div>
+        <div class="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl p-6 border border-green-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_leave_285"] }}</p>
+            <p class="text-3xl font-extrabold text-green-600 dark:text-green-400" id="approved-count">—</p>
+        </div>
+        <div class="bg-gradient-to-br from-red-500/10 to-red-600/5 rounded-2xl p-6 border border-red-500/20">
+            <p class="text-text-secondary text-sm mb-1">{{ t["auto_leave_286"] }}</p>
+            <p class="text-3xl font-extrabold text-red-600 dark:text-red-400" id="rejected-count">—</p>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+        <div class="p-6 border-b border-border bg-background/50 flex items-center justify-between">
+            <h2 class="text-xl font-bold text-primary">{{ t["auto_leave_287"] }}</h2>
+            <select id="status-filter" onchange="loadLeave()"
+                class="bg-background border border-border rounded-xl px-4 py-2 text-sm">
+                <option value="">{{ t["auto_leave_288"] }}</option>
+                <option value="pending">{{ t["auto_leave_289"] }}</option>
+                <option value="approved">{{ t["auto_leave_290"] }}</option>
+                <option value="rejected">{{ t["auto_leave_291"] }}</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-background/30 border-b border-border">
+                    <tr>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_employee"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_leave_292"] }}
+                        </th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_leave_293"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_leave_294"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_leave_295"] }}</th>
+                        <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}</th>
+                        <th class="px-6 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody id="leave-table" class="divide-y divide-border">
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New Leave Modal -->
+    <div id="leave-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-primary">{{ t["auto_leave_283"] }}</h3>
+                <button onclick="document.getElementById('leave-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="leave-form" class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["table_employee"] }}</label>
+                    <select id="lf-emp" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                        <option value="">{{ t["auto_leave_296"] }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_leave_292"] }}</label>
+                    <select id="lf-type"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                        <option value="annual">{{ t["auto_leave_297"] }}</option>
+                        <option value="sick">{{ t["auto_leave_298"] }}</option>
+                        <option value="emergency">{{ t["auto_leave_299"] }}</option>
+                        <option value="unpaid">{{ t["auto_leave_300"] }}</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_leave_301"] }}</label>
+                        <input id="lf-start" type="date" required
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_leave_302"] }}</label>
+                        <input id="lf-end" type="date" required
+                            class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-text-secondary block mb-1">{{ t["auto_compliance_98"] }}</label>
+                    <textarea id="lf-reason" rows="3" placeholder="{{ t["auto_attr_leave_306"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none resize-none"></textarea>
+                </div>
+                <button type="submit"
+                    class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">
+                    {{ t["auto_leave_303"] }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadLeave() {
+        const status = document.getElementById('status-filter').value;
+        try {
+            const res = await fetch('/api/leave/requests' + (status ? '?status=' + status : ''));
+            const data = await res.json();
+            const tbody = document.getElementById('leave-table');
+            if (!Array.isArray(data) || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_leave_304"] }}</td></tr>';
+                return;
+            }
+            const statusColors = { pending: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700' };
+            const statusLabels = { pending: 'معلّق', approved: 'موافق', rejected: 'مرفوض' };
+            tbody.innerHTML = data.map(r => {
+                const status = r.status || 'pending';
+                const color = statusColors[status] || 'bg-gray-100 text-gray-700';
+                const label = statusLabels[status] || status;
+                return `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4 text-sm font-medium">${r.employee?.id || r.employee || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.leave_type || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.start_date || '—'}</td>
+        <td class="px-6 py-4 text-sm">${r.end_date || '—'}</td>
+        <td class="px-6 py-4 text-sm font-bold">${r.days || 0}</td>
+        <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${color}">${label}</span></td>
+        <td class="px-6 py-4 flex gap-2">
+          ${status === 'pending' ? `
+            <button onclick="approveLeave('${r.id?.id || ''}', true)" class="text-xs bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">{{ t["auto_agents_48"] }}</button>
+            <button onclick="approveLeave('${r.id?.id || ''}', false)" class="text-xs bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">{{ t["auto_agents_49"] }}</button>
+          ` : ''}
+        </td>
+      </tr>`;
+            }).join('');
+            // Count
+            document.getElementById('pending-count').textContent = data.filter(r => r.status === 'pending').length;
+            document.getElementById('approved-count').textContent = data.filter(r => r.status === 'approved').length;
+            document.getElementById('rejected-count').textContent = data.filter(r => r.status === 'rejected').length;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function loadEmployeesDropdown() {
+        try {
+            const res = await fetch('/api/employees');
+            const data = await res.json();
+            const select = document.getElementById('lf-emp');
+            if (!Array.isArray(data) || data.length === 0) {
+                select.innerHTML = '<option value="">{{ t["auto_compliance_116"] }}</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">{{ t["auto_compliance_117"] }}</option>' +
+                data.map(e => `<option value="${e.id?.id || e.id}">${e.name || '—'}</option>`).join('');
+        } catch (e) { console.error(e); }
+    }
+    loadEmployeesDropdown();
+
+    async function approveLeave(id, approved) {
+        if (!id) return;
+        const url = approved ? `/api/leave/${id}/approve` : `/api/leave/${id}/reject`;
+        const body = approved ? { approved_by_id: 'admin' } : { rejection_reason: 'قرار الإدارة' };
+        await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        loadLeave();
+    }
+
+    document.getElementById('leave-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const body = {
+            employee_id: document.getElementById('lf-emp').value,
+            leave_type: document.getElementById('lf-type').value,
+            start_date: document.getElementById('lf-start').value,
+            end_date: document.getElementById('lf-end').value,
+            reason: document.getElementById('lf-reason').value,
+        };
+        await fetch('/api/leave/requests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        document.getElementById('leave-modal').classList.add('hidden');
+        this.reset();
+        loadLeave();
+    });
+
+    loadLeave();
+</script>
+{% endblock %}

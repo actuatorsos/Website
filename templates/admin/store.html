@@ -1,0 +1,371 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["ecommerce_section"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_store_408"] }}</p>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div
+            class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-2xl p-4 border border-blue-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_store_409"] }}</p>
+            <p class="text-2xl font-extrabold text-blue-600 dark:text-blue-400" id="kpi-orders">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-2xl p-4 border border-yellow-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_store_410"] }}</p>
+            <p class="text-2xl font-extrabold text-yellow-600 dark:text-yellow-400" id="kpi-processing">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-2xl p-4 border border-green-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_store_411"] }}</p>
+            <p class="text-2xl font-extrabold text-green-600 dark:text-green-400" id="kpi-delivered">—</p>
+        </div>
+        <div
+            class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-2xl p-4 border border-purple-500/20 text-center">
+            <p class="text-text-secondary text-xs mb-1">{{ t["auto_store_412"] }}</p>
+            <p class="text-2xl font-extrabold text-purple-600 dark:text-purple-400" id="kpi-revenue">—</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showStoreTab('orders')" id="stab-orders"
+            class="stab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_store_413"] }}</button>
+        <button onclick="showStoreTab('products')" id="stab-products"
+            class="stab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_catalog_58"] }}</button>
+        <button onclick="showStoreTab('services')" id="stab-services"
+            class="stab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_catalog_59"] }}</button>
+        <button onclick="showStoreTab('settings')" id="stab-settings"
+            class="stab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_store_414"] }}</button>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="stab-content-orders">
+        <div class="flex justify-between mb-4">
+            <div class="flex gap-2">
+                <button onclick="filterOrders(null)"
+                    class="order-filter px-3 py-1.5 text-xs rounded-lg bg-secondary text-white font-semibold">{{ t["auto_leave_288"] }}</button>
+                <button onclick="filterOrders('pending')"
+                    class="order-filter px-3 py-1.5 text-xs rounded-lg bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10">{{ t["auto_store_415"] }}</button>
+                <button onclick="filterOrders('processing')"
+                    class="order-filter px-3 py-1.5 text-xs rounded-lg bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10">{{ t["auto_store_416"] }}</button>
+                <button onclick="filterOrders('delivered')"
+                    class="order-filter px-3 py-1.5 text-xs rounded-lg bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10">{{ t["auto_store_417"] }}</button>
+            </div>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_store_418"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_customer"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                {{ t["table_total"] }}</th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}
+                            </th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="stab-content-products" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_manufacturing_316"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_catalog_72"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_store_419"] }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="3" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Tab -->
+    <div id="stab-content-services" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_store_420"] }}
+                            </th>
+                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_store_421"] }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="services-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="2" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="stab-content-settings" class="hidden">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+            <h3 class="text-lg font-bold text-primary mb-4">{{ t["auto_store_422"] }}</h3>
+            <form id="store-settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_423"] }}</label>
+                    <input id="ss-name" type="text" placeholder="{{ t["auto_attr_store_447"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_424"] }}</label>
+                    <input id="ss-name-en" type="text" placeholder="Dr. Machine Store"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_425"] }}</label>
+                    <textarea id="ss-desc" rows="2"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary resize-y"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_426"] }}</label>
+                    <select id="ss-currency"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                        <option value="SAR">{{ t["auto_store_427"] }}</option>
+                        <option value="USD">{{ t["auto_store_428"] }}</option>
+                        <option value="AED">{{ t["auto_store_429"] }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_430"] }}</label>
+                    <input id="ss-tax" type="number" step="0.01" value="0.15"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_431"] }}</label>
+                    <input id="ss-ship" type="number" step="0.01"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_432"] }}</label>
+                    <input id="ss-free" type="number" step="0.01"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_433"] }}</label>
+                    <input id="ss-email" type="email"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-xs text-text-secondary mb-1">{{ t["auto_store_434"] }}</label>
+                    <input id="ss-phone" type="text"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+                </div>
+                <div class="md:col-span-2 flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-sm text-text-secondary">
+                        <input id="ss-active" type="checkbox" class="rounded border-border text-secondary">
+                        {{ t["auto_store_435"] }}
+                    </label>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit"
+                        class="bg-secondary text-white px-8 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_171"] }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-2xl p-6 border border-border m-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary" id="order-detail-title">{{ t["auto_store_436"] }}</h3>
+                <button onclick="document.getElementById('order-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">✕</button>
+            </div>
+            <div id="order-detail-content">
+                <p class="text-text-secondary text-center py-6">{{ t["loading"] }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showStoreTab(name) {
+        document.querySelectorAll('[id^="stab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.stab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('stab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('stab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'products') loadProducts();
+        if (name === 'services') loadServices();
+        if (name === 'settings') loadSettings();
+    }
+
+    const orderStatusColors = { pending: 'bg-yellow-100 text-yellow-700', confirmed: 'bg-blue-100 text-blue-700', processing: 'bg-indigo-100 text-indigo-700', shipped: 'bg-cyan-100 text-cyan-700', delivered: 'bg-green-100 text-green-700', cancelled: 'bg-red-100 text-red-700', refunded: 'bg-gray-100 text-gray-700' };
+    const orderStatusLabels = { pending: 'معلق', confirmed: 'مؤكد', processing: 'قيد المعالجة', shipped: 'تم الشحن', delivered: 'تم التسليم', cancelled: 'ملغي', refunded: 'مسترد' };
+    const nextStatus = { pending: 'confirmed', confirmed: 'processing', processing: 'shipped', shipped: 'delivered' };
+
+    let currentFilter = null;
+
+    async function loadOrders() {
+        let url = '/api/store-admin/orders';
+        if (currentFilter) url += '?status=' + currentFilter;
+        const res = await fetch(url);
+        const data = await res.json();
+        // Update KPIs
+        const allRes = await fetch('/api/store-admin/orders');
+        const allData = await allRes.json();
+        document.getElementById('kpi-orders').textContent = (allData || []).length;
+        document.getElementById('kpi-processing').textContent = (allData || []).filter(o => ['pending', 'confirmed', 'processing'].includes(o.status)).length;
+        document.getElementById('kpi-delivered').textContent = (allData || []).filter(o => o.status === 'delivered').length;
+        const revenue = (allData || []).filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
+        document.getElementById('kpi-revenue').textContent = revenue.toLocaleString() + ' ر.س';
+
+        const tbody = document.getElementById('orders-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_agents_47"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors cursor-pointer" onclick="viewOrder('${r.id?.id || ''}')">
+        <td class="px-6 py-4 text-sm font-mono font-bold text-secondary">${r.order_number}</td>
+        <td class="px-6 py-4 text-sm">${r.customer_name}</td>
+        <td class="px-6 py-4 text-sm font-bold">${(r.total || 0).toLocaleString()} ${r.currency || 'SAR'}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${orderStatusColors[r.status] || 'bg-gray-100 text-gray-700'}">${orderStatusLabels[r.status] || r.status}</span></td>
+        <td class="px-6 py-4 text-xs text-text-secondary">${r.created_at?.split('T')[0] || '—'}</td>
+        <td class="px-6 py-4">${nextStatus[r.status] ? `<button onclick="event.stopPropagation();advanceOrder('${r.id?.id || ''}','${nextStatus[r.status]}')" class="text-xs bg-secondary text-white px-2 py-1 rounded-lg hover:bg-secondary/90">${orderStatusLabels[nextStatus[r.status]]}</button>` : ''}</td>
+    </tr>`).join('');
+    }
+
+    function filterOrders(status) {
+        currentFilter = status;
+        document.querySelectorAll('.order-filter').forEach(b => {
+            b.classList.remove('bg-secondary', 'text-white'); b.classList.add('bg-background', 'border', 'border-border', 'text-text-secondary');
+        });
+        const label = status ? { pending: 'معلق', processing: 'قيد المعالجة', delivered: 'مُسلّم' }[status] : 'الكل';
+        document.querySelectorAll('.order-filter').forEach(b => { if (b.textContent.trim() === label) { b.classList.add('bg-secondary', 'text-white'); b.classList.remove('bg-background', 'border', 'border-border', 'text-text-secondary'); } });
+        loadOrders();
+    }
+
+    async function advanceOrder(id, status) {
+        await fetch(`/api/store-admin/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+        loadOrders();
+    }
+
+    async function viewOrder(id) {
+        if (!id) return;
+        const res = await fetch(`/api/store-admin/orders/${id}`);
+        const data = await res.json();
+        const o = data.order || {};
+        const items = data.items || [];
+        const payments = data.payments || [];
+        document.getElementById('order-detail-title').textContent = 'طلب ' + (o.order_number || '');
+        document.getElementById('order-detail-content').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><p class="text-xs text-text-secondary">{{ t["table_customer"] }}</p><p class="font-bold">${o.customer_name}</p></div>
+            <div><p class="text-xs text-text-secondary">{{ t["auto_crm_137"] }}</p><p>${o.customer_email || '—'}</p></div>
+            <div><p class="text-xs text-text-secondary">{{ t["table_status"] }}</p><p><span class="px-2 py-1 rounded-full text-xs font-bold ${orderStatusColors[o.status] || ''}">${orderStatusLabels[o.status] || o.status}</span></p></div>
+            <div><p class="text-xs text-text-secondary">{{ t["table_date"] }}</p><p>${o.created_at?.split('T')[0] || '—'}</p></div>
+        </div>
+        <div class="grid grid-cols-4 gap-3 mb-4 text-center">
+            <div class="bg-background rounded-xl p-2"><p class="text-[10px] text-text-secondary">{{ t["auto_store_438"] }}</p><p class="font-bold">${(o.subtotal || 0).toFixed(2)}</p></div>
+            <div class="bg-background rounded-xl p-2"><p class="text-[10px] text-text-secondary">{{ t["auto_store_439"] }}</p><p class="font-bold">${(o.tax_amount || 0).toFixed(2)}</p></div>
+            <div class="bg-background rounded-xl p-2"><p class="text-[10px] text-text-secondary">{{ t["auto_store_440"] }}</p><p class="font-bold">${(o.shipping_cost || 0).toFixed(2)}</p></div>
+            <div class="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl p-2 border border-secondary/30"><p class="text-[10px] text-text-secondary">{{ t["table_total"] }}</p><p class="font-extrabold text-secondary">${(o.total || 0).toFixed(2)}</p></div>
+        </div>
+        <h4 class="font-bold text-primary mb-2">{{ t["auto_store_441"] }}</h4>
+        <table class="w-full text-sm mb-4"><thead class="bg-background/30"><tr><th class="px-3 py-2 text-start text-xs">{{ t["auto_manufacturing_316"] }}</th><th class="px-3 py-2 text-start text-xs">{{ t["table_quantity"] }}</th><th class="px-3 py-2 text-start text-xs">{{ t["auto_catalog_72"] }}</th><th class="px-3 py-2 text-start text-xs">{{ t["table_total"] }}</th></tr></thead>
+        <tbody>${items.map(i => `<tr class="border-b border-border"><td class="px-3 py-2">${i.name}</td><td class="px-3 py-2">${i.quantity}</td><td class="px-3 py-2">${(i.unit_price || 0).toFixed(2)}</td><td class="px-3 py-2 font-bold">${(i.total_price || 0).toFixed(2)}</td></tr>`).join('')}</tbody></table>
+        ${payments.length > 0 ? `<h4 class="font-bold text-primary mb-2">{{ t["auto_store_442"] }}</h4><table class="w-full text-sm"><thead class="bg-background/30"><tr><th class="px-3 py-2 text-start text-xs">{{ t["auto_store_443"] }}</th><th class="px-3 py-2 text-start text-xs">{{ t["auto_store_444"] }}</th><th class="px-3 py-2 text-start text-xs">{{ t["table_status"] }}</th></tr></thead><tbody>${payments.map(p => `<tr class="border-b border-border"><td class="px-3 py-2 font-bold">${(p.amount || 0).toFixed(2)}</td><td class="px-3 py-2">${p.method}</td><td class="px-3 py-2">${p.status}</td></tr>`).join('')}</tbody></table>` : ''}
+    `;
+        document.getElementById('order-modal').classList.remove('hidden');
+    }
+
+    async function loadProducts() {
+        const res = await fetch('/api/store/products');
+        const data = await res.json();
+        const tbody = document.getElementById('products-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_store_445"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4"><div><p class="text-sm font-bold">${r.name}</p><p class="text-xs text-text-secondary"></p></div></td>
+        <td class="px-6 py-4 text-sm font-bold text-primary">${(r.price || 0).toLocaleString()} ${r.currency || 'SAR'}</td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.in_stock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.in_stock ? 'متوفر' : 'نفد'}</span></td>
+    </tr>`).join('');
+    }
+
+    async function loadServices() {
+        const res = await fetch('/api/store/services');
+        const data = await res.json();
+        const tbody = document.getElementById('services-table');
+        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="2" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_catalog_77"] }}</td></tr>'; return; }
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-6 py-4"><div><p class="text-sm font-bold">${r.name}</p><p class="text-xs text-text-secondary"></p></div></td>
+        <td class="px-6 py-4 text-sm font-bold text-primary">${(r.price || 0).toLocaleString()} ${r.currency || 'SAR'}</td>
+    </tr>`).join('');
+    }
+
+    async function loadSettings() {
+        const res = await fetch('/api/store-admin/settings');
+        const data = await res.json();
+        if (data) {
+            document.getElementById('ss-name').value = data.store_name || '';
+            document.getElementById('ss-name-en').value = data.store_name_en || '';
+            document.getElementById('ss-desc').value = data.description || '';
+            document.getElementById('ss-currency').value = data.currency || 'SAR';
+            document.getElementById('ss-tax').value = data.tax_rate || 0.15;
+            document.getElementById('ss-ship').value = data.shipping_flat || '';
+            document.getElementById('ss-free').value = data.free_shipping_above || '';
+            document.getElementById('ss-email').value = data.contact_email || '';
+            document.getElementById('ss-phone').value = data.contact_phone || '';
+            document.getElementById('ss-active').checked = data.is_active || false;
+        }
+    }
+
+    document.getElementById('store-settings-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/store-admin/settings', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                store_name: document.getElementById('ss-name').value,
+                store_name_en: document.getElementById('ss-name-en').value || null,
+                description: document.getElementById('ss-desc').value || null,
+                currency: document.getElementById('ss-currency').value || null,
+                tax_rate: parseFloat(document.getElementById('ss-tax').value) || null,
+                shipping_flat: parseFloat(document.getElementById('ss-ship').value) || null,
+                free_shipping_above: parseFloat(document.getElementById('ss-free').value) || null,
+                contact_email: document.getElementById('ss-email').value || null,
+                contact_phone: document.getElementById('ss-phone').value || null,
+                is_active: document.getElementById('ss-active').checked
+            })
+        });
+        showToast('تم حفظ إعدادات المتجر', 'success');
+    });
+
+    loadOrders();
+</script>
+{% endblock %}

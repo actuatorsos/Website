@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "surrealdb",
+      "runtimeExecutable": "surreal",
+      "runtimeArgs": ["start", "--user", "Actuators", "--pass", "Actuators123", "--bind", "0.0.0.0:8000", "file:Actuators.db"],
+      "port": 8000
+    },
+    {
+      "name": "actuators-backend",
+      "runtimeExecutable": "cargo",
+      "runtimeArgs": ["run"],
+      "port": 3000
+    }
+  ]
+}

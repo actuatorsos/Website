@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <g id="cube">
+      <!-- Outer hexagon -->
+      <polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- Inner Y to form isometric cube visible from top/front -->
+      <line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <!-- The 7-Cube Hexagonal Snowflake Structure -->
+  <g transform="translate(60, 60)">
+    <!-- Outer Ring of 6 Cubes in Cyan -->
+    <use href="#cube" x="34.641" y="0" color="#00B7C2"/>   <!-- Right -->
+    <use href="#cube" x="-34.641" y="0" color="#00B7C2"/>  <!-- Left -->
+    
+    <use href="#cube" x="17.3205" y="-30" color="#00B7C2"/>  <!-- Top Right -->
+    <use href="#cube" x="-17.3205" y="-30" color="#00B7C2"/> <!-- Top Left -->
+    
+    <use href="#cube" x="17.3205" y="30" color="#00B7C2"/>   <!-- Bottom Right -->
+    <use href="#cube" x="-17.3205" y="30" color="#00B7C2"/>  <!-- Bottom Left -->
+
+    <!-- Center Cube in Orange -->
+    <use href="#cube" x="0" y="0" color="#FF6A2A"/>
+  </g>
+</svg>

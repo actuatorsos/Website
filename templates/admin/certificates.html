@@ -1,0 +1,103 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-text-primary">{{ t["nav_certificates"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["certificates_subtitle"] }}</p>
+        </div>
+    </div>
+
+    <!-- Create Certificate Form -->
+    <div class="bg-surface rounded-xl shadow-card p-6 mb-8 border border-border">
+        <h2 class="text-lg font-bold text-text-primary mb-4">{{ t["certificates_new"] }}</h2>
+        <form hx-post="/api/certificates" hx-target="#certificates-body" hx-swap="afterbegin"
+            hx-on::after-request="this.reset()">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_trainee_name"] }}</label>
+                    <input type="text" name="trainee_name" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
+                        placeholder='{{ t["form_trainee_name"] }}'>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_course_title"] }}</label>
+                    <input type="text" name="course_title" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
+                        placeholder='{{ t["form_course_title"] }}'>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_total_hours"] }}</label>
+                    <input type="number" name="total_hours" step="0.5" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
+                        placeholder="40">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_start_date"] }}</label>
+                    <input type="date" name="start_date" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_end_date"] }}</label>
+                    <input type="date" name="end_date" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_instructor"] }}</label>
+                    <input type="text" name="instructor" required
+                        class="w-full px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-accent outline-none"
+                        placeholder='{{ t["form_instructor"] }}'>
+                </div>
+            </div>
+            <button type="submit"
+                class="gradient-accent text-white font-bold px-6 py-2.5 rounded-xl transition-smooth hover:shadow-glow hover-lift">
+                {{ t["btn_create_certificate"] }}
+            </button>
+        </form>
+    </div>
+
+    <!-- Certificates Table -->
+    <div class="bg-surface rounded-xl shadow-card border border-border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50/50 border-b border-border">
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_credential_id"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_trainee"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_course"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_hours"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_period"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_status"] }}</th>
+                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                            {{ t["col_actions"] }}</th>
+                    </tr>
+                </thead>
+                <tbody id="certificates-body" hx-get="/api/certificates" hx-trigger="load" hx-swap="innerHTML">
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-text-secondary">
+                            <div class="animate-pulse">{{ t["loading"] }}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Verification Link -->
+    <div class="mt-6 p-4 bg-info/10 border border-info/30 rounded-xl text-center">
+        <p class="text-text-secondary text-sm">
+            {{ t["certificates_verify_hint"] }}:
+            <a href="/verify" target="_blank" class="text-info font-bold hover:underline">/verify</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

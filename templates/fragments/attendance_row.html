@@ -1,0 +1,30 @@
+<tr class="hover:bg-surface border-l-2 border-l-transparent hover:border-l-cyan-struct transition-none transition-none" id="attendance-{{ attendance.id_string() }}">
+    <td class="px-6 py-4 font-medium text-text-primary">{{ attendance.name_display() }}</td>
+    <td class="px-6 py-4">
+        <span class="px-2 py-0.5 rounded-none border border-current text-xs font-bold {{ attendance.type_class() }}">
+            {{ attendance.person_type }}
+        </span>
+    </td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm font-mono">{{ attendance.checkin_time() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm font-mono">{{ attendance.checkout_time() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm font-mono">{{ attendance.duration_display() }}</td>
+    <td class="px-6 py-4 text-text-muted font-tech text-sm">{{ attendance.notes_display() }}</td>
+    <td class="px-6 py-4">
+        <div class="flex gap-2">
+            {% if !attendance.is_checked_out() %}
+            <button hx-post="/api/attendance/check-out/{{ attendance.id_string() }}"
+                hx-target="#attendance-{{ attendance.id_string() }}" hx-swap="outerHTML"
+                class="bg-accent hover:bg-accent/80 text-white px-3 py-1 rounded text-sm transition-none">
+                {{ t["btn_checkout"] }}
+            </button>
+            {% else %}
+            <span class="text-green-500 text-lg">✓</span>
+            {% endif %}
+            <button hx-delete="/api/attendance/{{ attendance.id_string() }}"
+                hx-target="#attendance-{{ attendance.id_string() }}" hx-swap="outerHTML"
+                hx-confirm="هل أنت متأكد من حذف هذا السجل؟" class="text-red-400 hover:text-red-300 text-sm">
+                <span class="font-tech text-red-500">[X]</span>
+            </button>
+        </div>
+    </td>
+</tr>

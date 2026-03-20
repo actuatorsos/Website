@@ -1,44 +1,41 @@
 services:
-  app:
-    build: .
-    container_name: dr_machine_web
-    restart: unless-stopped
-    ports:
-      # Expose port 80 locally mapped to 3000 in the container
-      - "80:3000"
-    depends_on:
-      - surrealdb
-    environment:
-      # Use the internal docker network to connect to SurrealDB
-      - SURREAL_URL=ws://surrealdb:8000
-      - SURREAL_USER=${SURREAL_USER:-root}
-      - SURREAL_PASS=${SURREAL_PASS:-root123}
-      - SURREAL_NS=dr_machine
-      - SURREAL_DB=main
-      - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=3000
-      - ADMIN_USER=${ADMIN_USER:-admin}
-      - ADMIN_PASS=${ADMIN_PASS:-dr_machine_2024}
-    networks:
-      - dr_machine_net
-
   surrealdb:
-    image: surrealdb/surrealdb:latest
-    container_name: dr_machine_db
-    restart: unless-stopped
-    # Avoid mapping the port publicly on production servers if possible, or bind to local only
+    image: surrealdb/surrealdb:v2
     ports:
-      - "127.0.0.1:8000:8000"
+      - "8000:8000"
     volumes:
       - surrealdb_data:/data
-    # Pass user and password through env variations
-    command: start --log info --user ${SURREAL_USER:-root} --pass ${SURREAL_PASS:-root123} file:/data/dr_machine.db
+    env_file: .env
+    command: start --user ${SURREAL_USER} --pass ${SURREAL_PASS} file:/data/srdb.db
     networks:
-      - dr_machine_net
+      - app_network
+    restart: unless-stopped
 
-networks:
-  dr_machine_net:
-    driver: bridge
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      SURREAL_URL: surrealdb:8000
+    depends_on:
+      surrealdb:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - app_network
+    restart: unless-stopped
 
 volumes:
   surrealdb_data:
+
+networks:
+  app_network:
+    driver: bridge

@@ -1,0 +1,175 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in relative">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["assets_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["assets_subtitle"] }}</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <input type="text" id="assetSearch" placeholder="Search assets..."
+                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-64 transition-all">
+                <svg class="w-5 h-5 text-text-secondary absolute left-3 top-2.5" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+
+            <button onclick="document.getElementById('addAssetModal').classList.remove('hidden')"
+                class="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg font-bold transition-smooth shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ t["add_asset"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Assets Table -->
+    <div class="bg-surface rounded-2xl shadow-card overflow-hidden border border-border">
+        <div class="overflow-x-auto">
+            <table class="w-full text-start border-collapse">
+                <thead>
+                    <tr class="bg-background/50 border-b border-border">
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_name"] }}</th>
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_category"] }}</th>
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_serial"] }}</th>
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_location"] }}</th>
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_status"] }}</th>
+                        <th
+                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            {{ t["table_assigned_to"] }}</th>
+                    </tr>
+                </thead>
+                <tbody id="assets-tbody" class="divide-y divide-border" hx-get="/api/assets" hx-trigger="load">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div id="addAssetModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" aria-hidden="true"
+            onclick="closeModal('addAssetModal')"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <!-- Modal panel -->
+        <div
+            class="inline-block align-bottom bg-surface rounded-2xl text-start overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-border">
+
+            <div class="px-6 py-4 border-b border-border flex justify-between items-center bg-background/50">
+                <h3 class="text-xl font-bold text-primary flex items-center gap-2" id="modal-title">
+                    <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    {{ t["add_asset"] }}
+                </h3>
+                <button type="button" class="text-text-secondary hover:text-red-500 transition-smooth"
+                    onclick="closeModal('addAssetModal')">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form hx-post="/api/assets" hx-target="#assets-tbody" hx-swap="afterbegin"
+                hx-on::after-request="closeModal('addAssetModal'); this.reset();" class="px-6 py-6">
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_name"] }} *</label>
+                        <input type="text" name="name" required
+                            class="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-smooth outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_category"] }}</label>
+                        <select name="category"
+                            class="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-smooth outline-none appearance-none">
+                            <option value="tools">{{ t["cat_tools"] }}</option>
+                            <option value="equipment">{{ t["cat_equipment"] }}</option>
+                            <option value="vehicles">{{ t["cat_vehicles"] }}</option>
+                            <option value="furniture">{{ t["cat_furniture"] }}</option>
+                            <option value="electronics">{{ t["cat_electronics"] }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_serial_number"]
+                            }}</label>
+                        <input type="text" name="serial_number"
+                            class="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-smooth outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_value"] }}</label>
+                        <input type="number" name="value" step="0.01"
+                            class="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-smooth outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_location"] }}</label>
+                        <input type="text" name="location"
+                            class="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-smooth outline-none">
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-border flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeModal('addAssetModal')"
+                        class="px-6 py-2.5 border border-border rounded-xl text-text-secondary hover:bg-background transition-smooth font-medium">
+                        {{ t["cancel"] }}
+                    </button>
+                    <button type="submit"
+                        class="bg-secondary hover:bg-secondary/90 text-white px-8 py-2.5 rounded-xl font-medium transition-smooth shadow-sm hover:shadow">
+                        {{ t["form_submit"] }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // Front-end search filtering
+    document.getElementById('assetSearch').addEventListener('input', function (e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#assets-tbody tr');
+
+        rows.forEach(row => {
+            const textContent = row.textContent.toLowerCase();
+            if (textContent.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

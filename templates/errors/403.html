@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="dark antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Forbidden</title>
+    <meta name="theme-color" content="#0B1A2A">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#0B1A2A',
+                        'cyan-struct': '#00B7C2',
+                        'cyan-muted': 'rgba(0, 183, 194, 0.3)',
+                        'orange-active': '#FF6A2A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'arabic': ['IBM Plex Sans Arabic', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0B1A2A; color: #FFFFFF; }
+        .bg-isometric {
+            background-image:
+                linear-gradient(to right, rgba(0, 183, 194, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 183, 194, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-isometric">
+    <div class="text-center px-6 max-w-lg">
+        <!-- Error Code -->
+        <div class="mb-6">
+            <span class="font-mono text-[8rem] leading-none font-bold text-orange-active opacity-20 select-none">403</span>
+        </div>
+
+        <!-- Message EN -->
+        <h1 class="text-3xl font-bold text-white mb-2 font-mono tracking-tight">
+            Forbidden
+        </h1>
+        <!-- Message AR -->
+        <h2 class="text-2xl font-bold text-white/70 mb-6 font-arabic" dir="rtl">
+            غير مسموح
+        </h2>
+
+        <p class="text-white/50 mb-8 font-mono text-sm">
+            You do not have permission to access this resource.
+        </p>
+
+        <!-- Navigation Links -->
+        <div class="flex items-center justify-center gap-4">
+            <a href="/"
+                class="px-6 py-3 border border-cyan-struct text-cyan-struct font-bold text-xs uppercase tracking-widest hover:bg-cyan-struct hover:text-black transition-colors font-mono">
+                Home
+            </a>
+            <a href="/admin"
+                class="px-6 py-3 border border-orange-active text-orange-active font-bold text-xs uppercase tracking-widest hover:bg-orange-active hover:text-black transition-colors font-mono">
+                Admin Panel
+            </a>
+        </div>
+
+        <!-- Decorative line -->
+        <div class="mt-12 flex items-center justify-center gap-2 text-white/20 font-mono text-xs">
+            <span class="w-8 h-px bg-orange-active/30"></span>
+            ACTUATORS // ERR_403
+            <span class="w-8 h-px bg-orange-active/30"></span>
+        </div>
+    </div>
+</body>
+</html>

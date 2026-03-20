@@ -1,0 +1,28 @@
+# Generated files
+/target/
+
+# Environment files
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# SurrealDB local data
+/data/
+*.db
+
+# Screenshot cache
+static/images/cache/

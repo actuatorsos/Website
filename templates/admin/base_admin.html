@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+
+{% block navbar %}{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-[#0B1A2A]/80 z-40 hidden md:hidden"
+        onclick="closeSidebar()"></div>
+
+    <!-- Sidebar Navigation — Strict geometric, cyan structural lines -->
+    <aside id="admin-sidebar"
+        class="w-64 bg-[var(--bg-surface)] border-e border-[var(--structure-cyan-muted)] hidden md:flex md:flex-col z-50
+        max-md:fixed max-md:inset-y-0 max-md:start-0 max-md:-translate-x-full max-md:transition-transform max-md:duration-200"
+        style="transition-timing-function: linear;">
+
+        <!-- Sidebar Header: Brand Mark + User -->
+        <div class="border-b border-[var(--structure-cyan-muted)]">
+            <!-- Brand -->
+            <div class="px-4 py-3 flex items-center gap-3 border-b border-[var(--structure-cyan-muted)]">
+                <svg class="h-7 w-7 flex-shrink-0">
+                    <use href="/static/icons.svg#icon-logo"></use>
+                </svg>
+                <span class="text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.2em]">ACTUATORS_</span>
+            </div>
+            <!-- User -->
+            <a href="/admin/profile?lang={{ lang }}"
+                class="px-4 py-3 flex items-center gap-3 hover:bg-[var(--bg-primary)] transition-colors duration-100 group">
+                <div class="w-8 h-8 border border-[var(--structure-cyan)] flex items-center justify-center text-[var(--structure-cyan)] font-mono font-bold text-xs overflow-hidden">
+                    {% match user_avatar %}
+                    {% when Some with (avatar_string) %}
+                    {% if avatar_string.len() > 0 %}
+                    <img src="{{ avatar_string }}" class="w-full h-full object-cover">
+                    {% else %}
+                    {{ user_email.chars().next().unwrap_or('A').to_uppercase() }}
+                    {% endif %}
+                    {% when None %}
+                    {{ user_email.chars().next().unwrap_or('A').to_uppercase() }}
+                    {% endmatch %}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs text-[var(--text-primary)] truncate group-hover:text-[var(--structure-cyan)] transition-colors duration-100">{{ user_email }}</p>
+                    <span class="text-[10px] font-mono uppercase tracking-wider
+                        {% if user_role == "admin" %}text-[var(--activation-orange)]{% else if user_role == "manager" %}text-[var(--structure-cyan)]{% else %}text-[var(--text-muted)]{% endif %}">
+                        {{ user_role }}
+                    </span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Notification Bell -->
+        <div class="px-4 py-2 border-b border-[var(--structure-cyan-muted)] flex justify-end">
+            <a href="/admin/notifications?lang={{ lang }}" id="sidebar-notification-bell"
+                class="relative p-2 text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100"
+                title="{{ t["notifications_title"] }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span id="sidebar-notification-dot"
+                    class="hidden absolute top-1 end-1 w-2 h-2 bg-[var(--activation-orange)]"></span>
+            </a>
+        </div>
+
+        <nav class="p-3 space-y-1 flex-1 overflow-y-auto">
+            <!-- Homepage Link -->
+            <a href="/?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 transition-colors duration-100 mb-1" target="_blank">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{% if lang == "ar" %}الصفحة الرئيسية{% else %}Homepage{% endif %}</span>
+                <svg class="w-3 h-3 ms-auto opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+            </a>
+
+            <div class="border-b border-[var(--structure-cyan-muted)] mb-1"></div>
+
+            <!-- Dashboard -->
+            <a href="/admin?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 transition-colors duration-100 {% if active_page == "dashboard" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_dashboard"] }}</span>
+            </a>
+
+            <a href="/admin/attendance?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 transition-colors duration-100 {% if active_page == "attendance" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_attendance"] }}</span>
+            </a>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-3"></div>
+
+            <!-- Ecosystem Section -->
+            <p class="px-3 text-[8px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.3em] mb-1">{{ t["ecosystem_section"] }}</p>
+
+            <a href="/admin/organizations?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "organizations" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_organizations"] }}</span>
+            </a>
+
+            <a href="/admin/events?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "events" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_events"] }}</span>
+            </a>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-3"></div>
+
+            <!-- Operations -->
+            <p class="px-3 text-[8px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.3em] mb-1">{{ t["operations_section"] }}</p>
+
+            <a href="/admin/projects?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "projects" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_projects"] }}</span>
+            </a>
+
+            <a href="/admin/clients?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "clients" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_customers"] }}</span>
+            </a>
+
+            <a href="/admin/projects-board?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "projects_board" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_projects_board"] }}</span>
+            </a>
+
+            <a href="/admin/invoices?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "invoices" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["sidebar_invoices"] }}</span>
+            </a>
+
+            <a href="/admin/certificates?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "certificates" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_certificates"] }}</span>
+            </a>
+
+            <a href="/admin/assets?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "assets" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_assets"] }}</span>
+            </a>
+
+            <a href="/admin/inventory?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "inventory" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_inventory"] }}</span>
+            </a>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-3"></div>
+
+            <!-- HR Section -->
+            <p class="px-3 text-[8px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.3em] mb-1">{{ t["hr_section"] }}</p>
+
+            <a href="/admin/employees?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "employees" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_employees"] }}</span>
+            </a>
+
+            <a href="/admin/trainees?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "trainees" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_trainees"] }}</span>
+            </a>
+
+            <a href="/admin/hr?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "hr_org" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16M10 21v-4h4v4M3 21h18" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_hr_org"] }}</span>
+            </a>
+
+            <a href="/admin/leave?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "leave" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_leave"] }}</span>
+            </a>
+
+            <a href="/admin/payroll?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "payroll" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_payroll"] }}</span>
+            </a>
+
+            <a href="/admin/compliance?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "compliance" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_compliance"] }}</span>
+            </a>
+
+            <a href="/admin/training?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "training" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_training"] }}</span>
+            </a>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-3"></div>
+
+            <!-- System Section -->
+            <p class="px-3 text-[8px] font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-[0.3em] mb-1">{{ t["system_section"] }}</p>
+
+            {% if user_role == "admin" %}
+            <a href="/admin/accounts?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "accounts" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_accounts"] }}</span>
+            </a>
+            {% endif %}
+
+            <a href="/admin/email?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "email" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_email"] }}</span>
+            </a>
+
+            {% if user_role == "admin" %}
+            <a href="/admin/agents?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "agents" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_agents"] }}</span>
+            </a>
+            {% endif %}
+
+            <a href="/admin/notifications?lang={{ lang }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2 transition-colors duration-100 {% if active_page == "notifications" %}active{% endif %}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["notifications_title"] }}</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer: Logout -->
+        <div class="p-3 border-t border-[var(--structure-cyan-muted)]">
+            <button onclick="logout()"
+                class="flex items-center gap-3 w-full px-3 py-2.5 text-[var(--activation-orange)] hover:bg-[var(--activation-orange)]/10 transition-colors duration-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_logout"] }}</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col relative z-30">
+        <!-- Top Bar — No blur, solid background, cyan structural border -->
+        <header class="flex items-center justify-between px-6 py-3 bg-[var(--bg-surface)] border-b border-[var(--structure-cyan-muted)] sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="openSidebar()"
+                    class="md:hidden p-2 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <button onclick="openCommandPalette()"
+                    class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-xs text-[var(--text-muted)] hover:text-[var(--structure-cyan)] hover:border-[var(--structure-cyan)] transition-colors duration-100 w-64">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span class="font-mono text-[10px] uppercase tracking-wider">{{ t["cmd_palette_placeholder"] }}</span>
+                    <div class="ms-auto flex items-center gap-1">
+                        <kbd class="px-1.5 py-0.5 bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] text-[10px] font-mono text-[var(--text-muted)]">Ctrl</kbd>
+                        <kbd class="px-1.5 py-0.5 bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] text-[10px] font-mono text-[var(--text-muted)]">K</kbd>
+                    </div>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Language Toggle -->
+                <div class="flex items-center gap-0 border border-[var(--structure-cyan-muted)] hidden sm:flex">
+                    <a href="?lang=ar" class="px-2 py-1 text-[10px] font-mono font-bold transition-colors duration-100 {% if lang == "ar" %}bg-[var(--activation-orange)] text-[#0B1A2A]{% else %}text-[var(--text-muted)] hover:text-[var(--text-primary)]{% endif %}">AR</a>
+                    <a href="?lang=en" class="px-2 py-1 text-[10px] font-mono font-bold transition-colors duration-100 {% if lang == "en" %}bg-[var(--activation-orange)] text-[#0B1A2A]{% else %}text-[var(--text-muted)] hover:text-[var(--text-primary)]{% endif %}">EN</a>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()"
+                    class="p-2 text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100 border border-transparent hover:border-[var(--structure-cyan-muted)]">
+                    <svg id="theme-toggle-light-icon" class="hidden w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="theme-toggle-dark-icon" class="hidden w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
+                <!-- Notifications -->
+                <div class="relative">
+                    <button onclick="toggleNotifications()"
+                        class="p-2 text-[var(--text-muted)] hover:text-[var(--structure-cyan)] transition-colors duration-100 relative border border-transparent hover:border-[var(--structure-cyan-muted)]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="square" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span class="absolute top-1 end-1 w-2 h-2 bg-[var(--activation-orange)]"></span>
+                    </button>
+
+                    <div id="notifications-dropdown"
+                        class="hidden absolute end-0 mt-1 w-80 bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] overflow-hidden z-50 opacity-0 transition-opacity duration-100">
+                        <div class="px-4 py-3 border-b border-[var(--structure-cyan-muted)] flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">{{ t["notifications_title"] }}</h3>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            <div class="p-4 border-b border-[var(--structure-cyan-muted)] hover:bg-[var(--bg-primary)] transition-colors duration-100">
+                                <p class="text-xs font-mono text-center text-[var(--text-muted)]">{{ t["notifications_empty"] }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Logout -->
+                <button onclick="logout()"
+                    class="md:hidden p-2 text-[var(--activation-orange)] hover:bg-[var(--activation-orange)]/10 transition-colors duration-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Content — Isometric grid background -->
+        <main class="flex-1 p-6 bg-[var(--bg-primary)] bg-isometric overflow-hidden">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<!-- Command Palette Modal — Sharp geometric, no blur -->
+<div id="commandPalette"
+    class="fixed inset-0 z-[100] hidden items-start justify-center pt-16 sm:pt-24 opacity-0 transition-opacity duration-150">
+    <div class="fixed inset-0 bg-[#0B1A2A]/80" onclick="closeCommandPalette()"></div>
+
+    <div class="relative w-full max-w-2xl overflow-hidden bg-[var(--bg-surface)] border border-[var(--structure-cyan)] z-10 opacity-0 transition-opacity duration-150 sm:mx-4"
+        id="commandPaletteContent">
+        <div class="relative flex items-center p-4 border-b border-[var(--structure-cyan-muted)]">
+            <svg class="h-5 w-5 text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="square" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="cmdInput"
+                class="w-full bg-transparent border-0 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-0 text-sm font-mono focus:outline-none"
+                placeholder='{{ t["cmd_palette_placeholder"] }}' autocomplete="off">
+            <kbd class="hidden sm:inline-flex px-2 py-0.5 border border-[var(--structure-cyan-muted)] text-[10px] font-mono text-[var(--text-muted)] ms-2">ESC</kbd>
+        </div>
+
+        <div class="max-h-96 overflow-y-auto p-2" id="cmdResults">
+            <a href="/admin/organizations"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_organizations"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_organizations_desc"] }}</span></div>
+            </a>
+            <a href="/admin/events"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_events"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_events_desc"] }}</span></div>
+            </a>
+            <a href="/admin/employees"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_employees"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_employees_desc"] }}</span></div>
+            </a>
+            <a href="/admin/projects"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_projects"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_projects_desc"] }}</span></div>
+            </a>
+            <a href="/admin/clients"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_customers"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_customers_desc"] }}</span></div>
+            </a>
+            <a href="/admin/assets"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_assets"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_assets_desc"] }}</span></div>
+            </a>
+            {% if user_role == "admin" %}
+            <a href="/admin/accounts"
+                class="cmd-item flex items-center p-3 hover:bg-[var(--structure-cyan)]/10 text-[var(--text-primary)] hover:text-[var(--structure-cyan)] transition-colors duration-100 group">
+                <svg class="h-5 w-5 text-[var(--text-muted)] group-hover:text-[var(--structure-cyan)] me-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <div class="flex flex-col"><span class="text-xs font-medium uppercase tracking-wider">{{ t["nav_accounts"] }}</span><span class="text-[10px] font-mono text-[var(--text-muted)]">{{ t["cmd_accounts_desc"] }}</span></div>
+            </a>
+            {% endif %}
+        </div>
+        <div class="p-3 border-t border-[var(--structure-cyan-muted)] flex flex-wrap items-center justify-between text-[10px] font-mono text-[var(--text-muted)]">
+            <span>{{ t["cmd_hint_use"] }} <kbd class="px-1 py-0.5 border border-[var(--structure-cyan-muted)]">&#8593;</kbd> <kbd class="px-1 py-0.5 border border-[var(--structure-cyan-muted)]">&#8595;</kbd> {{ t["cmd_hint_navigate"] }} <kbd class="px-1 py-0.5 border border-[var(--structure-cyan-muted)]">Enter</kbd> {{ t["cmd_hint_select"] }}</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sidebar link — Brand compliant: no rounded corners, cyan accent */
+    .sidebar-link {
+        color: var(--text-muted);
+        border-inline-start: 2px solid transparent;
+    }
+    .sidebar-link:hover {
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border-inline-start-color: var(--structure-cyan-muted);
+    }
+    .sidebar-link.active {
+        color: var(--structure-cyan);
+        background-color: var(--bg-primary);
+        border-inline-start-color: var(--structure-cyan);
+    }
+</style>
+
+<script>
+    function openSidebar() {
+        const sidebar = document.getElementById('admin-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('max-md:-translate-x-full', 'hidden');
+        sidebar.classList.add('max-md:translate-x-0');
+        overlay.classList.remove('hidden');
+    }
+    function closeSidebar() {
+        const sidebar = document.getElementById('admin-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.add('max-md:-translate-x-full');
+        sidebar.classList.remove('max-md:translate-x-0');
+        overlay.classList.add('hidden');
+    }
+    function logout() {
+        document.cookie = 'auth_token=;path=/;max-age=0;SameSite=Strict';
+        window.location.href = '/admin/login';
+    }
+    function toggleNotifications() {
+        const dd = document.getElementById('notifications-dropdown');
+        if (dd.classList.contains('hidden')) {
+            dd.classList.remove('hidden');
+            setTimeout(function() { dd.classList.remove('opacity-0'); dd.classList.add('opacity-100'); }, 10);
+        } else {
+            dd.classList.add('opacity-0');
+            dd.classList.remove('opacity-100');
+            setTimeout(function() { dd.classList.add('hidden'); }, 150);
+        }
+    }
+
+    window.addEventListener('click', function(e) {
+        const dd = document.getElementById('notifications-dropdown');
+        if (dd && !dd.classList.contains('hidden') && !e.target.closest('.relative')) {
+            toggleNotifications();
+        }
+    });
+
+    const cmdPalette = document.getElementById('commandPalette');
+    const cmdContent = document.getElementById('commandPaletteContent');
+    const cmdInput = document.getElementById('cmdInput');
+
+    function openCommandPalette() {
+        cmdPalette.classList.remove('hidden');
+        cmdPalette.classList.add('flex');
+        setTimeout(function() {
+            cmdPalette.classList.remove('opacity-0');
+            cmdContent.classList.remove('opacity-0');
+            cmdContent.classList.add('opacity-100');
+            cmdInput.focus();
+        }, 10);
+    }
+
+    function closeCommandPalette() {
+        cmdPalette.classList.add('opacity-0');
+        cmdContent.classList.remove('opacity-100');
+        cmdContent.classList.add('opacity-0');
+        setTimeout(function() {
+            cmdPalette.classList.add('hidden');
+            cmdPalette.classList.remove('flex');
+        }, 150);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            if (cmdPalette.classList.contains('hidden')) {
+                e.preventDefault();
+                openCommandPalette();
+            }
+        }
+        if (e.key === 'Escape' && !cmdPalette.classList.contains('hidden')) {
+            closeCommandPalette();
+        }
+    });
+
+    if (cmdInput) {
+        cmdInput.addEventListener('input', function(e) {
+            const val = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.cmd-item');
+            items.forEach(function(item) {
+                item.style.display = item.textContent.toLowerCase().includes(val) ? 'flex' : 'none';
+            });
+        });
+    }
+
+    function updateThemeIcons() {
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        if (!themeToggleDarkIcon || !themeToggleLightIcon) return;
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleLightIcon.classList.remove('hidden');
+            themeToggleDarkIcon.classList.add('hidden');
+        } else {
+            themeToggleLightIcon.classList.add('hidden');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+    }
+    updateThemeIcons();
+
+    function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+        }
+        updateThemeIcons();
+        if (window.ApexCharts) { window.dispatchEvent(new Event('resize')); }
+    }
+
+    /* ─── Global Toast Notification System ─── */
+    window.showToast = function(msg, type) {
+        var container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed;top:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        var toast = document.createElement('div');
+        toast.style.cssText = 'pointer-events:auto;display:flex;align-items:center;gap:10px;padding:14px 20px;border:1px solid;font-size:13px;font-family:monospace;min-width:280px;max-width:420px;transform:translateX(120%);transition:transform 0.25s cubic-bezier(0.22,1,0.36,1),opacity 0.25s;opacity:0;';
+        if (type === 'success') {
+            toast.style.background = 'rgba(11,26,42,0.97)';
+            toast.style.borderColor = '#00B7C2';
+            toast.style.color = '#00B7C2';
+            toast.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span>' + msg + '</span>';
+        } else if (type === 'error') {
+            toast.style.background = 'rgba(11,26,42,0.97)';
+            toast.style.borderColor = '#FF6A2A';
+            toast.style.color = '#FF6A2A';
+            toast.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6A2A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><span>' + msg + '</span>';
+        } else {
+            toast.style.background = 'rgba(11,26,42,0.97)';
+            toast.style.borderColor = '#00B7C2';
+            toast.style.color = '#E0E0E0';
+            toast.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00B7C2" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>' + msg + '</span>';
+        }
+        container.appendChild(toast);
+        requestAnimationFrame(function() {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        });
+        setTimeout(function() {
+            toast.style.transform = 'translateX(120%)';
+            toast.style.opacity = '0';
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 4000);
+    };
+
+    /* ─── Global Confirm Dialog (replaces browser confirm()) ─── */
+    window.confirmAction = function(message, onConfirm, options) {
+        options = options || {};
+        var type = options.type || 'warning'; // 'warning', 'danger', 'info'
+        var confirmText = options.confirmText || 'تأكيد';
+        var cancelText = options.cancelText || 'إلغاء';
+
+        // Remove any existing dialog
+        var old = document.getElementById('confirm-dialog-overlay');
+        if (old) old.remove();
+
+        var overlay = document.createElement('div');
+        overlay.id = 'confirm-dialog-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(11,26,42,0.85);opacity:0;transition:opacity 0.2s;';
+
+        var borderColor = type === 'danger' ? '#FF6A2A' : '#00B7C2';
+        var iconColor = type === 'danger' ? '#FF6A2A' : '#00B7C2';
+        var confirmBg = type === 'danger' ? '#FF6A2A' : '#00B7C2';
+        var icon = type === 'danger'
+            ? '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="' + iconColor + '" stroke-width="1.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>'
+            : '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="' + iconColor + '" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>';
+
+        overlay.innerHTML = '<div id="confirm-dialog-box" style="background:#0D2137;border:1px solid ' + borderColor + ';padding:0;min-width:360px;max-width:440px;transform:scale(0.95);opacity:0;transition:transform 0.2s cubic-bezier(0.22,1,0.36,1),opacity 0.2s;">'
+            + '<div style="padding:24px 24px 16px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;">'
+            + icon
+            + '<p style="color:#E0E0E0;font-size:14px;font-family:monospace;line-height:1.6;margin:0;">' + message + '</p>'
+            + '</div>'
+            + '<div style="padding:16px 24px 20px;display:flex;gap:12px;justify-content:center;">'
+            + '<button id="confirm-dialog-cancel" style="padding:8px 24px;background:transparent;border:1px solid rgba(0,183,194,0.3);color:#8899A6;font-size:13px;font-family:monospace;cursor:pointer;transition:all 0.15s;">' + cancelText + '</button>'
+            + '<button id="confirm-dialog-ok" style="padding:8px 24px;background:' + confirmBg + ';border:1px solid ' + confirmBg + ';color:#0B1A2A;font-size:13px;font-family:monospace;font-weight:bold;cursor:pointer;transition:all 0.15s;">' + confirmText + '</button>'
+            + '</div></div>';
+
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(function() {
+            overlay.style.opacity = '1';
+            var box = document.getElementById('confirm-dialog-box');
+            if (box) { box.style.transform = 'scale(1)'; box.style.opacity = '1'; }
+        });
+
+        function closeDialog() {
+            overlay.style.opacity = '0';
+            var box = document.getElementById('confirm-dialog-box');
+            if (box) { box.style.transform = 'scale(0.95)'; box.style.opacity = '0'; }
+            setTimeout(function() { overlay.remove(); }, 200);
+        }
+
+        document.getElementById('confirm-dialog-cancel').onclick = function() { closeDialog(); };
+        overlay.onclick = function(e) { if (e.target === overlay) closeDialog(); };
+        document.getElementById('confirm-dialog-ok').onclick = function() {
+            closeDialog();
+            if (typeof onConfirm === 'function') onConfirm();
+        };
+
+        // Keyboard: Enter = confirm, Escape = cancel
+        function keyHandler(e) {
+            if (e.key === 'Escape') { closeDialog(); document.removeEventListener('keydown', keyHandler); }
+            if (e.key === 'Enter') { closeDialog(); if (typeof onConfirm === 'function') onConfirm(); document.removeEventListener('keydown', keyHandler); }
+        }
+        document.addEventListener('keydown', keyHandler);
+    };
+
+    // Check unread notifications
+    (function checkUnreadNotifications() {
+        fetch('/api/notifications?unread_only=true')
+            .then(function(res) { return res.ok ? res.json() : null; })
+            .then(function(data) {
+                if (data && data.count && data.count > 0) {
+                    var dot = document.getElementById('sidebar-notification-dot');
+                    if (dot) dot.classList.remove('hidden');
+                }
+            })
+            .catch(function() {});
+    })();
+</script>
+{% endblock %}

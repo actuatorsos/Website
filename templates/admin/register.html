@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب — Actuators</title>
+    <meta name="description" content="Actuators — إنشاء حساب جديد">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Actuators Brand System ── */
+        :root {
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+            --font-primary-ar: 'IBM Plex Sans Arabic', sans-serif;
+            --font-primary-en: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary-ar);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── Isometric Grid Background ── */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* ── Node Map Decoration ── */
+        body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ── Main Container ── */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            padding: 16px;
+        }
+
+        /* ── Logo Section ── */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-section svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Login Card ── */
+        .login-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            padding: 32px;
+        }
+
+        .login-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        /* ── Form Elements ── */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-start: 12px;
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px 10px 12px;
+            padding-inline-start: 40px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            color: var(--text-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s linear;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .form-input:focus {
+            border-color: var(--structure-cyan);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .form-input {
+            padding-inline-end: 40px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-end: 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            transition: color 0.2s linear;
+        }
+
+        .toggle-password:hover {
+            color: var(--structure-cyan);
+        }
+
+        /* ── Error Message ── */
+        .error-msg {
+            display: none;
+            background: rgba(255, 106, 42, 0.08);
+            border: 1px solid rgba(255, 106, 42, 0.3);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--activation-orange);
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        .error-msg.shake {
+            animation: shake 0.4s linear;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        /* ── Success Message ── */
+        .success-msg {
+            display: none;
+            background: rgba(0, 183, 194, 0.08);
+            border: 1px solid rgba(0, 183, 194, 0.3);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+            color: var(--structure-cyan);
+        }
+
+        .success-msg.visible {
+            display: block;
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--activation-orange);
+            color: var(--bg-primary);
+            font-family: var(--font-primary-ar);
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.2s linear;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(11, 26, 42, 0.3);
+            border-top-color: var(--bg-primary);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .spinner.visible {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Structural Decoration Lines ── */
+        .structure-line {
+            width: 100%;
+            height: 1px;
+            background: var(--structure-cyan-muted);
+            margin: 24px 0;
+        }
+
+        /* ── Footer ── */
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* ── Links Section ── */
+        .login-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .login-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s linear;
+            font-family: var(--font-primary-ar);
+        }
+
+        .login-links a:hover {
+            color: var(--structure-cyan);
+        }
+
+        /* ── Home Button ── */
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: 1px solid var(--structure-cyan-muted);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.15s linear;
+        }
+
+        .home-link:hover {
+            border-color: var(--structure-cyan);
+            color: var(--structure-cyan);
+        }
+
+        /* ── Sequential Assembly Animation ── */
+        .assemble {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: assemble 0.3s linear forwards;
+        }
+
+        .assemble-1 { animation-delay: 0.05s; }
+        .assemble-2 { animation-delay: 0.1s; }
+        .assemble-3 { animation-delay: 0.15s; }
+
+        @keyframes assemble {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Corner Markers ── */
+        .corner-marks {
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+        }
+
+        .corner-marks::before,
+        .corner-marks::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--structure-cyan);
+            border-style: solid;
+        }
+
+        .corner-marks::before {
+            top: 0;
+            inset-inline-start: 0;
+            border-width: 1px 0 0 1px;
+        }
+
+        .corner-marks::after {
+            bottom: 0;
+            inset-inline-end: 0;
+            border-width: 0 1px 1px 0;
+        }
+
+        .corner-marks-alt::before {
+            top: 0;
+            inset-inline-end: 0;
+            inset-inline-start: auto;
+            border-width: 1px 1px 0 0;
+        }
+
+        .corner-marks-alt::after {
+            bottom: 0;
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+            border-width: 0 0 1px 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Logo -->
+        <div class="logo-section assemble assemble-1">
+            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
+                <use href="/static/icons.svg#icon-logo"></use>
+            </svg>
+            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
+                <use href="/static/icons.svg#icon-actuator-logo"></use>
+            </svg>
+            <div class="brand-sub">{{ t["auto_login_308"] }}</div>
+        </div>
+
+        <!-- Register Card -->
+        <div class="login-card assemble assemble-2" style="position: relative;">
+            <div class="corner-marks"></div>
+            <div class="corner-marks corner-marks-alt"></div>
+
+            <h2>إنشاء حساب جديد</h2>
+
+            <!-- Error -->
+            <div id="register-error" class="error-msg"></div>
+
+            <!-- Success -->
+            <div id="register-success" class="success-msg"></div>
+
+            <form id="register-form">
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">{{ t["form_email"] }}</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                            placeholder="user@actuators.com" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Full Name -->
+                <div class="input-group">
+                    <label for="full_name">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        الاسم الكامل
+                    </label>
+                    <input type="text" id="full_name" name="full_name" placeholder="أدخل اسمك الكامل" required>
+                </div>
+
+                <!-- Phone -->
+                <div class="input-group">
+                    <label for="phone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                        </svg>
+                        رقم الهاتف
+                    </label>
+                    <input type="tel" id="phone" name="phone" placeholder="+963 XXX XXX XXX">
+                </div>
+
+                <!-- User Type -->
+                <div class="input-group">
+                    <label for="user_type">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                        نوع الحساب
+                    </label>
+                    <select id="user_type" name="user_type" style="background:#0B1A2A;color:#E0E0E0;border:1px solid rgba(0,183,194,0.2);padding:12px 16px;font-size:14px;width:100%;font-family:monospace;">
+                        <option value="member">عضو / مستخدم عادي</option>
+                        <option value="startup_owner">صاحب شركة ناشئة</option>
+                        <option value="team_leader">قائد فريق تطوعي</option>
+                        <option value="trainee">متدرب</option>
+                        <option value="volunteer">متطوع</option>
+                    </select>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <div class="input-wrapper password-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <input type="password" id="password" name="password" required
+                            autocomplete="new-password" placeholder="••••••••" class="form-input" minlength="8">
+                        <button type="button" onclick="togglePassword('password')" class="toggle-password" aria-label="Toggle password">
+                            <svg class="eye-closed" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                            </svg>
+                            <svg class="eye-open" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label class="form-label">تأكيد كلمة المرور</label>
+                    <div class="input-wrapper password-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <input type="password" id="confirm-password" name="confirm_password" required
+                            autocomplete="new-password" placeholder="••••••••" class="form-input" minlength="8">
+                        <button type="button" onclick="togglePassword('confirm-password')" class="toggle-password" aria-label="Toggle password">
+                            <svg class="eye-closed" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                            </svg>
+                            <svg class="eye-open" style="display:none" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="structure-line"></div>
+
+                <!-- Submit -->
+                <button type="submit" id="register-btn" class="btn-submit">
+                    <span id="btn-text">إنشاء حساب</span>
+                    <div id="btn-spinner" class="spinner"></div>
+                </button>
+
+                <!-- Login Link -->
+                <div class="login-links">
+                    <a href="/admin/login?lang={{ lang }}">
+                        لديك حساب؟ تسجيل الدخول
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Home Button -->
+        <div style="text-align:center;" class="assemble assemble-3">
+            <a href="/?lang={{ lang }}" class="home-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
+                </svg>
+                الصفحة الرئيسية
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer assemble assemble-3">
+            &copy; 2026 Actuators L.L.C
+        </div>
+    </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            const wrapper = input.closest('.password-wrapper');
+            const eyeClosed = wrapper.querySelector('.eye-closed');
+            const eyeOpen = wrapper.querySelector('.eye-open');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeClosed.style.display = 'none';
+                eyeOpen.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeClosed.style.display = 'block';
+                eyeOpen.style.display = 'none';
+            }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = document.getElementById('register-btn');
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('btn-spinner');
+            const errorDiv = document.getElementById('register-error');
+            const successDiv = document.getElementById('register-success');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Client-side validation
+            if (password.length < 8) {
+                errorDiv.textContent = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+                errorDiv.classList.add('visible');
+                errorDiv.classList.add('shake');
+                setTimeout(() => errorDiv.classList.remove('shake'), 400);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'كلمات المرور غير متطابقة';
+                errorDiv.classList.add('visible');
+                errorDiv.classList.add('shake');
+                setTimeout(() => errorDiv.classList.remove('shake'), 400);
+                return;
+            }
+
+            btn.disabled = true;
+            btnText.textContent = 'جاري الإنشاء...';
+            spinner.classList.add('visible');
+            errorDiv.classList.remove('visible');
+            successDiv.classList.remove('visible');
+
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        full_name: document.getElementById('full_name').value.trim() || null,
+                        phone: document.getElementById('phone').value.trim() || null,
+                        user_type: document.getElementById('user_type').value
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    successDiv.textContent = 'تم إنشاء حسابك بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب';
+                    successDiv.classList.add('visible');
+                    btnText.textContent = 'تم الإنشاء';
+                    spinner.classList.remove('visible');
+
+                    setTimeout(() => {
+                        window.location.href = '/admin/login?lang={{ lang }}';
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'فشل إنشاء الحساب');
+                }
+            } catch (err) {
+                errorDiv.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                errorDiv.classList.add('visible');
+                errorDiv.classList.add('shake');
+                setTimeout(() => errorDiv.classList.remove('shake'), 400);
+
+                btn.disabled = false;
+                btnText.textContent = 'إنشاء حساب';
+                spinner.classList.remove('visible');
+            }
+        });
+    </script>
+</body>
+
+</html>

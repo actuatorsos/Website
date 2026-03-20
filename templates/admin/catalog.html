@@ -1,0 +1,272 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ t["auto_catalog_56"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["auto_catalog_57"] }}</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-border">
+        <button onclick="showCatTab('products')" id="cattab-products"
+            class="cattab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_catalog_58"] }}</button>
+        <button onclick="showCatTab('services')" id="cattab-services"
+            class="cattab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_catalog_59"] }}</button>
+        <button onclick="showCatTab('categories')" id="cattab-categories"
+            class="cattab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_catalog_60"] }}</button>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="cattab-content-products">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_catalog_61"] }}</h2>
+                <form id="product-form" class="space-y-3">
+                    <input id="p-sku" type="text" placeholder="SKU *" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    <input id="p-name" type="text" placeholder="{{ t["auto_attr_catalog_79"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="p-sell" type="number" step="0.01" placeholder="{{ t["auto_attr_catalog_80"] }}"
+                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                        <input id="p-cost" type="number" step="0.01" placeholder="{{ t["auto_attr_catalog_81"] }}"
+                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    </div>
+                    <input id="p-unit" type="text" placeholder="{{ t["auto_attr_catalog_82"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["form_submit"] }}</button>
+                </form>
+            </div>
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-4 border-b border-border bg-background/50 flex items-center gap-3">
+                    <h2 class="text-lg font-bold text-primary flex-1">{{ t["auto_catalog_62"] }}</h2>
+                    <input type="text" id="product-search" placeholder="{{ t["auto_attr_catalog_83"] }}" onkeyup="filterProducts(this.value)"
+                        class="bg-background border border-border rounded-xl px-3 py-1.5 text-sm focus:outline-none w-40">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-background/30 border-b border-border">
+                            <tr>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">SKU
+                                </th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["form_name"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_catalog_63"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_catalog_64"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_catalog_65"] }}</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table" class="divide-y divide-border">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Tab -->
+    <div id="cattab-content-services" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_catalog_66"] }}</h2>
+                <form id="service-form" class="space-y-3">
+                    <input id="s-code" type="text" placeholder="{{ t["auto_attr_catalog_84"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    <input id="s-name" type="text" placeholder="{{ t["auto_attr_catalog_79"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+
+                    <input id="s-price" type="number" step="0.01" placeholder="{{ t["auto_attr_catalog_85"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                    <select id="s-price-type"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+                        <option value="per_hour">{{ t["auto_catalog_67"] }}</option>
+                        <option value="per_unit">{{ t["auto_catalog_68"] }}</option>
+                        <option value="fixed">{{ t["auto_catalog_69"] }}</option>
+                    </select>
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["form_submit"] }}</button>
+                </form>
+            </div>
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-4 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_catalog_70"] }}</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-background/30 border-b border-border">
+                            <tr>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_catalog_71"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["form_name"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
+                                    {{ t["auto_catalog_72"] }}</th>
+                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_catalog_73"] }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-table" class="divide-y divide-border">
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Tab -->
+    <div id="cattab-content-categories" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+                <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_catalog_74"] }}</h2>
+                <form id="cat-form" class="space-y-3">
+                    <input id="cat-code" type="text" placeholder="{{ t["auto_attr_catalog_86"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    <input id="cat-name" type="text" placeholder="{{ t["auto_attr_catalog_79"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
+
+                    <button type="submit"
+                        class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors">{{ t["form_submit"] }}</button>
+                </form>
+            </div>
+            <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+                <div class="p-4 border-b border-border bg-background/50">
+                    <h2 class="text-lg font-bold text-primary">{{ t["auto_catalog_60"] }}</h2>
+                </div>
+                <div id="categories-grid" class="p-4 grid grid-cols-2 gap-3">
+                    <div class="col-span-2 text-center text-text-secondary py-8">{{ t["loading"] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allProducts = [];
+    function showCatTab(name) {
+        document.querySelectorAll('[id^="cattab-content-"]').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.cattab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.getElementById('cattab-content-' + name).classList.remove('hidden');
+        const btn = document.getElementById('cattab-' + name);
+        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'services') loadServices();
+        if (name === 'categories') loadCategories();
+    }
+
+    function filterProducts(q) {
+        const rows = document.querySelectorAll('#products-table tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+        });
+    }
+
+    async function loadCategories() {
+        try {
+            const res = await fetch('/api/catalog/product-categories');
+            const data = await res.json();
+            const grid = document.getElementById('categories-grid');
+            if (!Array.isArray(data) || data.length === 0) { grid.innerHTML = '<div class="col-span-2 text-center text-text-secondary py-8">{{ t["auto_catalog_75"] }}</div>'; return; }
+            grid.innerHTML = data.map(c => `<div class="bg-background border border-border rounded-xl p-4 flex items-center gap-3">
+        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center font-bold text-secondary text-sm">${(c.code || '?').toUpperCase().slice(0, 2)}</div>
+        <div><p class="font-semibold text-sm">${c.name || '—'}</p><p class="text-xs text-text-secondary">${c.code || ''}</p></div>
+      </div>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/catalog/products');
+            let data = await res.json();
+            if (!Array.isArray(data)) data = [];
+            allProducts = data;
+            const tbody = document.getElementById('products-table');
+            if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_catalog_76"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-4 py-3 text-xs font-mono font-bold text-text-secondary">${r.sku || '—'}</td>
+        <td class="px-4 py-3 text-sm">${r.name || '—'}</td>
+        <td class="px-4 py-3 text-sm font-bold text-green-600">${parseFloat(r.sell_price || 0).toFixed(2)}</td>
+        <td class="px-4 py-3 text-sm text-text-secondary">${parseFloat(r.cost_price || 0).toFixed(2)}</td>
+        <td class="px-4 py-3 text-sm">${r.unit || '—'}</td>
+        <td class="px-4 py-3">
+          <button onclick="deleteProduct('${r.id?.id || ''}')" class="text-red-500 hover:text-red-700 text-xs">{{ t["btn_delete"] }}</button>
+        </td>
+      </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadServices() {
+        try {
+            const res = await fetch('/api/catalog/service-catalog');
+            const data = await res.json();
+            const tbody = document.getElementById('services-table');
+            if (!Array.isArray(data) || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_catalog_77"] }}</td></tr>'; return; }
+            tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
+        <td class="px-4 py-3 text-xs font-mono font-bold">${r.code || '—'}</td>
+        <td class="px-4 py-3 text-sm">${r.name || '—'}</td>
+        <td class="px-4 py-3 text-sm font-bold text-green-600">${parseFloat(r.base_price || 0).toFixed(2)}</td>
+        <td class="px-4 py-3 text-sm"><span class="px-2 py-1 bg-secondary/10 text-secondary rounded-full text-xs">${r.price_type || '—'}</span></td>
+      </tr>`).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function deleteProduct(id) {
+        if (!id) return;
+        confirmAction('حذف المنتج؟', async function() {
+            await fetch('/api/catalog/products/' + id, { method: 'DELETE' });
+            loadProducts();
+        }, { type: 'danger', confirmText: 'حذف' });
+    }
+
+    document.getElementById('product-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/catalog/products', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sku: document.getElementById('p-sku').value, name: document.getElementById('p-name').value,
+
+                sell_price: parseFloat(document.getElementById('p-sell').value || 0),
+                cost_price: parseFloat(document.getElementById('p-cost').value || 0),
+                unit: document.getElementById('p-unit').value
+            })
+        });
+        this.reset(); loadProducts();
+    });
+
+    document.getElementById('service-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/catalog/service-catalog', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: document.getElementById('s-code').value, name: document.getElementById('s-name').value, base_price: parseFloat(document.getElementById('s-price').value || 0),
+                price_type: document.getElementById('s-price-type').value
+            })
+        });
+        this.reset(); loadServices();
+    });
+
+    document.getElementById('cat-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetch('/api/catalog/product-categories', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: document.getElementById('cat-code').value, name: document.getElementById('cat-name').value })
+        });
+        this.reset(); loadCategories();
+    });
+
+    loadProducts();
+</script>
+{% endblock %}

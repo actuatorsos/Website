@@ -1,0 +1,373 @@
+{% extends "base_admin.html" %}
+
+{% block title %}المستند الذكي - {{ entity_type }} {{ entity_id }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-background text-text selection:bg-primary/30 font-sans pb-32 fade-in" id="document-container">
+
+    <!-- Top Navigation (Subtle Breadcrumbs like Notion) -->
+    <nav class="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/40 px-4 py-3 flex items-center justify-between" aria-label="Breadcrumb">
+        <div class="flex items-center text-sm font-medium text-text-muted">
+            <a href="/admin/" class="hover:bg-black/5 dark:hover:bg-white/5 px-2 py-1 rounded transition-colors flex items-center gap-1">
+                <svg class="w-4 h-4 opacity-70" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                </svg>
+                {{ t["nav_home"] }}
+            </a>
+            <span class="mx-1 opacity-50">/</span>
+            <span class="px-2 py-1 capitalize opacity-80" id="breadcrumb-type">...</span>
+            <span class="mx-1 opacity-50">/</span>
+            <span class="px-2 py-1 text-text truncate max-w-[200px]" id="breadcrumb-title">...</span>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="exportToMarkdown()" class="text-text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 px-3 py-1.5 rounded transition-colors text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                {{ t["auto_document_view_153"] }}
+            </button>
+        </div>
+    </nav>
+
+    <!-- Cover Image -->
+    <div class="relative w-full h-[30vh] min-h-[200px] border-b border-border/20 group bg-surface/50">
+        <img id="cover-image" src="/static/img/cover-placeholder.jpg" class="w-full h-full object-cover transition-opacity duration-300" alt="Cover">
+        <!-- Overlay on hover for changing cover -->
+        <div class="absolute top-4 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button onclick="changeCover()" class="px-3 py-1.5 bg-background/90 backdrop-blur border border-border/50 rounded shadow-sm text-xs text-text-muted hover:text-text hover:bg-background transition-all flex items-center gap-2 font-medium">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                {{ t["auto_document_view_154"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="max-w-4xl mx-auto px-6 sm:px-12 md:px-16 relative z-10 w-full">
+        <!-- Icon -->
+        <div class="flex items-end -mt-16 mb-4">
+            <div class="relative group inline-block">
+                <div id="document-icon" class="text-[84px] leading-none select-none drop-shadow-sm transition-transform hover:scale-105 cursor-pointer origin-bottom" title="{{ t["auto_attr_document_view_157"] }}">
+                    📄
+                </div>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="mb-8">
+            <h1 id="document-title" class="text-4xl md:text-[42px] font-bold text-text leading-tight tracking-tight outline-none break-words">{{ t["loading"] }}</h1>
+        </div>
+
+        <!-- Properties Table (Notion style) -->
+        <div id="properties-container" class="space-y-1.5 mb-10 w-full md:w-4/5 pb-2">
+            <!-- Populated via JS -->
+        </div>
+
+        <hr class="border-border/40 my-10">
+
+        <!-- Markdown Editor/Renderer -->
+        <div class="mt-4 group/content position-relative">
+            <div class="flex items-center justify-between mb-4 opacity-0 group-hover/content:opacity-100 transition-opacity">
+                <button onclick="toggleEditMode()" id="edit-btn" class="text-sm px-3 py-1.5 text-text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors font-medium flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    {{ t["auto_document_view_155"] }}
+                </button>
+            </div>
+
+            <!-- View Mode -->
+            <div id="markdown-viewer" class="prose prose-lg prose-slate dark:prose-invert max-w-none prose-img:rounded-xl prose-img:shadow-md prose-img:my-8 prose-a:text-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-li:my-1">
+                <!-- Rendered Markdown goes here -->
+            </div>
+
+            <!-- Edit Mode -->
+            <div id="markdown-editor" class="hidden animate-in fade-in duration-200">
+                <textarea id="markdown-textarea"
+                    class="w-full min-h-[600px] p-6 bg-transparent border-0 ring-1 ring-border rounded-xl focus:ring-2 focus:ring-primary/50 text-text font-mono text-[15px] leading-relaxed resize-y scrollbar-thin scrollbar-thumb-border"
+                    dir="auto" placeholder="{{ t["auto_attr_document_view_158"] }}"></textarea>
+
+                <div class="flex justify-end gap-3 mt-6 sticky bottom-6 z-50 p-4 bg-background/80 backdrop-blur-md border border-border rounded-2xl shadow-xl">
+                    <button onclick="toggleEditMode()" class="px-5 py-2 text-sm text-text-muted hover:text-text hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors font-medium">{{ t["cancel"] }}</button>
+                    <button onclick="saveDocument()" class="px-6 py-2 text-sm bg-primary text-white rounded-lg shadow-sm hover:bg-primary-dark hover:shadow transition-all font-medium">{{ t["save_changes"] }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Require marked.js for Markdown Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+    const entityType = "{{ entity_type }}";
+    const entityId = "{{ entity_id }}";
+    let isEditing = false;
+    let currentDoc = null;
+
+    // SVG icons mapping for properties
+    const propIcons = {
+        'phone': '<svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>',
+        'company': '<svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>',
+        'serial_number': '<svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>',
+        'status': '<svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        'default': '<svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>'
+    };
+
+    // Load data from API
+    async function loadDocument() {
+        try {
+            const res = await fetch(`/api/documents/${entityType}/${entityId}`, {
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error("Failed to load document");
+            currentDoc = await res.json();
+            renderDocument();
+        } catch (err) {
+            console.error(err);
+            document.getElementById('document-title').innerText = "حدث خطأ في جلب البيانات";
+        }
+    }
+
+    function renderDocument() {
+        if (!currentDoc) return;
+
+        // Breadcrumbs & Header
+        document.getElementById('breadcrumb-type').innerText = currentDoc.entity_type;
+        document.getElementById('breadcrumb-title').innerText = currentDoc.title || "بدون عنوان";
+        document.getElementById('document-title').innerText = currentDoc.title || "بدون عنوان";
+        if (currentDoc.icon) {
+            document.getElementById('document-icon').innerText = currentDoc.icon;
+        }
+        if (currentDoc.cover_image) {
+            document.getElementById('cover-image').src = currentDoc.cover_image;
+        }
+
+        // Properties section
+        const propsContainer = document.getElementById('properties-container');
+        propsContainer.innerHTML = '';
+
+        // Add regular properties
+        if (currentDoc.properties && currentDoc.properties.length > 0) {
+            currentDoc.properties.forEach(prop => {
+                const row = document.createElement('div');
+                row.className = "flex items-start py-1.5 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors rounded-md px-1.5 -mx-1.5";
+                
+                const iconSvg = propIcons[prop.key] || propIcons['default'];
+                
+                let valueHtml = prop.value;
+                if(prop.key === 'status') {
+                    // Make status look like a badge
+                    valueHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-black/5 dark:bg-white/10 text-text">${prop.value}</span>`;
+                }
+
+                row.innerHTML = `
+                    <div class="w-44 shrink-0 text-text-muted text-[15px] flex items-center gap-2 select-none pt-0.5">
+                        ${iconSvg}
+                        ${prop.label}
+                    </div>
+                    <div class="flex-1 text-[15px] text-text flex items-center flex-wrap gap-1 leading-relaxed">
+                        ${valueHtml}
+                    </div>
+                `;
+                propsContainer.appendChild(row);
+            });
+        }
+
+        // Add links/relations as Notion-style properties
+        if (currentDoc.links && currentDoc.links.length > 0) {
+            const groups = {};
+            currentDoc.links.forEach(l => {
+                if (!groups[l.relation]) groups[l.relation] = [];
+                groups[l.relation].push(l);
+            });
+
+            Object.keys(groups).forEach(relName => {
+                let icon = '↗️';
+                if (relName.includes('آلة')) icon = '⚙️';
+                if (relName.includes('مشروع')) icon = '📁';
+                if (relName.includes('إصلاح')) icon = '🛠️';
+                if (relName.includes('تفاعل') || relName.includes('زيارة')) icon = '💬';
+                if (relName.includes('عضو')) icon = '👥';
+                if (relName.includes('المالك') || relName.includes('العميل')) icon = '👤';
+
+                const row = document.createElement('div');
+                row.className = "flex items-start py-1.5 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors rounded-md px-1.5 -mx-1.5";
+                
+                const linksHtml = groups[relName].map(link => {
+                    let route = `/admin/documents/${link.id.includes(':') ? link.id.split(':')[0] : 'record'}/${link.id.includes(':') ? link.id.split(':')[1] : link.id}`;
+                    // Special routing
+                    const idParts = link.id.split(':');
+                    const pid = idParts[1] || link.id;
+                    if (link.id.includes('client') || link.id.includes('customer')) route = `/admin/documents/client/${pid}`;
+                    else if (link.id.includes('machine')) route = `/admin/documents/machine/${pid}`;
+                    else if (link.id.includes('project')) route = `/admin/documents/project/${pid}`;
+                    else if (link.id.includes('repair')) route = `/admin/documents/repair_operation/${pid}`;
+                    else if (link.id.includes('interaction')) route = `/admin/documents/interaction/${pid}`;
+
+                    return `<a href="${route}" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-background shadow-sm border border-border/60 hover:bg-black/5 dark:hover:bg-white/10 transition-colors rounded-md text-sm text-text font-medium select-none cursor-pointer group/link">
+                        <span class="text-xs opacity-80 group-hover/link:opacity-100">${link.icon || icon}</span>
+                        <span class="border-b border-transparent group-hover/link:border-text-muted transition-colors">${link.title}</span>
+                    </a>`;
+                }).join('');
+
+                row.innerHTML = `
+                    <div class="w-44 shrink-0 text-text-muted text-[15px] flex items-center gap-2 select-none pt-0.5">
+                        <span class="opacity-70 grayscale leading-none text-sm">${icon}</span>
+                        ${relName}
+                    </div>
+                    <div class="flex-1 flex flex-wrap gap-2 items-center">
+                        ${linksHtml}
+                    </div>
+                `;
+                propsContainer.appendChild(row);
+            });
+        }
+
+        // Markdown content
+        const mdText = currentDoc.content_md || "";
+        document.getElementById('markdown-textarea').value = mdText;
+        document.getElementById('markdown-viewer').innerHTML = marked.parse(mdText) || '<p class="text-text-muted italic opacity-60">{{ t["auto_document_view_156"] }}</p>';
+    }
+
+    function toggleEditMode() {
+        isEditing = !isEditing;
+        const viewer = document.getElementById('markdown-viewer');
+        const editor = document.getElementById('markdown-editor');
+        const btn = document.getElementById('edit-btn');
+
+        if (isEditing) {
+            viewer.classList.add('hidden');
+            editor.classList.remove('hidden');
+            btn.classList.add('hidden');
+        } else {
+            viewer.classList.remove('hidden');
+            editor.classList.add('hidden');
+            btn.classList.remove('hidden');
+            // Re-render in case they canceled
+            if (currentDoc) {
+                document.getElementById('markdown-textarea').value = currentDoc.content_md || "";
+            }
+        }
+    }
+
+    async function saveDocument() {
+        const newMd = document.getElementById('markdown-textarea').value;
+        const btn = document.querySelector('button[onclick="saveDocument()"]');
+        btn.disabled = true;
+        btn.innerText = "جاري الحفظ...";
+
+        try {
+            const res = await fetch(`/api/documents/${entityType}/${entityId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ content_md: newMd })
+            });
+            if (!res.ok) throw new Error("Failed to save");
+
+            // Success
+            if (currentDoc) currentDoc.content_md = newMd;
+            document.getElementById('markdown-viewer').innerHTML = marked.parse(newMd);
+            toggleEditMode();
+
+            // Show toast success
+            if (typeof window.showToast === 'function') {
+                window.showToast("تم الحفظ بنجاح", "success");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("حدث خطأ أثناء الحفظ", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "حفظ التغييرات";
+        }
+    }
+
+    // Change cover (demo)
+    function changeCover() {
+        const url = prompt("أدخل رابط الصورة الجديدة:");
+        if (url) {
+            fetch(`/api/documents/${entityType}/${entityId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ cover_image: url })
+            }).then(() => {
+                if (currentDoc) currentDoc.cover_image = url;
+                document.getElementById('cover-image').src = url;
+            });
+        }
+    }
+
+    function exportToMarkdown() {
+        if (!currentDoc) return;
+        let mdContent = `# ${currentDoc.title || 'بدون عنوان'}\n\n`;
+
+        if (currentDoc.properties && currentDoc.properties.length > 0) {
+            mdContent += `## التفاصيل\n`;
+            currentDoc.properties.forEach(p => {
+                mdContent += `- **${p.label}**: ${p.value}\n`;
+            });
+            mdContent += `\n`;
+        }
+
+        if (currentDoc.links && currentDoc.links.length > 0) {
+            mdContent += `## الروابط المتصلة\n`;
+            currentDoc.links.forEach(l => {
+                mdContent += `- [${l.relation}: ${l.title}](/${l.id})\n`;
+            });
+            mdContent += `\n`;
+        }
+
+        mdContent += `---\n\n`;
+        mdContent += currentDoc.content_md || '';
+
+        const blob = new Blob([mdContent], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentDoc.title || 'document'}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDocument();
+
+        // Drag and drop image to Base64
+        const textarea = document.getElementById('markdown-textarea');
+
+        textarea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            textarea.classList.add('ring-2', 'ring-primary', 'bg-primary/5');
+        });
+
+        textarea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            textarea.classList.remove('ring-2', 'ring-primary', 'bg-primary/5');
+        });
+
+        textarea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            textarea.classList.remove('ring-2', 'ring-primary', 'bg-primary/5');
+
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const base64String = event.target.result;
+                        const imgMarkdown = `\n![${file.name}](${base64String})\n`;
+
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const text = textarea.value;
+
+                        textarea.value = text.substring(0, start) + imgMarkdown + text.substring(end);
+                        textarea.selectionStart = textarea.selectionEnd = start + imgMarkdown.length;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

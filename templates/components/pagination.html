@@ -1,0 +1,41 @@
+{# Pagination component — expects: current_page, total_pages, base_url #}
+{% if total_pages > 1 %}
+<div class="flex justify-center items-center gap-2 mt-6" dir="ltr">
+    {% if current_page > 1 %}
+    <a href="{{ base_url }}?page={{ current_page - 1 }}"
+       class="btn btn-sm btn-ghost"
+       hx-get="{{ base_url }}?page={{ current_page - 1 }}"
+       hx-target="#list-container"
+       hx-swap="innerHTML">
+        &laquo;
+    </a>
+    {% endif %}
+
+    {% for p in 1..=total_pages %}
+        {% if p == current_page %}
+        <button class="btn btn-sm btn-primary">{{ p }}</button>
+        {% else if p == 1 || p == total_pages || (p >= current_page - 2 && p <= current_page + 2) %}
+        <a href="{{ base_url }}?page={{ p }}"
+           class="btn btn-sm btn-ghost"
+           hx-get="{{ base_url }}?page={{ p }}"
+           hx-target="#list-container"
+           hx-swap="innerHTML">{{ p }}</a>
+        {% else if p == current_page - 3 || p == current_page + 3 %}
+        <span class="text-base-content/50">...</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages %}
+    <a href="{{ base_url }}?page={{ current_page + 1 }}"
+       class="btn btn-sm btn-ghost"
+       hx-get="{{ base_url }}?page={{ current_page + 1 }}"
+       hx-target="#list-container"
+       hx-swap="innerHTML">
+        &raquo;
+    </a>
+    {% endif %}
+</div>
+<p class="text-center text-sm text-base-content/50 mt-2">
+    {{ current_page }} / {{ total_pages }}
+</p>
+{% endif %}

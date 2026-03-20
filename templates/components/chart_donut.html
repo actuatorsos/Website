@@ -1,0 +1,84 @@
+{# KPI Chart Component with ApexCharts + HTMX #}
+{# Usage: Include in dashboard and pass chart_id, chart_type, endpoint, title #}
+
+<div class="card bg-base-200 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-primary">{{ chart_title }}</h2>
+        <div id="{{ chart_id }}" class="h-80" hx-get="{{ chart_endpoint }}" hx-trigger="load, every 60s" hx-swap="none"
+            hx-on::after-request="renderChart_{{ chart_id }}(event.detail.xhr.responseText)">
+            <!-- Chart renders here -->
+            <div class="flex items-center justify-center h-full">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chart_{{ chart_id }};
+
+    function renderChart_{ { chart_id } } (jsonResponse) {
+        try {
+            const data = JSON.parse(jsonResponse);
+            const container = document.querySelector("#{{ chart_id }}");
+
+            // Clear loading state
+            container.innerHTML = '';
+
+            const options = {
+                chart: {
+                    type: '{{ chart_type }}',
+                    height: 300,
+                    background: 'transparent',
+                    foreColor: '#a6adbb',
+                    toolbar: { show: false }
+                },
+                series: data.values,
+                labels: data.labels,
+                theme: {
+                    mode: 'dark',
+                    palette: 'palette1'
+                },
+                colors: ['#00d9ff', '#0ea5e9', '#22d3ee', '#67e8f9', '#a5f3fc'],
+                legend: {
+                    position: 'bottom',
+                    fontFamily: 'Alexandria, sans-serif'
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '55%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'المجموع',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: { width: 280 },
+                        legend: { position: 'bottom' }
+                    }
+                }]
+            };
+
+            if (!chart_{ { chart_id } }) {
+            chart_{ { chart_id } } = new ApexCharts(container, options);
+            chart_{ { chart_id } }.render();
+            } else {
+            chart_{ { chart_id } }.updateSeries(data.values);
+            chart_{ { chart_id } }.updateOptions({ labels: data.labels });
+            }
+        } catch (e) {
+            console.error('Chart render error:', e);
+        }
+    }
+</script>
