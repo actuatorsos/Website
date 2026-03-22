@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Select Plan - Actuators ERP</title>
+</head>
+<body>
+  <h1>Choose Your Plan</h1>
+  {% for plan in plans %}
+  <div>
+    <h3>{{ plan }}</h3>
+  </div>
+  {% endfor %}
+  <a href="/tenants/new">&larr; Back</a>
+</body>
+</html>

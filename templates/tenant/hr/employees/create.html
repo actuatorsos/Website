@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}إضافة موظف{% else %}Add Employee{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-6">
+            <a href="/hr/employees" class="btn btn-ghost btn-sm">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}إضافة موظف جديد{% else %}Add New Employee{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}أدخل بيانات الموظف{% else %}Enter employee information{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <!-- Form -->
+        <form method="POST" action="/hr/employees/create" class="space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <!-- Personal Information -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-4">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        {% if lang == "ar" %}المعلومات الشخصية{% else %}Personal Information{% endif %}
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- First Name (English) -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}الاسم الأول (إنجليزي){% else %}First Name (English){% endif %}</span>
+                            </label>
+                            <input type="text" name="first_name_en"
+                                   placeholder="First Name"
+                                   class="input input-bordered w-full" required>
+                        </div>
+
+                        <!-- First Name (Arabic) -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}الاسم الأول (عربي){% else %}First Name (Arabic){% endif %}</span>
+                            </label>
+                            <input type="text" name="first_name_ar" dir="rtl"
+                                   placeholder="الاسم الأول"
+                                   class="input input-bordered w-full" required>
+                        </div>
+
+                        <!-- Last Name (English) -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}اسم العائلة (إنجليزي){% else %}Last Name (English){% endif %}</span>
+                            </label>
+                            <input type="text" name="last_name_en"
+                                   placeholder="Last Name"
+                                   class="input input-bordered w-full" required>
+                        </div>
+
+                        <!-- Last Name (Arabic) -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}اسم العائلة (عربي){% else %}Last Name (Arabic){% endif %}</span>
+                            </label>
+                            <input type="text" name="last_name_ar" dir="rtl"
+                                   placeholder="اسم العائلة"
+                                   class="input input-bordered w-full" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}البريد الإلكتروني{% else %}Email{% endif %}</span>
+                            </label>
+                            <input type="email" name="email"
+                                   placeholder="employee@company.com"
+                                   class="input input-bordered w-full">
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}رقم الهاتف{% else %}Phone{% endif %}</span>
+                            </label>
+                            <input type="tel" name="phone"
+                                   placeholder="+966 5xx xxx xxxx"
+                                   class="input input-bordered w-full">
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}تاريخ الميلاد{% else %}Date of Birth{% endif %}</span>
+                            </label>
+                            <input type="date" name="date_of_birth"
+                                   class="input input-bordered w-full">
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}الجنس{% else %}Gender{% endif %}</span>
+                            </label>
+                            <select name="gender" class="select select-bordered w-full">
+                                <option value="" disabled selected>{% if lang == "ar" %}اختر{% else %}Select{% endif %}</option>
+                                <option value="male">{% if lang == "ar" %}ذكر{% else %}Male{% endif %}</option>
+                                <option value="female">{% if lang == "ar" %}أنثى{% else %}Female{% endif %}</option>
+                            </select>
+                        </div>
+
+                        <!-- National ID -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}رقم الهوية{% else %}National ID{% endif %}</span>
+                            </label>
+                            <input type="text" name="national_id"
+                                   placeholder="{% if lang == "ar" %}رقم الهوية الوطنية{% else %}National ID Number{% endif %}"
+                                   class="input input-bordered w-full">
+                        </div>
+
+                        <!-- Nationality -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}الجنسية{% else %}Nationality{% endif %}</span>
+                            </label>
+                            <input type="text" name="nationality"
+                                   placeholder="{% if lang == "ar" %}الجنسية{% else %}Nationality{% endif %}"
+                                   class="input input-bordered w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-4">
+                        <span class="material-symbols-outlined text-primary">work</span>
+                        {% if lang == "ar" %}معلومات التوظيف{% else %}Employment Information{% endif %}
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Employee Number -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}رقم الموظف{% else %}Employee Number{% endif %}</span>
+                            </label>
+                            <input type="text" name="employee_number"
+                                   placeholder="EMP-001"
+                                   class="input input-bordered w-full font-mono" required>
+                        </div>
+
+                        <!-- Hire Date -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}تاريخ التعيين{% else %}Hire Date{% endif %}</span>
+                            </label>
+                            <input type="date" name="hire_date"
+                                   class="input input-bordered w-full" required>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}القسم{% else %}Department{% endif %}</span>
+                            </label>
+                            <select name="department_id" class="select select-bordered w-full">
+                                <option value="" disabled selected>{% if lang == "ar" %}اختر القسم{% else %}Select Department{% endif %}</option>
+                                {% for dept in departments %}
+                                <option value="{{ dept["id"] }}">
+                                    {% if lang == "ar" %}{{ dept["name_ar"].as_str().unwrap_or("") }}{% else %}{{ dept["name_en"].as_str().unwrap_or("") }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Job Title -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}المسمى الوظيفي{% else %}Job Title{% endif %}</span>
+                            </label>
+                            <select name="job_title_id" class="select select-bordered w-full">
+                                <option value="" disabled selected>{% if lang == "ar" %}اختر المسمى{% else %}Select Job Title{% endif %}</option>
+                                {% for title in job_titles %}
+                                <option value="{{ title["id"] }}">
+                                    {% if lang == "ar" %}{{ title["name_ar"].as_str().unwrap_or("") }}{% else %}{{ title["name_en"].as_str().unwrap_or("") }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}الحالة{% else %}Status{% endif %}</span>
+                            </label>
+                            <select name="status" class="select select-bordered w-full">
+                                <option value="active">{% if lang == "ar" %}نشط{% else %}Active{% endif %}</option>
+                                <option value="probation">{% if lang == "ar" %}فترة تجربة{% else %}Probation{% endif %}</option>
+                            </select>
+                        </div>
+
+                        <!-- Employment Type -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">{% if lang == "ar" %}نوع التوظيف{% else %}Employment Type{% endif %}</span>
+                            </label>
+                            <select name="employment_type" class="select select-bordered w-full">
+                                <option value="full_time">{% if lang == "ar" %}دوام كامل{% else %}Full Time{% endif %}</option>
+                                <option value="part_time">{% if lang == "ar" %}دوام جزئي{% else %}Part Time{% endif %}</option>
+                                <option value="contract">{% if lang == "ar" %}عقد{% else %}Contract{% endif %}</option>
+                                <option value="intern">{% if lang == "ar" %}متدرب{% else %}Intern{% endif %}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex justify-end gap-3">
+                <a href="/hr/employees" class="btn btn-ghost">
+                    {% if lang == "ar" %}إلغاء{% else %}Cancel{% endif %}
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span>
+                    {% if lang == "ar" %}حفظ الموظف{% else %}Save Employee{% endif %}
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

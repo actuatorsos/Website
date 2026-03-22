@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}الموظفون{% else %}Employees{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}الموظفون{% else %}Employees{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}إدارة بيانات الموظفين{% else %}Manage employee records{% endif %}
+                </p>
+            </div>
+            <a href="/hr/employees/create" class="btn btn-primary">
+                <span class="material-symbols-outlined">person_add</span>
+                {% if lang == "ar" %}إضافة موظف{% else %}Add Employee{% endif %}
+            </a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <!-- Search & Filters -->
+        <div class="card bg-neutral shadow-xl mb-6">
+            <div class="card-body p-4">
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Search -->
+                    <div class="form-control flex-1 min-w-[200px]">
+                        <div class="input-group">
+                            <span class="bg-base-300">
+                                <span class="material-symbols-outlined text-sm">search</span>
+                            </span>
+                            <input type="text" name="search"
+                                   placeholder="{% if lang == "ar" %}بحث عن موظف...{% else %}Search employees...{% endif %}"
+                                   class="input input-bordered input-sm w-full"
+                                   hx-get="/hr/employees"
+                                   hx-trigger="keyup changed delay:300ms"
+                                   hx-target="#employees-table"
+                                   hx-swap="innerHTML"
+                                   hx-include="[name='department'],[name='status']"
+                                   value="{{ filters["search"].as_str().unwrap_or("") }}">
+                        </div>
+                    </div>
+
+                    <!-- Department Filter -->
+                    <div class="form-control">
+                        <select name="department" class="select select-bordered select-sm"
+                                hx-get="/hr/employees"
+                                hx-trigger="change"
+                                hx-target="#employees-table"
+                                hx-swap="innerHTML"
+                                hx-include="[name='search'],[name='status']">
+                            <option value="">{% if lang == "ar" %}كل الأقسام{% else %}All Departments{% endif %}</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept["id"] }}"
+                                    {% if filters["department"].as_str().unwrap_or("") == dept["id"].as_str().unwrap_or("") %}selected{% endif %}>
+                                {% if lang == "ar" %}{{ dept["name_ar"].as_str().unwrap_or("") }}{% else %}{{ dept["name_en"].as_str().unwrap_or("") }}{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="form-control">
+                        <select name="status" class="select select-bordered select-sm"
+                                hx-get="/hr/employees"
+                                hx-trigger="change"
+                                hx-target="#employees-table"
+                                hx-swap="innerHTML"
+                                hx-include="[name='search'],[name='department']">
+                            <option value="">{% if lang == "ar" %}كل الحالات{% else %}All Statuses{% endif %}</option>
+                            <option value="active" {% if filters["status"].as_str().unwrap_or("") == "active" %}selected{% endif %}>
+                                {% if lang == "ar" %}نشط{% else %}Active{% endif %}
+                            </option>
+                            <option value="on_leave" {% if filters["status"].as_str().unwrap_or("") == "on_leave" %}selected{% endif %}>
+                                {% if lang == "ar" %}في إجازة{% else %}On Leave{% endif %}
+                            </option>
+                            <option value="terminated" {% if filters["status"].as_str().unwrap_or("") == "terminated" %}selected{% endif %}>
+                                {% if lang == "ar" %}منتهي{% else %}Terminated{% endif %}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Table -->
+        <div class="card bg-neutral shadow-xl">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto" id="employees-table">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>{% if lang == "ar" %}رقم الموظف{% else %}Employee #{% endif %}</th>
+                                <th>{% if lang == "ar" %}الاسم{% else %}Name{% endif %}</th>
+                                <th>{% if lang == "ar" %}القسم{% else %}Department{% endif %}</th>
+                                <th>{% if lang == "ar" %}المسمى الوظيفي{% else %}Job Title{% endif %}</th>
+                                <th>{% if lang == "ar" %}الحالة{% else %}Status{% endif %}</th>
+                                <th>{% if lang == "ar" %}تاريخ التعيين{% else %}Hire Date{% endif %}</th>
+                                <th>{% if lang == "ar" %}الإجراءات{% else %}Actions{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in employees %}
+                            <tr class="hover">
+                                <td class="font-mono text-sm">{{ emp["employee_number"].as_str().unwrap_or("") }}</td>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-primary/20 text-primary rounded-full w-8 h-8 flex items-center justify-center">
+                                                <span class="text-xs font-bold">
+                                                    {{ emp["first_name_en"].as_str().unwrap_or("?").chars().next().unwrap_or('?') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            {% if lang == "ar" %}
+                                            <div class="font-medium">{{ emp["first_name_ar"].as_str().unwrap_or("") }} {{ emp["last_name_ar"].as_str().unwrap_or("") }}</div>
+                                            <div class="text-xs opacity-50">{{ emp["first_name_en"].as_str().unwrap_or("") }} {{ emp["last_name_en"].as_str().unwrap_or("") }}</div>
+                                            {% else %}
+                                            <div class="font-medium">{{ emp["first_name_en"].as_str().unwrap_or("") }} {{ emp["last_name_en"].as_str().unwrap_or("") }}</div>
+                                            <div class="text-xs opacity-50">{{ emp["first_name_ar"].as_str().unwrap_or("") }} {{ emp["last_name_ar"].as_str().unwrap_or("") }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if lang == "ar" %}{{ emp["department_name_ar"].as_str().unwrap_or("-") }}{% else %}{{ emp["department_name_en"].as_str().unwrap_or("-") }}{% endif %}
+                                </td>
+                                <td>
+                                    {% if lang == "ar" %}{{ emp["job_title_ar"].as_str().unwrap_or("-") }}{% else %}{{ emp["job_title_en"].as_str().unwrap_or("-") }}{% endif %}
+                                </td>
+                                <td>
+                                    {% if emp["status"].as_str().unwrap_or("") == "active" %}
+                                    <span class="badge badge-success badge-sm">{% if lang == "ar" %}نشط{% else %}Active{% endif %}</span>
+                                    {% else if emp["status"].as_str().unwrap_or("") == "on_leave" %}
+                                    <span class="badge badge-warning badge-sm">{% if lang == "ar" %}في إجازة{% else %}On Leave{% endif %}</span>
+                                    {% else if emp["status"].as_str().unwrap_or("") == "terminated" %}
+                                    <span class="badge badge-error badge-sm">{% if lang == "ar" %}منتهي{% else %}Terminated{% endif %}</span>
+                                    {% else %}
+                                    <span class="badge badge-ghost badge-sm">{{ emp["status"].as_str().unwrap_or("-") }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-sm">{{ emp["hire_date"].as_str().unwrap_or("-") }}</td>
+                                <td>
+                                    <div class="flex items-center gap-1">
+                                        <a href="/hr/employees/{{ emp["id"] }}" class="btn btn-ghost btn-xs" title="{% if lang == "ar" %}عرض{% else %}View{% endif %}">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                        </a>
+                                        <a href="/hr/employees/{{ emp["id"] }}/edit" class="btn btn-ghost btn-xs" title="{% if lang == "ar" %}تعديل{% else %}Edit{% endif %}">
+                                            <span class="material-symbols-outlined text-sm">edit</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if employees.is_empty() %}
+                    <div class="text-center py-12 opacity-40">
+                        <span class="material-symbols-outlined text-5xl">person_search</span>
+                        <p class="mt-3">
+                            {% if lang == "ar" %}لا يوجد موظفون{% else %}No employees found{% endif %}
+                        </p>
+                        <a href="/hr/employees/create" class="btn btn-primary btn-sm mt-4">
+                            <span class="material-symbols-outlined text-sm">person_add</span>
+                            {% if lang == "ar" %}إضافة أول موظف{% else %}Add First Employee{% endif %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% include "components/pagination.html" %}
+    </main>
+</div>
+{% endblock %}

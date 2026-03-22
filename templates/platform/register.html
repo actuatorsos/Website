@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Register - Actuators ERP</title>
+</head>
+<body>
+  <h1>Create Account</h1>
+  {% match error %}
+  {% when Some with (err) %}
+  <p style="color: red;">{{ err }}</p>
+  {% when None %}
+  {% endmatch %}
+  {% match success %}
+  {% when Some with (msg) %}
+  <p style="color: green;">{{ msg }}</p>
+  {% when None %}
+  {% endmatch %}
+  <form method="POST" action="/register">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+    <label>Full Name <input type="text" name="full_name" required></label><br>
+    <label>Email <input type="email" name="email" required></label><br>
+    <label>Password <input type="password" name="password" required minlength="8"></label><br>
+    <label>Confirm Password <input type="password" name="confirm_password" required minlength="8"></label><br>
+    <label>Preferred Language
+      <select name="preferred_lang">
+        <option value="en">English</option>
+        <option value="ar">Arabic</option>
+      </select>
+    </label><br>
+    <button type="submit">Create Account</button>
+  </form>
+  <p>Already have an account? <a href="/login">Sign In</a></p>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard - Actuators ERP</title>
+</head>
+<body>
+  <h1>Welcome, {{ full_name }}</h1>
+  <p>Email: {{ email }}</p>
+  <h2>Your Organizations</h2>
+  {% if tenants.is_empty() %}
+  <p>No organizations yet. <a href="/tenants/new">Create one</a>.</p>
+  {% else %}
+  <ul>
+  {% for tenant in tenants %}
+    <li>{{ tenant }}</li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+  <nav>
+    <a href="/tenants/new">Create Organization</a> |
+    <a href="/dashboard/profile">Profile</a> |
+    <form method="post" action="/logout" style="display:inline">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+      <button type="submit">Logout</button>
+    </form>
+  </nav>
+</body>
+</html>

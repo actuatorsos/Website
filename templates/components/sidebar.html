@@ -1,0 +1,71 @@
+<!-- Sidebar Component -->
+<!-- Variables: services: Vec<String>, lang: String, active_page: String -->
+
+<aside class="w-64 min-h-screen bg-neutral text-neutral-content fixed top-16 {% if lang == "ar" %}right-0{% else %}left-0{% endif %} overflow-y-auto z-40">
+    <ul class="menu p-4 gap-1">
+        <!-- Dashboard (always visible) -->
+        <li>
+            <a href="/dashboard"
+               class="{% if active_page == "dashboard" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">dashboard</span>
+                {% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}
+            </a>
+        </li>
+
+        <!-- HR Section -->
+        {% if services.iter().any(|s| s == "hr") %}
+        <li class="menu-title mt-4">
+            <span class="text-xs uppercase tracking-wider opacity-60">
+                {% if lang == "ar" %}الموارد البشرية{% else %}Human Resources{% endif %}
+            </span>
+        </li>
+        <li>
+            <a href="/hr/employees"
+               class="{% if active_page == "employees" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">badge</span>
+                {% if lang == "ar" %}الموظفون{% else %}Employees{% endif %}
+            </a>
+        </li>
+        <li>
+            <a href="/hr/departments"
+               class="{% if active_page == "departments" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">account_tree</span>
+                {% if lang == "ar" %}الأقسام{% else %}Departments{% endif %}
+            </a>
+        </li>
+        <li>
+            <a href="/hr/job-titles"
+               class="{% if active_page == "job_titles" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">work</span>
+                {% if lang == "ar" %}المسميات الوظيفية{% else %}Job Titles{% endif %}
+            </a>
+        </li>
+        {% endif %}
+
+        <!-- Settings (always visible) -->
+        <li class="menu-title mt-4">
+            <span class="text-xs uppercase tracking-wider opacity-60">
+                {% if lang == "ar" %}النظام{% else %}System{% endif %}
+            </span>
+        </li>
+        <li>
+            <a href="/settings"
+               class="{% if active_page == "settings" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">settings</span>
+                {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}
+                <span class="badge badge-xs badge-warning">
+                    {% if lang == "ar" %}مدير{% else %}Admin{% endif %}
+                </span>
+            </a>
+        </li>
+
+        <!-- Audit Log (always visible) -->
+        <li>
+            <a href="/audit"
+               class="{% if active_page == "audit" %}active bg-primary/20 text-primary{% endif %} flex items-center gap-3 rounded-lg">
+                <span class="material-symbols-outlined">history</span>
+                {% if lang == "ar" %}سجل المراجعة{% else %}Audit Log{% endif %}
+            </a>
+        </li>
+    </ul>
+</aside>

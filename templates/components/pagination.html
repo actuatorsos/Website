@@ -1,0 +1,55 @@
+<!-- Pagination Component -->
+<!-- Variables: current_page: u32, total_pages: u32, base_url: String -->
+
+{% if total_pages > 1 %}
+<div class="flex justify-center mt-6">
+    <div class="join">
+        <!-- Previous Button -->
+        {% if current_page > 1 %}
+        <button class="join-item btn btn-sm"
+                hx-get="{{ base_url }}?page={{ current_page - 1 }}"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+                hx-push-url="true">
+            <span class="material-symbols-outlined text-sm">chevron_left</span>
+        </button>
+        {% else %}
+        <button class="join-item btn btn-sm btn-disabled">
+            <span class="material-symbols-outlined text-sm">chevron_left</span>
+        </button>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        {% for page in 1..=total_pages %}
+        {% if page == current_page %}
+        <button class="join-item btn btn-sm btn-primary">{{ page }}</button>
+        {% else if page == 1 || page == total_pages || (page >= current_page.saturating_sub(2) && page <= current_page + 2) %}
+        <button class="join-item btn btn-sm"
+                hx-get="{{ base_url }}?page={{ page }}"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+                hx-push-url="true">
+            {{ page }}
+        </button>
+        {% else if page == current_page.saturating_sub(3) || page == current_page + 3 %}
+        <button class="join-item btn btn-sm btn-disabled">...</button>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Next Button -->
+        {% if current_page < total_pages %}
+        <button class="join-item btn btn-sm"
+                hx-get="{{ base_url }}?page={{ current_page + 1 }}"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+                hx-push-url="true">
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </button>
+        {% else %}
+        <button class="join-item btn btn-sm btn-disabled">
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

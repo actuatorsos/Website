@@ -1,0 +1,26 @@
+<!-- Flash/Notification Component -->
+<!-- Variables: error: Option<String>, success: Option<String> -->
+
+{% match error %}
+{% when Some with (err) %}
+<div class="alert alert-error shadow-lg mb-6" role="alert">
+    <span class="material-symbols-outlined">error</span>
+    <span>{{ err }}</span>
+    <button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()">
+        <span class="material-symbols-outlined text-sm">close</span>
+    </button>
+</div>
+{% when None %}
+{% endmatch %}
+
+{% match success %}
+{% when Some with (msg) %}
+<div class="alert alert-success shadow-lg mb-6" role="alert">
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>{{ msg }}</span>
+    <button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()">
+        <span class="material-symbols-outlined text-sm">close</span>
+    </button>
+</div>
+{% when None %}
+{% endmatch %}

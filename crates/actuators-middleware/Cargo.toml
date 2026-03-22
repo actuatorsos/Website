@@ -1,0 +1,22 @@
+[package]
+name = "actuators-middleware"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actuators-core = { path = "../actuators-core" }
+actuators-db = { path = "../actuators-db" }
+actuators-auth = { path = "../actuators-auth" }
+axum = { workspace = true }
+axum-extra = { workspace = true }
+tower = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+governor = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+surrealdb = { workspace = true }
+rand = { workspace = true }
+tokio = { workspace = true }
+form_urlencoded = "1"

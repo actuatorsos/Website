@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Verify Email</title>
+</head>
+<body>
+  <h1>Email Verification</h1>
+  {% if success %}
+  <p style="color: green;">{{ message }}</p>
+  <p><a href="/login">Go to Login</a></p>
+  {% else %}
+  <p style="color: red;">{{ message }}</p>
+  {% endif %}
+</body>
+</html>

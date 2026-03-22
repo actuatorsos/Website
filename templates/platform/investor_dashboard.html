@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Investor Dashboard</title>
+</head>
+<body>
+  <h1>Investor Dashboard</h1>
+  <p>Total Tenants: {{ total_tenants }}</p>
+  <h2>Metrics</h2>
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Value</th><th>Period</th></tr>
+    </thead>
+    <tbody>
+    {% for m in metrics %}
+      <tr>
+        <td>{{ m["metric_key"] }}</td>
+        <td>{{ m["metric_value"] }}</td>
+        <td>{{ m["period"] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <a href="/dashboard">&larr; Dashboard</a>
+</body>
+</html>

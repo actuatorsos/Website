@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}مرحباً {{ user_name }}، أهلاً بك في {{ tenant_name }}{% else %}Welcome {{ user_name }}, you're in {{ tenant_name }}{% endif %}
+                </p>
+            </div>
+            <div class="badge badge-primary badge-outline">{{ role }}</div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Employees -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider opacity-50">
+                                {% if lang == "ar" %}إجمالي الموظفين{% else %}Total Employees{% endif %}
+                            </p>
+                            <p class="text-3xl font-bold mt-1 font-mono" style="color: #00B7C2;">
+                                {{ stats["total_employees"].as_u64().unwrap_or(0) }}
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 rounded-lg p-3">
+                            <span class="material-symbols-outlined text-primary text-2xl">groups</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Departments -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider opacity-50">
+                                {% if lang == "ar" %}الأقسام{% else %}Departments{% endif %}
+                            </p>
+                            <p class="text-3xl font-bold mt-1 font-mono" style="color: #00B7C2;">
+                                {{ stats["total_departments"].as_u64().unwrap_or(0) }}
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 rounded-lg p-3">
+                            <span class="material-symbols-outlined text-primary text-2xl">account_tree</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Contracts -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider opacity-50">
+                                {% if lang == "ar" %}عقود معلقة{% else %}Pending Contracts{% endif %}
+                            </p>
+                            <p class="text-3xl font-bold mt-1 font-mono" style="color: #FF6A2A;">
+                                {{ stats["pending_contracts"].as_u64().unwrap_or(0) }}
+                            </p>
+                        </div>
+                        <div class="bg-accent/10 rounded-lg p-3">
+                            <span class="material-symbols-outlined text-accent text-2xl">description</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider opacity-50">
+                                {% if lang == "ar" %}المستخدمون النشطون{% else %}Active Users{% endif %}
+                            </p>
+                            <p class="text-3xl font-bold mt-1 font-mono" style="color: #00B7C2;">
+                                {{ stats["active_users"].as_u64().unwrap_or(0) }}
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 rounded-lg p-3">
+                            <span class="material-symbols-outlined text-primary text-2xl">person</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions + Recent Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Quick Actions -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-4">
+                        <span class="material-symbols-outlined text-primary">bolt</span>
+                        {% if lang == "ar" %}إجراءات سريعة{% else %}Quick Actions{% endif %}
+                    </h2>
+                    <div class="space-y-3">
+                        {% if services.iter().any(|s| s == "hr") %}
+                        <a href="/hr/employees/create" class="btn btn-outline btn-primary btn-sm w-full justify-start gap-2">
+                            <span class="material-symbols-outlined text-sm">person_add</span>
+                            {% if lang == "ar" %}إضافة موظف{% else %}Add Employee{% endif %}
+                        </a>
+                        <a href="/hr/departments/create" class="btn btn-outline btn-sm w-full justify-start gap-2">
+                            <span class="material-symbols-outlined text-sm">create_new_folder</span>
+                            {% if lang == "ar" %}إضافة قسم{% else %}Add Department{% endif %}
+                        </a>
+                        {% endif %}
+                        <a href="/settings" class="btn btn-outline btn-sm w-full justify-start gap-2">
+                            <span class="material-symbols-outlined text-sm">settings</span>
+                            {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card bg-neutral shadow-xl lg:col-span-2">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="card-title text-lg">
+                            <span class="material-symbols-outlined text-primary">history</span>
+                            {% if lang == "ar" %}النشاط الأخير{% else %}Recent Activity{% endif %}
+                        </h2>
+                        <a href="/audit" class="btn btn-ghost btn-xs">
+                            {% if lang == "ar" %}عرض الكل{% else %}View All{% endif %}
+                        </a>
+                    </div>
+
+                    {% if recent_audit.is_empty() %}
+                    <div class="text-center py-8 opacity-40">
+                        <span class="material-symbols-outlined text-4xl">history_toggle_off</span>
+                        <p class="mt-2 text-sm">
+                            {% if lang == "ar" %}لا يوجد نشاط حديث{% else %}No recent activity{% endif %}
+                        </p>
+                    </div>
+                    {% else %}
+                    <div class="space-y-3">
+                        {% for log in recent_audit %}
+                        <div class="flex items-start gap-3 p-3 rounded-lg bg-base-300/30">
+                            <div class="bg-primary/10 rounded-full p-2 mt-0.5">
+                                <span class="material-symbols-outlined text-primary text-sm">
+                                    {% if log["action"].as_str().unwrap_or("") == "create" %}add_circle
+                                    {% else if log["action"].as_str().unwrap_or("") == "update" %}edit
+                                    {% else if log["action"].as_str().unwrap_or("") == "delete" %}delete
+                                    {% else %}info{% endif %}
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm">
+                                    <span class="font-medium">{{ log["actor_name"].as_str().unwrap_or("System") }}</span>
+                                    <span class="opacity-60">{{ log["action"].as_str().unwrap_or("") }}</span>
+                                    <span>{{ log["entity_type"].as_str().unwrap_or("") }}</span>
+                                </p>
+                                <p class="text-xs opacity-40 mt-1">{{ log["created_at"].as_str().unwrap_or("") }}</p>
+                            </div>
+                            <span class="badge badge-ghost badge-xs">{{ log["service"].as_str().unwrap_or("") }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Invitation</title>
+</head>
+<body>
+  <h1>You have been invited</h1>
+  {% match error %}
+  {% when Some with (err) %}
+  <p style="color: red;">{{ err }}</p>
+  {% when None %}
+  {% endmatch %}
+  <p>You have been invited to join an organization.</p>
+  <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+    <button type="submit">Accept Invitation</button>
+  </form>
+</body>
+</html>

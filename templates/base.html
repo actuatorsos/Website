@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{% if lang == "ar" %}rtl{% else %}ltr{% endif %}" data-theme="actuators">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Actuators ERP{% endblock %}</title>
+    <link rel="stylesheet" href="/static/erp.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+        body { font-family: 'Inter', 'Alexandria', sans-serif; }
+        [dir="rtl"] body { font-family: 'Alexandria', 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-base-100 text-base-content min-h-screen">
+    {% block body %}
+    {% block content %}{% endblock %}
+    {% endblock %}
+    {% block scripts %}{% endblock %}
+</body>
+</html>

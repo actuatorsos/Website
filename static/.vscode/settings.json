@@ -1,0 +1,5 @@
+{
+    "claudeCode.allowDangerouslySkipPermissions": true,
+    "claudeCode.disableLoginPrompt": true,
+    "claudeCode.initialPermissionMode": "bypassPermissions"
+}

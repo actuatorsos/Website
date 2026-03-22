@@ -1,0 +1,113 @@
+<!-- Navigation Bar Component -->
+<!-- Variables: user_name: String, lang: String, is_platform: bool -->
+
+<div class="navbar bg-neutral text-neutral-content fixed top-0 z-50 shadow-lg">
+    <!-- Logo -->
+    <div class="navbar-start">
+        <a href="{% if is_platform %}/dashboard{% else %}/{% endif %}" class="btn btn-ghost text-xl font-bold tracking-widest" style="color: #00B7C2;">
+            <span class="material-symbols-outlined text-2xl">precision_manufacturing</span>
+            ACTUATORS
+        </a>
+    </div>
+
+    <!-- Center Nav Links -->
+    <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1 gap-1">
+            {% if is_platform %}
+            <li>
+                <a href="/dashboard" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    {% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/tenants" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">business</span>
+                    {% if lang == "ar" %}المؤسسات{% else %}Tenants{% endif %}
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a href="/dashboard" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    {% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/hr" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">groups</span>
+                    {% if lang == "ar" %}الموارد البشرية{% else %}HR{% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/settings" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">settings</span>
+                    {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/audit" class="hover:text-primary">
+                    <span class="material-symbols-outlined text-sm">history</span>
+                    {% if lang == "ar" %}سجل المراجعة{% else %}Audit{% endif %}
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Right Side: Language Toggle + User Dropdown -->
+    <div class="navbar-end gap-2">
+        <!-- Language Toggle -->
+        <div class="btn-group">
+            <a href="?lang=en" class="btn btn-sm {% if lang == "en" %}btn-primary{% else %}btn-ghost{% endif %}">EN</a>
+            <a href="?lang=ar" class="btn btn-sm {% if lang == "ar" %}btn-primary{% else %}btn-ghost{% endif %}">AR</a>
+        </div>
+
+        <!-- User Dropdown -->
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+                <div class="bg-primary text-primary-content rounded-full w-10">
+                    <span class="text-sm font-bold">{{ user_name.chars().next().unwrap_or('U') }}</span>
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-neutral rounded-box w-52">
+                <li class="menu-title">
+                    <span>{{ user_name }}</span>
+                </li>
+                <li>
+                    <a href="/profile">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                        {% if lang == "ar" %}الملف الشخصي{% else %}Profile{% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="/logout" class="text-error">
+                        <span class="material-symbols-outlined text-sm">logout</span>
+                        {% if lang == "ar" %}تسجيل الخروج{% else %}Logout{% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="dropdown dropdown-end lg:hidden">
+            <div tabindex="0" role="button" class="btn btn-ghost">
+                <span class="material-symbols-outlined">menu</span>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-neutral rounded-box w-52">
+                {% if is_platform %}
+                <li><a href="/dashboard">{% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}</a></li>
+                <li><a href="/tenants">{% if lang == "ar" %}المؤسسات{% else %}Tenants{% endif %}</a></li>
+                {% else %}
+                <li><a href="/dashboard">{% if lang == "ar" %}لوحة التحكم{% else %}Dashboard{% endif %}</a></li>
+                <li><a href="/hr">{% if lang == "ar" %}الموارد البشرية{% else %}HR{% endif %}</a></li>
+                <li><a href="/settings">{% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}</a></li>
+                <li><a href="/audit">{% if lang == "ar" %}سجل المراجعة{% else %}Audit{% endif %}</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Spacer for fixed navbar -->
+<div class="h-16"></div>

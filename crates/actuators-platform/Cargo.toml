@@ -1,0 +1,24 @@
+[package]
+name = "actuators-platform"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+actuators-core = { path = "../actuators-core" }
+actuators-db = { path = "../actuators-db" }
+actuators-auth = { path = "../actuators-auth" }
+actuators-middleware = { path = "../actuators-middleware" }
+axum = { workspace = true }
+axum-extra = { workspace = true }
+askama = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+validator = { workspace = true }
+uuid = { workspace = true }
+surrealdb = { workspace = true }
+sha2 = { workspace = true }
+time = { workspace = true }

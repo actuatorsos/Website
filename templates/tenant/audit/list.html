@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}سجل المراجعة{% else %}Audit Log{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}سجل المراجعة{% else %}Audit Log{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}تتبع جميع التغييرات والإجراءات{% else %}Track all changes and actions{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card bg-neutral shadow-xl mb-6">
+            <div class="card-body p-4">
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Service Filter -->
+                    <div class="form-control">
+                        <select name="service" class="select select-bordered select-sm"
+                                hx-get="/audit"
+                                hx-trigger="change"
+                                hx-target="#audit-table"
+                                hx-swap="innerHTML"
+                                hx-include="[name='action'],[name='date_from'],[name='date_to']">
+                            <option value="">{% if lang == "ar" %}كل الخدمات{% else %}All Services{% endif %}</option>
+                            <option value="hr" {% if filters["service"].as_str().unwrap_or("") == "hr" %}selected{% endif %}>
+                                {% if lang == "ar" %}الموارد البشرية{% else %}HR{% endif %}
+                            </option>
+                            <option value="platform" {% if filters["service"].as_str().unwrap_or("") == "platform" %}selected{% endif %}>
+                                {% if lang == "ar" %}المنصة{% else %}Platform{% endif %}
+                            </option>
+                            <option value="settings" {% if filters["service"].as_str().unwrap_or("") == "settings" %}selected{% endif %}>
+                                {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Action Filter -->
+                    <div class="form-control">
+                        <select name="action" class="select select-bordered select-sm"
+                                hx-get="/audit"
+                                hx-trigger="change"
+                                hx-target="#audit-table"
+                                hx-swap="innerHTML"
+                                hx-include="[name='service'],[name='date_from'],[name='date_to']">
+                            <option value="">{% if lang == "ar" %}كل الإجراءات{% else %}All Actions{% endif %}</option>
+                            <option value="create" {% if filters["action"].as_str().unwrap_or("") == "create" %}selected{% endif %}>
+                                {% if lang == "ar" %}إنشاء{% else %}Create{% endif %}
+                            </option>
+                            <option value="update" {% if filters["action"].as_str().unwrap_or("") == "update" %}selected{% endif %}>
+                                {% if lang == "ar" %}تعديل{% else %}Update{% endif %}
+                            </option>
+                            <option value="delete" {% if filters["action"].as_str().unwrap_or("") == "delete" %}selected{% endif %}>
+                                {% if lang == "ar" %}حذف{% else %}Delete{% endif %}
+                            </option>
+                            <option value="login" {% if filters["action"].as_str().unwrap_or("") == "login" %}selected{% endif %}>
+                                {% if lang == "ar" %}تسجيل دخول{% else %}Login{% endif %}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="form-control">
+                        <input type="date" name="date_from"
+                               class="input input-bordered input-sm"
+                               value="{{ filters["date_from"].as_str().unwrap_or("") }}"
+                               hx-get="/audit"
+                               hx-trigger="change"
+                               hx-target="#audit-table"
+                               hx-swap="innerHTML"
+                               hx-include="[name='service'],[name='action'],[name='date_to']">
+                    </div>
+                    <span class="opacity-50">{% if lang == "ar" %}إلى{% else %}to{% endif %}</span>
+                    <div class="form-control">
+                        <input type="date" name="date_to"
+                               class="input input-bordered input-sm"
+                               value="{{ filters["date_to"].as_str().unwrap_or("") }}"
+                               hx-get="/audit"
+                               hx-trigger="change"
+                               hx-target="#audit-table"
+                               hx-swap="innerHTML"
+                               hx-include="[name='service'],[name='action'],[name='date_from']">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Table -->
+        <div class="card bg-neutral shadow-xl">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto" id="audit-table">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>{% if lang == "ar" %}الوقت{% else %}Timestamp{% endif %}</th>
+                                <th>{% if lang == "ar" %}المنفّذ{% else %}Actor{% endif %}</th>
+                                <th>{% if lang == "ar" %}الإجراء{% else %}Action{% endif %}</th>
+                                <th>{% if lang == "ar" %}الخدمة{% else %}Service{% endif %}</th>
+                                <th>{% if lang == "ar" %}الكيان{% else %}Entity{% endif %}</th>
+                                <th>{% if lang == "ar" %}التفاصيل{% else %}Details{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr class="hover">
+                                <td class="text-sm font-mono whitespace-nowrap">
+                                    {{ log["created_at"].as_str().unwrap_or("-") }}
+                                </td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-primary/20 text-primary rounded-full w-7 h-7 flex items-center justify-center">
+                                                <span class="text-xs">{{ log["actor_name"].as_str().unwrap_or("?").chars().next().unwrap_or('?') }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm">{{ log["actor_name"].as_str().unwrap_or("System") }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if log["action"].as_str().unwrap_or("") == "create" %}
+                                    <span class="badge badge-success badge-sm gap-1">
+                                        <span class="material-symbols-outlined text-xs">add_circle</span>
+                                        {% if lang == "ar" %}إنشاء{% else %}Create{% endif %}
+                                    </span>
+                                    {% else if log["action"].as_str().unwrap_or("") == "update" %}
+                                    <span class="badge badge-info badge-sm gap-1">
+                                        <span class="material-symbols-outlined text-xs">edit</span>
+                                        {% if lang == "ar" %}تعديل{% else %}Update{% endif %}
+                                    </span>
+                                    {% else if log["action"].as_str().unwrap_or("") == "delete" %}
+                                    <span class="badge badge-error badge-sm gap-1">
+                                        <span class="material-symbols-outlined text-xs">delete</span>
+                                        {% if lang == "ar" %}حذف{% else %}Delete{% endif %}
+                                    </span>
+                                    {% else if log["action"].as_str().unwrap_or("") == "login" %}
+                                    <span class="badge badge-primary badge-sm gap-1">
+                                        <span class="material-symbols-outlined text-xs">login</span>
+                                        {% if lang == "ar" %}دخول{% else %}Login{% endif %}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-ghost badge-sm">{{ log["action"].as_str().unwrap_or("-") }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-outline badge-xs">{{ log["service"].as_str().unwrap_or("-") }}</span>
+                                </td>
+                                <td class="text-sm">
+                                    <span class="opacity-60">{{ log["entity_type"].as_str().unwrap_or("") }}</span>
+                                    {% if let Some(entity_id) = log.get("entity_id") %}
+                                    <span class="font-mono text-xs opacity-40">#{{ entity_id }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if let Some(details) = log.get("details") %}
+                                    <button class="btn btn-ghost btn-xs"
+                                            onclick="document.getElementById('detail-{{ loop.index }}').classList.toggle('hidden')">
+                                        <span class="material-symbols-outlined text-sm">info</span>
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if let Some(details) = log.get("details") %}
+                            <tr id="detail-{{ loop.index }}" class="hidden">
+                                <td colspan="6" class="bg-base-300/30">
+                                    <pre class="text-xs font-mono p-3 rounded-lg bg-base-300 overflow-x-auto">{{ details }}</pre>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if logs.is_empty() %}
+                    <div class="text-center py-12 opacity-40">
+                        <span class="material-symbols-outlined text-5xl">history_toggle_off</span>
+                        <p class="mt-3">
+                            {% if lang == "ar" %}لا توجد سجلات{% else %}No audit logs found{% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% include "components/pagination.html" %}
+    </main>
+</div>
+{% endblock %}

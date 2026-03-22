@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Create Organization - Actuators ERP</title>
+</head>
+<body>
+  <h1>Create New Organization</h1>
+  {% match error %}
+  {% when Some with (err) %}
+  <p style="color: red;">{{ err }}</p>
+  {% when None %}
+  {% endmatch %}
+  <form method="POST" action="/tenants/new">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+    <label>Organization Name <input type="text" name="name" required></label><br>
+    <label>Slug <input type="text" name="slug" pattern="[a-z0-9\-]+" required></label><br>
+    <label>Organization Type
+      <select name="org_type">
+        <option value="startup">Startup</option>
+        <option value="volunteer">Volunteer</option>
+        <option value="government">Government</option>
+        <option value="education">Education</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+    </label><br>
+    <label>Plan <input type="text" name="plan_name" value="free" required></label><br>
+    <button type="submit">Create Organization</button>
+  </form>
+  <a href="/dashboard">&larr; Back to Dashboard</a>
+</body>
+</html>

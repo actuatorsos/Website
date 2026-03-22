@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}إضافة قسم{% else %}Add Department{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-6">
+            <a href="/hr/departments" class="btn btn-ghost btn-sm">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}إضافة قسم جديد{% else %}Add New Department{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}أدخل بيانات القسم{% else %}Enter department information{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <!-- Form -->
+        <div class="card bg-neutral shadow-xl max-w-2xl">
+            <div class="card-body">
+                <form method="POST" action="/hr/departments/create" class="space-y-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <!-- Department Code -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                {% if lang == "ar" %}رمز القسم{% else %}Department Code{% endif %}
+                            </span>
+                        </label>
+                        <input type="text" name="code"
+                               placeholder="{% if lang == "ar" %}مثال: HR، FIN، ENG{% else %}e.g., HR, FIN, ENG{% endif %}"
+                               class="input input-bordered w-full font-mono" required>
+                    </div>
+
+                    <!-- Name (English) -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                {% if lang == "ar" %}الاسم (إنجليزي){% else %}Name (English){% endif %}
+                            </span>
+                        </label>
+                        <input type="text" name="name_en"
+                               placeholder="Department name in English"
+                               class="input input-bordered w-full" required>
+                    </div>
+
+                    <!-- Name (Arabic) -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                {% if lang == "ar" %}الاسم (عربي){% else %}Name (Arabic){% endif %}
+                            </span>
+                        </label>
+                        <input type="text" name="name_ar" dir="rtl"
+                               placeholder="اسم القسم بالعربي"
+                               class="input input-bordered w-full" required>
+                    </div>
+
+                    <!-- Parent Department -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                {% if lang == "ar" %}القسم الأصلي{% else %}Parent Department{% endif %}
+                            </span>
+                        </label>
+                        <select name="parent_id" class="select select-bordered w-full">
+                            <option value="">{% if lang == "ar" %}بدون (قسم رئيسي){% else %}None (Top-level){% endif %}</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept["id"] }}">
+                                {{ dept["code"].as_str().unwrap_or("") }} -
+                                {% if lang == "ar" %}{{ dept["name_ar"].as_str().unwrap_or("") }}{% else %}{{ dept["name_en"].as_str().unwrap_or("") }}{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Manager -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">
+                                {% if lang == "ar" %}المدير{% else %}Manager{% endif %}
+                            </span>
+                        </label>
+                        <select name="manager_account_id" class="select select-bordered w-full">
+                            <option value="">{% if lang == "ar" %}بدون مدير{% else %}No Manager{% endif %}</option>
+                            {% for account in accounts %}
+                            <option value="{{ account["id"] }}">
+                                {{ account["name"].as_str().unwrap_or("") }}
+                                <span class="opacity-50">({{ account["email"].as_str().unwrap_or("") }})</span>
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" name="is_active" value="true" checked class="checkbox checkbox-primary checkbox-sm">
+                            <span class="label-text">
+                                {% if lang == "ar" %}نشط{% else %}Active{% endif %}
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="flex justify-end gap-3 pt-4">
+                        <a href="/hr/departments" class="btn btn-ghost">
+                            {% if lang == "ar" %}إلغاء{% else %}Cancel{% endif %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-symbols-outlined">save</span>
+                            {% if lang == "ar" %}حفظ القسم{% else %}Save Department{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

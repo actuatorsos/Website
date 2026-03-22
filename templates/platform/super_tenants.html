@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>All Tenants</title>
+</head>
+<body>
+  <h1>All Tenants (Super Admin)</h1>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Slug</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+    {% for t in tenants %}
+      <tr>
+        <td>{{ t["id"] }}</td>
+        <td>{{ t["name"] }}</td>
+        <td>{{ t["slug"] }}</td>
+        <td>{{ t["status"] }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <a href="/dashboard">&larr; Dashboard</a>
+</body>
+</html>

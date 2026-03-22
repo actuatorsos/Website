@@ -1,0 +1,70 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/actuators-server",
+    "crates/actuators-core",
+    "crates/actuators-db",
+    "crates/actuators-auth",
+    "crates/actuators-middleware",
+    "crates/actuators-platform",
+    "crates/actuators-tenant",
+]
+
+[workspace.dependencies]
+# Web framework
+axum = { version = "0.8", features = ["macros"] }
+axum-extra = { version = "0.10", features = ["cookie"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["fs", "cors", "trace", "compression-gzip"] }
+tokio = { version = "1", features = ["full"] }
+
+# Database
+surrealdb = { version = "3", features = ["protocol-ws", "protocol-http"] }
+
+# Templates
+askama = "0.12"
+askama_axum = "0.4"
+
+# Auth
+jsonwebtoken = "9"
+argon2 = "0.5"
+rand = "0.8"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Async
+futures = "0.3"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Config
+dotenvy = "0.15"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Validation
+validator = { version = "0.19", features = ["derive"] }
+
+# UUID
+uuid = { version = "1", features = ["v7", "serde"] }
+
+# Rate limiting
+governor = "0.8"
+
+# LRU cache
+lru = "0.12"
+
+# Hashing
+sha2 = "0.10"
+
+# Time (used by cookie builder)
+time = "0.3"

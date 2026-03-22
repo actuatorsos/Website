@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}الأقسام{% else %}Departments{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}الأقسام{% else %}Departments{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}إدارة الهيكل التنظيمي{% else %}Manage organizational structure{% endif %}
+                </p>
+            </div>
+            <a href="/hr/departments/create" class="btn btn-primary">
+                <span class="material-symbols-outlined">create_new_folder</span>
+                {% if lang == "ar" %}إضافة قسم{% else %}Add Department{% endif %}
+            </a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <!-- Departments Table -->
+        <div class="card bg-neutral shadow-xl">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>{% if lang == "ar" %}الرمز{% else %}Code{% endif %}</th>
+                                <th>{% if lang == "ar" %}الاسم (إنجليزي){% else %}Name (EN){% endif %}</th>
+                                <th>{% if lang == "ar" %}الاسم (عربي){% else %}Name (AR){% endif %}</th>
+                                <th>{% if lang == "ar" %}المدير{% else %}Manager{% endif %}</th>
+                                <th>{% if lang == "ar" %}القسم الأصلي{% else %}Parent Dept{% endif %}</th>
+                                <th>{% if lang == "ar" %}الحالة{% else %}Status{% endif %}</th>
+                                <th>{% if lang == "ar" %}الإجراءات{% else %}Actions{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dept in departments %}
+                            <tr class="hover">
+                                <td class="font-mono text-sm font-medium">{{ dept["code"].as_str().unwrap_or("-") }}</td>
+                                <td>{{ dept["name_en"].as_str().unwrap_or("-") }}</td>
+                                <td dir="rtl">{{ dept["name_ar"].as_str().unwrap_or("-") }}</td>
+                                <td>
+                                    {% if let Some(manager) = dept.get("manager_name") %}
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-primary/20 text-primary rounded-full w-6 h-6 flex items-center justify-center">
+                                                <span class="text-xs">{{ manager.as_str().unwrap_or("?").chars().next().unwrap_or('?') }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm">{{ manager.as_str().unwrap_or("-") }}</span>
+                                    </div>
+                                    {% else %}
+                                    <span class="opacity-40">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-sm">
+                                    {{ dept["parent_name"].as_str().unwrap_or("-") }}
+                                </td>
+                                <td>
+                                    {% if dept["is_active"].as_bool().unwrap_or(true) %}
+                                    <span class="badge badge-success badge-sm">{% if lang == "ar" %}نشط{% else %}Active{% endif %}</span>
+                                    {% else %}
+                                    <span class="badge badge-error badge-sm">{% if lang == "ar" %}معطل{% else %}Inactive{% endif %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="flex items-center gap-1">
+                                        <a href="/hr/departments/{{ dept["id"] }}/edit" class="btn btn-ghost btn-xs" title="{% if lang == "ar" %}تعديل{% else %}Edit{% endif %}">
+                                            <span class="material-symbols-outlined text-sm">edit</span>
+                                        </a>
+                                        <form method="POST" action="/hr/departments/{{ dept["id"] }}/delete"
+                                              onsubmit="return confirm('{% if lang == "ar" %}هل أنت متأكد من حذف هذا القسم؟{% else %}Are you sure you want to delete this department?{% endif %}')">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                            <button type="submit" class="btn btn-ghost btn-xs text-error" title="{% if lang == "ar" %}حذف{% else %}Delete{% endif %}">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if departments.is_empty() %}
+                    <div class="text-center py-12 opacity-40">
+                        <span class="material-symbols-outlined text-5xl">account_tree</span>
+                        <p class="mt-3">
+                            {% if lang == "ar" %}لا توجد أقسام{% else %}No departments found{% endif %}
+                        </p>
+                        <a href="/hr/departments/create" class="btn btn-primary btn-sm mt-4">
+                            <span class="material-symbols-outlined text-sm">create_new_folder</span>
+                            {% if lang == "ar" %}إضافة أول قسم{% else %}Add First Department{% endif %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

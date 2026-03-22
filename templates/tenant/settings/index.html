@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">
+                    {% if lang == "ar" %}الإعدادات{% else %}Settings{% endif %}
+                </h1>
+                <p class="text-base-content/60 mt-1">
+                    {% if lang == "ar" %}إدارة إعدادات المؤسسة{% else %}Manage organization settings{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <!-- Settings Table -->
+        <div class="card bg-neutral shadow-xl">
+            <div class="card-body">
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% if lang == "ar" %}المفتاح{% else %}Key{% endif %}</th>
+                                <th>{% if lang == "ar" %}القيمة{% else %}Value{% endif %}</th>
+                                <th>{% if lang == "ar" %}النوع{% else %}Type{% endif %}</th>
+                                <th>{% if lang == "ar" %}آخر تحديث{% else %}Last Updated{% endif %}</th>
+                                <th>{% if lang == "ar" %}الإجراءات{% else %}Actions{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for setting in settings %}
+                            <tr class="hover" id="setting-row-{{ loop.index }}">
+                                <td>
+                                    <span class="font-mono text-sm font-medium">{{ setting["key"].as_str().unwrap_or("") }}</span>
+                                    {% if let Some(desc) = setting.get("description") %}
+                                    <p class="text-xs opacity-50 mt-1">{{ desc.as_str().unwrap_or("") }}</p>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div id="setting-value-{{ loop.index }}">
+                                        {% if setting["value_type"].as_str().unwrap_or("") == "boolean" %}
+                                        <span class="badge {% if setting["value"].as_str().unwrap_or("") == "true" %}badge-success{% else %}badge-error{% endif %} badge-sm">
+                                            {{ setting["value"].as_str().unwrap_or("-") }}
+                                        </span>
+                                        {% else %}
+                                        <span class="font-mono text-sm">{{ setting["value"].as_str().unwrap_or("-") }}</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-ghost badge-xs">{{ setting["value_type"].as_str().unwrap_or("string") }}</span>
+                                </td>
+                                <td class="text-sm opacity-60">{{ setting["updated_at"].as_str().unwrap_or("-") }}</td>
+                                <td>
+                                    <button class="btn btn-ghost btn-xs"
+                                            hx-get="/settings/{{ setting["key"].as_str().unwrap_or("") }}/edit"
+                                            hx-target="#setting-value-{{ loop.index }}"
+                                            hx-swap="innerHTML">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if settings.is_empty() %}
+                    <div class="text-center py-12 opacity-40">
+                        <span class="material-symbols-outlined text-5xl">settings</span>
+                        <p class="mt-3">
+                            {% if lang == "ar" %}لا توجد إعدادات{% else %}No settings found{% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Notice -->
+        <div class="alert mt-6">
+            <span class="material-symbols-outlined text-info">info</span>
+            <span class="text-sm">
+                {% if lang == "ar" %}
+                تؤثر التغييرات على الإعدادات على جميع مستخدمي المؤسسة. يتم تسجيل كل تعديل في سجل المراجعة.
+                {% else %}
+                Settings changes affect all organization users. Every modification is recorded in the audit log.
+                {% endif %}
+            </span>
+        </div>
+    </main>
+</div>
+{% endblock %}

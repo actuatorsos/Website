@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant_name }} - {{ employee["first_name_en"].as_str().unwrap_or("") }} {{ employee["last_name_en"].as_str().unwrap_or("") }}{% endblock %}
+
+{% block body %}
+{% include "components/nav.html" %}
+
+<div class="flex">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="{% if lang == "ar" %}mr-64{% else %}ml-64{% endif %} flex-1 p-6" id="main-content">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <a href="/hr/employees" class="btn btn-ghost btn-sm">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <div class="avatar placeholder">
+                        <div class="bg-primary/20 text-primary rounded-full w-14 h-14 flex items-center justify-center">
+                            <span class="text-xl font-bold">
+                                {{ employee["first_name_en"].as_str().unwrap_or("?").chars().next().unwrap_or('?') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        {% if lang == "ar" %}
+                        <h1 class="text-2xl font-bold">{{ employee["first_name_ar"].as_str().unwrap_or("") }} {{ employee["last_name_ar"].as_str().unwrap_or("") }}</h1>
+                        <p class="text-base-content/60">{{ employee["first_name_en"].as_str().unwrap_or("") }} {{ employee["last_name_en"].as_str().unwrap_or("") }}</p>
+                        {% else %}
+                        <h1 class="text-2xl font-bold">{{ employee["first_name_en"].as_str().unwrap_or("") }} {{ employee["last_name_en"].as_str().unwrap_or("") }}</h1>
+                        <p class="text-base-content/60">{{ employee["first_name_ar"].as_str().unwrap_or("") }} {{ employee["last_name_ar"].as_str().unwrap_or("") }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2">
+                <a href="/hr/employees/{{ employee["id"] }}/edit" class="btn btn-outline btn-sm">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                    {% if lang == "ar" %}تعديل{% else %}Edit{% endif %}
+                </a>
+                {% if employee["status"].as_str().unwrap_or("") != "terminated" %}
+                <form method="POST" action="/hr/employees/{{ employee["id"] }}/terminate"
+                      onsubmit="return confirm('{% if lang == "ar" %}هل أنت متأكد من إنهاء خدمة هذا الموظف؟{% else %}Are you sure you want to terminate this employee?{% endif %}')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn btn-error btn-outline btn-sm">
+                        <span class="material-symbols-outlined text-sm">person_off</span>
+                        {% if lang == "ar" %}إنهاء الخدمة{% else %}Terminate{% endif %}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% include "components/flash.html" %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Personal Information -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-4">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        {% if lang == "ar" %}المعلومات الشخصية{% else %}Personal Information{% endif %}
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}رقم الموظف{% else %}Employee #{% endif %}</span>
+                            <span class="font-mono font-medium">{{ employee["employee_number"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}البريد الإلكتروني{% else %}Email{% endif %}</span>
+                            <span>{{ employee["email"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}رقم الهاتف{% else %}Phone{% endif %}</span>
+                            <span class="font-mono">{{ employee["phone"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}تاريخ الميلاد{% else %}Date of Birth{% endif %}</span>
+                            <span>{{ employee["date_of_birth"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}الجنس{% else %}Gender{% endif %}</span>
+                            <span>{{ employee["gender"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}رقم الهوية{% else %}National ID{% endif %}</span>
+                            <span class="font-mono">{{ employee["national_id"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}الجنسية{% else %}Nationality{% endif %}</span>
+                            <span>{{ employee["nationality"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="card bg-neutral shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-lg mb-4">
+                        <span class="material-symbols-outlined text-primary">work</span>
+                        {% if lang == "ar" %}معلومات التوظيف{% else %}Employment Information{% endif %}
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}القسم{% else %}Department{% endif %}</span>
+                            <span>
+                                {% if lang == "ar" %}{{ employee["department_name_ar"].as_str().unwrap_or("-") }}{% else %}{{ employee["department_name_en"].as_str().unwrap_or("-") }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}المسمى الوظيفي{% else %}Job Title{% endif %}</span>
+                            <span>
+                                {% if lang == "ar" %}{{ employee["job_title_ar"].as_str().unwrap_or("-") }}{% else %}{{ employee["job_title_en"].as_str().unwrap_or("-") }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}الحالة{% else %}Status{% endif %}</span>
+                            {% if employee["status"].as_str().unwrap_or("") == "active" %}
+                            <span class="badge badge-success badge-sm">{% if lang == "ar" %}نشط{% else %}Active{% endif %}</span>
+                            {% else if employee["status"].as_str().unwrap_or("") == "on_leave" %}
+                            <span class="badge badge-warning badge-sm">{% if lang == "ar" %}في إجازة{% else %}On Leave{% endif %}</span>
+                            {% else if employee["status"].as_str().unwrap_or("") == "terminated" %}
+                            <span class="badge badge-error badge-sm">{% if lang == "ar" %}منتهي{% else %}Terminated{% endif %}</span>
+                            {% else %}
+                            <span class="badge badge-ghost badge-sm">{{ employee["status"].as_str().unwrap_or("-") }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-300">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}تاريخ التعيين{% else %}Hire Date{% endif %}</span>
+                            <span>{{ employee["hire_date"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-sm opacity-60">{% if lang == "ar" %}نوع التوظيف{% else %}Employment Type{% endif %}</span>
+                            <span>{{ employee["employment_type"].as_str().unwrap_or("-") }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contracts Section -->
+        <div class="card bg-neutral shadow-xl mt-6">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="card-title text-lg">
+                        <span class="material-symbols-outlined text-primary">description</span>
+                        {% if lang == "ar" %}العقود{% else %}Contracts{% endif %}
+                    </h2>
+                    <a href="/hr/employees/{{ employee["id"] }}/contracts/create" class="btn btn-primary btn-sm">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        {% if lang == "ar" %}إضافة عقد{% else %}Add Contract{% endif %}
+                    </a>
+                </div>
+
+                {% if contracts.is_empty() %}
+                <div class="text-center py-8 opacity-40">
+                    <span class="material-symbols-outlined text-4xl">description</span>
+                    <p class="mt-2">{% if lang == "ar" %}لا توجد عقود{% else %}No contracts found{% endif %}</p>
+                </div>
+                {% else %}
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>{% if lang == "ar" %}النوع{% else %}Type{% endif %}</th>
+                                <th>{% if lang == "ar" %}تاريخ البدء{% else %}Start Date{% endif %}</th>
+                                <th>{% if lang == "ar" %}تاريخ الانتهاء{% else %}End Date{% endif %}</th>
+                                <th>{% if lang == "ar" %}الراتب{% else %}Salary{% endif %}</th>
+                                <th>{% if lang == "ar" %}الحالة{% else %}Status{% endif %}</th>
+                                <th>{% if lang == "ar" %}الإجراءات{% else %}Actions{% endif %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contract in contracts %}
+                            <tr class="hover">
+                                <td>{{ contract["contract_type"].as_str().unwrap_or("-") }}</td>
+                                <td>{{ contract["start_date"].as_str().unwrap_or("-") }}</td>
+                                <td>{{ contract["end_date"].as_str().unwrap_or("-") }}</td>
+                                <td class="font-mono">{{ contract["salary"] }}</td>
+                                <td>
+                                    {% if contract["is_active"].as_bool().unwrap_or(false) %}
+                                    <span class="badge badge-success badge-sm">{% if lang == "ar" %}نشط{% else %}Active{% endif %}</span>
+                                    {% else %}
+                                    <span class="badge badge-ghost badge-sm">{% if lang == "ar" %}منتهي{% else %}Expired{% endif %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/hr/contracts/{{ contract["id"] }}" class="btn btn-ghost btn-xs">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

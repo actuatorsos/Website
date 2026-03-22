@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>Profile</title>
+</head>
+<body>
+  <h1>Edit Profile</h1>
+  {% match error %}
+  {% when Some with (err) %}
+  <p style="color: red;">{{ err }}</p>
+  {% when None %}
+  {% endmatch %}
+  {% match success %}
+  {% when Some with (msg) %}
+  <p style="color: green;">{{ msg }}</p>
+  {% when None %}
+  {% endmatch %}
+  <form method="post" action="/dashboard/profile">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+    <label>Full Name <input type="text" name="full_name" value="{{ full_name }}" required></label><br>
+    <label>Email <input type="email" value="{{ email }}" disabled></label><br>
+    <label>Preferred Language
+      <select name="preferred_lang">
+        <option value="en" {% if preferred_lang == "en" %}selected{% endif %}>English</option>
+        <option value="ar" {% if preferred_lang == "ar" %}selected{% endif %}>Arabic</option>
+      </select>
+    </label><br>
+    <button type="submit">Save</button>
+  </form>
+  <a href="/dashboard">&larr; Dashboard</a>
+</body>
+</html>
