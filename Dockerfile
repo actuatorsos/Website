@@ -1,52 +1,58 @@
+# ══════════════════════════════════════════════════════════════
+# Actuators Platform — Production Docker Image
+# Optimized for Digital Ocean App Platform / Droplet
+# ══════════════════════════════════════════════════════════════
+
 FROM rust:slim AS builder
+
+RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy only manifests first for dependency caching
+# ── Layer 1: Cache dependencies ──
 COPY Cargo.toml Cargo.lock ./
-
-# Create a dummy main.rs to build dependencies
 RUN mkdir src && \
     echo "fn main() {}" > src/main.rs && \
     echo "" > src/lib.rs
-
-# Build dependencies only (this layer is cached unless Cargo.toml/Cargo.lock change)
 RUN cargo build --release --bin Actuators 2>/dev/null || true
-# Remove the dummy build artifacts so the real source gets compiled
 RUN rm -rf src target/release/deps/Actuators* target/release/deps/libActuators* target/release/Actuators*
 
-# Copy the actual source code
+# ── Layer 2: Build application ──
 COPY src ./src
 COPY templates ./templates
-
-# Build the application
 RUN cargo build --release --bin Actuators
 
-# Production image — debian slim for a smaller footprint
+# ══════════════════════════════════════════════════════════════
+# Production image
+# ══════════════════════════════════════════════════════════════
 FROM debian:bookworm-slim
 WORKDIR /app
 
-# Install required runtime libraries
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libssl3 ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the build artifact from the builder stage
+# Binary
 COPY --from=builder /app/target/release/Actuators /usr/local/bin/Actuators
 
-# Copy necessary static assets
+# Static assets, templates, locales, schema
 COPY static ./static
 COPY locales ./locales
 COPY templates ./templates
-
-# Copy database schema
 COPY src/db/schema.surql ./src/db/schema.surql
+COPY data ./data
 
-# Set environment variables
+# Create uploads directory
+RUN mkdir -p static/uploads/videos static/uploads/courses
+
+# Environment defaults (override in DO App Platform)
 ENV SERVER_HOST=0.0.0.0
-ENV SERVER_PORT=3000
-ENV RUST_LOG=info
+ENV SERVER_PORT=8080
+ENV RUST_LOG=info,actuators=debug
 
-# Expose the application port
-EXPOSE 3000
+EXPOSE 8080
 
-# Run the application
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
+
 CMD ["Actuators"]

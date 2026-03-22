@@ -1,6 +1,14 @@
 target
 .git
 .env
+.do
+.claude
+*.md
+deploy.sh
+history.txt
 docker-compose.yml
-Dockerfile
 Dockerfile.dockerignore
+static/uploads/videos/*
+static/uploads/courses/*
+!static/uploads/videos/.gitkeep
+!static/uploads/courses/.gitkeep
