@@ -401,8 +401,14 @@ impl AppState {
         }
     }
 
-    /// Apply the database schema from schema.surql
+    /// Apply the database schema (embedded at compile time)
     async fn apply_schema(db: &Surreal<Any>) -> Result<(), DbError> {
+        // Embed schema at compile time so it works in containerized deployments
+        const EMBEDDED_SCHEMA: &str = include_str!("schema.surql");
+
+        let content = EMBEDDED_SCHEMA;
+
+        // Fallback: also try reading from filesystem (for dev)
         let schema_paths = [
             std::path::PathBuf::from("src/db/schema.surql"),
             std::env::current_exe()
@@ -415,9 +421,9 @@ impl AppState {
         for path in &schema_paths {
             if path.exists() {
                 match std::fs::read_to_string(path) {
-                    Ok(content) => {
-                        tracing::info!("📄 Loading schema from: {}", path.display());
-                        schema_content = Some(content);
+                    Ok(c) => {
+                        tracing::info!("Loading schema from filesystem: {}", path.display());
+                        schema_content = Some(c);
                         break;
                     }
                     Err(e) => {
@@ -427,15 +433,15 @@ impl AppState {
             }
         }
 
-        let content = match schema_content {
-            Some(c) => c,
-            None => {
-                tracing::warn!("No schema.surql found, skipping schema application");
-                return Ok(());
-            }
-        };
+        // Use filesystem version if available, otherwise use embedded
+        let content = schema_content.as_deref().unwrap_or(content);
 
-        match db.query(&content).await {
+        if content.is_empty() {
+            tracing::warn!("Schema is empty, skipping application");
+            return Ok(());
+        }
+
+        match db.query(content).await {
             Ok(mut response) => {
                 let errors = response.take_errors();
                 if errors.is_empty() {

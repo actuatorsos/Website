@@ -12,32 +12,36 @@ pub struct I18n {
 }
 
 impl I18n {
-    /// Initialize i18n service by loading JSONs
+    /// Initialize i18n service — embedded at compile time for deployment compatibility
     pub fn new() -> Self {
         let mut translations = HashMap::new();
 
-        let locales = vec!["ar", "en"];
-        for lang in locales {
-            let path = std::path::Path::new("locales").join(format!("{}.json", lang));
-            tracing::debug!("Loading translation from: {:?}", path);
-            match fs::read_to_string(&path) {
-                Ok(content) => {
-                    let map: HashMap<String, String> = serde_json::from_str(&content)
-                        .unwrap_or_else(|e| {
-                            panic!("Failed to parse translation file {:?}: {}", path, e)
-                        });
-                    tracing::info!("Loaded {} keys for {}", map.len(), lang);
-                    translations.insert(lang.to_string(), map);
+        // Embed locale files at compile time
+        const AR_JSON: &str = include_str!("../locales/ar.json");
+        const EN_JSON: &str = include_str!("../locales/en.json");
+
+        let embedded: Vec<(&str, &str)> = vec![("ar", AR_JSON), ("en", EN_JSON)];
+
+        for (lang, content) in embedded {
+            // Try filesystem first (for dev hot-reload), fall back to embedded
+            let json = match fs::read_to_string(format!("locales/{}.json", lang)) {
+                Ok(fs_content) => {
+                    tracing::info!("Loaded {}.json from filesystem", lang);
+                    fs_content
                 }
-                Err(e) => {
-                    panic!(
-                        "Failed to read translation file {:?}: {}. Current dir: {:?}",
-                        path,
-                        e,
-                        std::env::current_dir()
-                    );
+                Err(_) => {
+                    tracing::info!("Using embedded {}.json", lang);
+                    content.to_string()
                 }
-            }
+            };
+
+            let map: HashMap<String, String> = serde_json::from_str(&json)
+                .unwrap_or_else(|e| {
+                    tracing::error!("Failed to parse {}.json: {}", lang, e);
+                    HashMap::new()
+                });
+            tracing::info!("Loaded {} keys for {}", map.len(), lang);
+            translations.insert(lang.to_string(), map);
         }
 
         tracing::info!("I18n service initialized with languages: ar, en");
