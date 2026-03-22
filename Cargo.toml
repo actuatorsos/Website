@@ -52,6 +52,7 @@ hex = "0.4"
 rand = "0.8"
 subtle = "2.5"
 argon2 = "0.5"
+bcrypt = "0.17"
 jsonwebtoken = "9"
 validator = { version = "0.20", features = ["derive"] }
 
