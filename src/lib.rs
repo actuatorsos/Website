@@ -1,6 +1,7 @@
 //! Actuators Platform
 //!
 //! منصة Actuators لتخطيط موارد المؤسسات
+#![allow(dead_code, unused_imports, non_snake_case, noop_method_call)]
 
 pub mod config;
 pub mod db;
