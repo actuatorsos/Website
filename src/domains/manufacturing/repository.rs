@@ -49,10 +49,17 @@ pub async fn create_bom(state: &AppState, req: CreateBomRequest) -> Result<Bom, 
     bom.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_boms(state: &AppState) -> Result<Vec<Bom>, DbError> {
-    let boms: Vec<Bom> = state.db
-        .query("SELECT * FROM bom WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?.take(0)?;
+pub async fn get_all_boms(state: &AppState, org_id: Option<&str>) -> Result<Vec<Bom>, DbError> {
+    let boms: Vec<Bom> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM bom WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?.take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM bom WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?.take(0)?
+    };
     Ok(boms)
 }
 
@@ -114,7 +121,7 @@ pub async fn get_bom_lines(state: &AppState, bom_id: &str) -> Result<Vec<BomLine
     let lines: Vec<BomLine> = state
         .db
         .query(
-            "SELECT * FROM bom_line WHERE bom = type::thing('bom', $id) ORDER BY line_number ASC",
+            "SELECT * FROM bom_line WHERE bom = type::thing('bom', $id) AND (is_archived = false OR is_archived = NONE) ORDER BY line_number ASC",
         )
         .bind(("id", id))
         .await?
@@ -172,10 +179,17 @@ pub async fn create_production_order(
     order.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_production_orders(state: &AppState) -> Result<Vec<ProductionOrder>, DbError> {
-    let orders: Vec<ProductionOrder> = state.db
-        .query("SELECT * FROM production_order WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?.take(0)?;
+pub async fn get_all_production_orders(state: &AppState, org_id: Option<&str>) -> Result<Vec<ProductionOrder>, DbError> {
+    let orders: Vec<ProductionOrder> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM production_order WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?.take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM production_order WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?.take(0)?
+    };
     Ok(orders)
 }
 
@@ -232,7 +246,7 @@ pub async fn consume_materials(
 
     let lines: Vec<BomLine> = state
         .db
-        .query("SELECT * FROM bom_line WHERE bom = type::thing('bom', $id)")
+        .query("SELECT * FROM bom_line WHERE bom = type::thing('bom', $id) AND (is_archived = false OR is_archived = NONE)")
         .bind(("id", bom_id))
         .await?
         .take(0)?;

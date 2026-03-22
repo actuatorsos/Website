@@ -4,29 +4,29 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      SECTION 01: HERO
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-primary bg-isometric border-b border-cyan-muted flex flex-col items-center justify-center min-h-[85vh]">
+<section id="home" class="relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-48 lg:pb-32 bg-primary bg-isometric border-b border-cyan-muted flex flex-col items-center justify-center min-h-[80vh] sm:min-h-[85vh]">
 
-    <div class="max-w-5xl mx-auto px-6 text-center relative z-10 w-full">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center relative z-10 w-full">
 
         <!-- Technical Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 border border-cyan-struct bg-surface text-cyan-struct text-xs font-bold tracking-widest mb-12 font-tech">
-            <span class="w-2 h-2 rounded-none bg-orange-active animate-none"></span>
+        <div class="hero-fade hero-fade-d1 inline-flex items-center gap-2 px-4 py-1.5 border border-cyan-struct bg-surface text-cyan-struct text-xs font-bold tracking-widest mb-12 font-tech">
+            <span class="status-dot-blink"></span>
             ACTUATORS // CORE NODE
         </div>
 
         <!-- Sleek Typography -->
-        <h1 class="text-5xl md:text-7xl lg:text-[80px] font-bold text-text-primary mb-8 leading-[1.1] tracking-tight font-inter">
+        <h1 class="hero-fade hero-fade-d2 text-3xl sm:text-5xl md:text-7xl lg:text-[80px] font-bold text-text-primary mb-6 sm:mb-8 leading-[1.1] tracking-tight font-inter">
             {{ t["hero_title"] }}
             <br/>
             <span class="text-cyan-struct font-tech uppercase tracking-widest">Actuators.</span>
         </h1>
 
-        <p class="text-lg md:text-2xl text-text-muted mb-14 max-w-2xl mx-auto leading-relaxed rtl:font-arabic">
-            {{ t["hero_subtitle"] }}
+        <p class="hero-fade hero-fade-d3 text-base sm:text-lg md:text-2xl text-text-muted mb-8 sm:mb-14 max-w-2xl mx-auto leading-relaxed rtl:font-arabic">
+            {{ t["hero_sub_long"] }}
         </p>
 
         <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+        <div class="hero-fade hero-fade-d4 flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
             <a href="/admin/login?lang={{ lang }}" id="hero-login-btn"
                 class="inline-flex items-center justify-center bg-cyan-struct text-black border border-cyan-struct px-8 py-3.5 font-bold transition-none hover:bg-transparent hover:text-cyan-struct w-full sm:w-auto text-sm tracking-widest uppercase font-tech">
                 [ {{ t["nav_login"] }} ]
@@ -74,41 +74,119 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      SECTION 02: SYSTEM STATS
      ═══════════════════════════════════════════════════════════════════ -->
-<section class="border-b border-cyan-muted bg-surface relative z-20">
-    <div class="max-w-6xl mx-auto px-6 py-10">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-cyan-muted rtl:divide-x-reverse font-tech">
+<section class="border-b border-cyan-muted bg-surface relative z-20 hero-fade" style="animation-delay: 1.05s;">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center divide-x divide-cyan-muted rtl:divide-x-reverse font-tech">
             <div>
-                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">3<span class="text-cyan-struct">+</span></div>
-                <div class="text-xs text-text-muted uppercase tracking-widest">ECOSYSTEM_PARTNERS</div>
+                <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-struct mb-2">84<span class="text-orange-active">%</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest leading-relaxed">{{ t["stat_gdp"] }}</div>
             </div>
             <div>
-                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">20<span class="text-cyan-struct">+</span></div>
-                <div class="text-xs text-text-muted uppercase tracking-widest">SYSTEM_MODULES</div>
+                <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-struct mb-2">200<span class="text-orange-active">+</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest leading-relaxed">{{ t["stat_startups"] }}</div>
             </div>
             <div>
-                <div class="text-3xl md:text-4xl font-bold text-text-primary mb-2">2<span class="text-cyan-struct">x</span></div>
-                <div class="text-xs text-text-muted uppercase tracking-widest">LANGUAGES</div>
+                <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-struct mb-2">4.05<span class="text-orange-active">M</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest leading-relaxed">{{ t["stat_bandwidth"] }}</div>
             </div>
             <div>
-                <div class="text-3xl md:text-4xl font-bold text-cyan-struct mb-2">∞</div>
-                <div class="text-xs text-text-muted uppercase tracking-widest">SCALABILITY</div>
+                <div class="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-struct mb-2">6.1<span class="text-orange-active">M+</span></div>
+                <div class="text-xs text-text-muted uppercase tracking-widest leading-relaxed">{{ t["stat_diaspora"] }}</div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECTION 03: ABOUT
+     SECTION 03: PROBLEM MATRIX
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="about" class="py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
-    <div class="max-w-6xl mx-auto px-6">
+<section id="problem" class="py-16 sm:py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
         <!-- Section Header -->
-        <div class="text-center mb-16">
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_00 // PROBLEM_MATRIX
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["problem_title"]|safe }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["problem_subtitle"] }}
+            </p>
+        </div>
+
+        <!-- Problem Mosaic Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+            <!-- GDP Decline -->
+            <div class="brand-panel p-6 md:p-8 sm:col-span-2 md:col-span-2 border-t-4 border-t-orange-active">
+                <div class="text-xs text-text-muted font-tech tracking-widest mb-3 uppercase">{{ t["pm_gdp_label"] }}</div>
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech">84<span class="text-orange-active">%</span></div>
+                <div class="text-xs text-text-muted font-tech mt-2">{{ t["pm_gdp_source"] }}</div>
+            </div>
+            <!-- GNI Per Capita -->
+            <div class="brand-panel p-6 md:p-8">
+                <div class="text-xs text-text-muted font-tech tracking-widest mb-3 uppercase">{{ t["pm_gni_label"] }}</div>
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech">$830</div>
+                <div class="text-xs text-text-muted font-tech mt-2">{{ t["pm_gni_source"] }}</div>
+            </div>
+            <!-- Youth Unemployment -->
+            <div class="brand-panel p-6 md:p-8">
+                <div class="text-xs text-text-muted font-tech tracking-widest mb-3 uppercase">{{ t["pm_youth_label"] }}</div>
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech">31.7<span class="text-orange-active">%</span></div>
+                <div class="text-xs text-text-muted font-tech mt-2">{{ t["pm_youth_source"] }}</div>
+            </div>
+            <!-- Reconstruction Cost -->
+            <div class="brand-panel p-6 md:p-8 border-t-4 border-t-cyan-struct">
+                <div class="text-xs text-text-muted font-tech tracking-widest mb-3 uppercase">{{ t["pm_recon_label"] }}</div>
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-cyan-struct font-tech">$216<span class="text-text-muted text-lg">B</span></div>
+                <div class="text-xs text-text-muted font-tech mt-2">{{ t["pm_recon_source"] }}</div>
+            </div>
+            <!-- Years to Restore GDP -->
+            <div class="brand-panel p-6 md:p-8">
+                <div class="text-xs text-text-muted font-tech tracking-widest mb-3 uppercase">{{ t["pm_years_label"] }}</div>
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech">55</div>
+                <div class="text-xs text-text-muted font-tech mt-2">{{ t["pm_years_source"] }}</div>
+            </div>
+        </div>
+
+        <!-- Why Existing Tools Fail -->
+        <div class="brand-panel p-8 md:p-10 border-t-4 border-t-orange-active">
+            <h3 class="text-xs font-tech text-orange-active mb-8 tracking-widest uppercase">{{ t["fail_header"] }}</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="flex flex-col gap-2">
+                    <div class="text-2xl font-bold text-cyan-struct font-tech">4.05 Mbps</div>
+                    <p class="text-sm text-text-muted">{{ t["fail_bandwidth"] }}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="text-2xl font-bold text-cyan-struct font-tech">99%</div>
+                    <p class="text-sm text-text-muted">{{ t["fail_payment"] }}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="text-2xl font-bold text-cyan-struct font-tech">99.6%</div>
+                    <p class="text-sm text-text-muted">{{ t["fail_currency"] }}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="text-2xl font-bold text-orange-active font-tech">ZERO</div>
+                    <p class="text-sm text-text-muted">{{ t["fail_platform"] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 04: ABOUT
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="about" class="py-16 sm:py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
             <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
                 NODE_01 // ABOUT_SYSTEM
             </span>
-            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
                 {{ t["nav_about"] }}
             </h2>
             <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
@@ -209,15 +287,15 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      SECTION 04: SERVICES
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="services" class="py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
-    <div class="max-w-6xl mx-auto px-6">
+<section id="services" class="py-16 sm:py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
         <!-- Section Header -->
-        <div class="text-center mb-16">
+        <div class="text-center mb-16 sr">
             <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
                 NODE_02 // CORE CAPABILITIES
             </span>
-            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
                 {{ t["nav_services"] }}
             </h2>
             <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
@@ -308,17 +386,292 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECTION 05: ECOSYSTEM PARTNERS
+     SECTION 06: PRODUCT ARCHITECTURE
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="partners" class="py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
-    <div class="max-w-6xl mx-auto px-6">
+<section id="architecture" class="py-16 sm:py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
         <!-- Section Header -->
-        <div class="text-center mb-16">
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-primary">
+                NODE_04 // PRODUCT_ARCHITECTURE
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["arch_title"]|safe }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["arch_subtitle"] }}
+            </p>
+        </div>
+
+        <!-- 3 Layers -->
+        <div class="grid md:grid-cols-3 gap-6 mb-16">
+            <!-- Layer 1: System Dashboard -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-cyan-struct">
+                <div class="flex items-center justify-between mb-6">
+                    <span class="text-xs font-tech text-cyan-struct tracking-widest">LAYER_01</span>
+                    <svg class="w-10 h-10 text-cyan-struct" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                        <line x1="9" y1="12" x2="21" y2="12"/>
+                        <rect x="12" y="6" width="6" height="3" fill="#FF6A2A" stroke="none"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["arch_layer1_title"] }}</h3>
+                <p class="text-text-muted text-sm leading-relaxed mb-4">{{ t["arch_layer1_desc"] }}</p>
+                <div class="mt-auto text-xs font-tech text-text-muted tracking-widest border-t border-cyan-muted pt-4">
+                    {{ t["arch_layer1_tag"] }}
+                </div>
+            </div>
+
+            <!-- Layer 2: Workflow Engine -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-orange-active">
+                <div class="flex items-center justify-between mb-6">
+                    <span class="text-xs font-tech text-orange-active tracking-widest">LAYER_02</span>
+                    <svg class="w-10 h-10 text-cyan-struct" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="4" width="6" height="4"/>
+                        <rect x="15" y="4" width="6" height="4"/>
+                        <rect x="9" y="16" width="6" height="4"/>
+                        <path d="M6 8v4h6v4M18 8v4h-6"/>
+                        <circle cx="12" cy="12" r="1.5" fill="#FF6A2A" stroke="none"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["arch_layer2_title"] }}</h3>
+                <p class="text-text-muted text-sm leading-relaxed mb-4">{{ t["arch_layer2_desc"] }}</p>
+                <div class="mt-auto text-xs font-tech text-text-muted tracking-widest border-t border-cyan-muted pt-4">
+                    {{ t["arch_layer2_tag"] }}
+                </div>
+            </div>
+
+            <!-- Layer 3: Terminal UI -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-cyan-struct">
+                <div class="flex items-center justify-between mb-6">
+                    <span class="text-xs font-tech text-cyan-struct tracking-widest">LAYER_03</span>
+                    <svg class="w-10 h-10 text-cyan-struct" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="10" width="4" height="4"/>
+                        <rect x="17" y="10" width="4" height="4"/>
+                        <rect x="10" y="3" width="4" height="4" stroke="#FF6A2A"/>
+                        <rect x="10" y="17" width="4" height="4"/>
+                        <path d="M7 12h3M14 12h3M12 7v3M12 14v3"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-text-primary mb-4">{{ t["arch_layer3_title"] }}</h3>
+                <p class="text-text-muted text-sm leading-relaxed mb-4">{{ t["arch_layer3_desc"] }}</p>
+                <div class="mt-auto text-xs font-tech text-text-muted tracking-widest border-t border-cyan-muted pt-4">
+                    {{ t["arch_layer3_tag"] }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 07: SYSTEMIC IMPACT (5Rs)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="impact" class="py-16 sm:py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_05 // SYSTEMIC_IMPACT // 5RS_FRAMEWORK
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["impact_title"]|safe }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["impact_subtitle"] }}
+            </p>
+        </div>
+
+        <!-- 5Rs Table -->
+        <div class="brand-panel overflow-hidden mb-12">
+            <!-- Header Row -->
+            <div class="hidden sm:grid grid-cols-3 bg-surface border-b border-cyan-muted p-4 font-tech text-xs tracking-widest text-text-muted uppercase">
+                <div>{{ t["impact_col_dim"] }}</div>
+                <div>{{ t["impact_col_before"] }}</div>
+                <div>{{ t["impact_col_after"] }}</div>
+            </div>
+
+            <!-- ROLES -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-cyan-muted p-4 md:p-6 items-start gap-2 sm:gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-struct flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg>
+                    <span class="font-tech text-xs tracking-widest text-cyan-struct">{{ t["impact_roles"] }}</span>
+                </div>
+                <div class="text-sm text-text-muted">{{ t["impact_roles_before"] }}</div>
+                <div class="text-sm text-text-primary">{{ t["impact_roles_after"] }}</div>
+            </div>
+
+            <!-- RELATIONSHIPS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-cyan-muted p-4 md:p-6 items-start gap-2 sm:gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-struct flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                    <span class="font-tech text-xs tracking-widest text-cyan-struct">{{ t["impact_rel"] }}</span>
+                </div>
+                <div class="text-sm text-text-muted">{{ t["impact_rel_before"] }}</div>
+                <div class="text-sm text-text-primary">{{ t["impact_rel_after"] }}</div>
+            </div>
+
+            <!-- RULES -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-cyan-muted p-4 md:p-6 items-start gap-2 sm:gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-struct flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    <span class="font-tech text-xs tracking-widest text-cyan-struct">{{ t["impact_rules"] }}</span>
+                </div>
+                <div class="text-sm text-text-muted">{{ t["impact_rules_before"] }}</div>
+                <div class="text-sm text-text-primary">{{ t["impact_rules_after"] }}</div>
+            </div>
+
+            <!-- RESOURCES -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-cyan-muted p-4 md:p-6 items-start gap-2 sm:gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-struct flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    <span class="font-tech text-xs tracking-widest text-cyan-struct">{{ t["impact_res"] }}</span>
+                </div>
+                <div class="text-sm text-text-muted">{{ t["impact_res_before"] }}</div>
+                <div class="text-sm text-text-primary">{{ t["impact_res_after"] }}</div>
+            </div>
+
+            <!-- RESULTS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 p-4 md:p-6 items-start gap-2 sm:gap-4 bg-surface">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-orange-active flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                    <span class="font-tech text-xs tracking-widest text-orange-active">{{ t["impact_results"] }}</span>
+                </div>
+                <div class="text-sm text-text-muted">{{ t["impact_results_before"] }}</div>
+                <div class="text-sm text-orange-active font-semibold">{{ t["impact_results_after"] }}</div>
+            </div>
+        </div>
+
+        <!-- Impact Quote -->
+        <div class="brand-panel p-8 md:p-10 border-s-4 border-s-cyan-struct bg-isometric text-center">
+            <blockquote class="text-text-primary text-lg md:text-xl italic leading-relaxed max-w-3xl mx-auto">
+                "{{ t["impact_quote"] }}"
+            </blockquote>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 08: TRACTION & MILESTONES
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="traction" class="py-16 sm:py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-primary">
+                NODE_06 // TRACTION_VALIDATED
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["traction_title"]|safe }}
+            </h2>
+        </div>
+
+        <!-- Traction Stats -->
+        <div class="grid md:grid-cols-3 gap-6 mb-16">
+            <div class="brand-panel p-8 text-center">
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech mb-3">1,000<span class="text-cyan-struct">+</span></div>
+                <h3 class="text-lg font-bold text-text-primary mb-2">{{ t["traction_stat1_title"] }}</h3>
+                <p class="text-sm text-text-muted">{{ t["traction_stat1_desc"] }}</p>
+            </div>
+            <div class="brand-panel p-8 text-center border-t-4 border-t-cyan-struct">
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-cyan-struct font-tech mb-3">3</div>
+                <h3 class="text-lg font-bold text-text-primary mb-2">{{ t["traction_stat2_title"] }}</h3>
+                <p class="text-sm text-text-muted">{{ t["traction_stat2_desc"] }}</p>
+            </div>
+            <div class="brand-panel p-8 text-center">
+                <div class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary font-tech mb-3">0</div>
+                <h3 class="text-lg font-bold text-text-primary mb-2">{{ t["traction_stat3_title"] }}</h3>
+                <p class="text-sm text-text-muted">{{ t["traction_stat3_desc"] }}</p>
+            </div>
+        </div>
+
+        <!-- Milestones -->
+        <div class="brand-panel p-8 md:p-10">
+            <h3 class="text-xs font-tech text-cyan-struct mb-8 tracking-widest uppercase">{{ t["milestone_header"] }}</h3>
+
+            <div class="space-y-4">
+                <!-- Completed milestones -->
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-cyan-struct flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-cyan-struct tracking-widest border border-cyan-struct px-2 py-0.5 mb-1">COMPLETE</span>
+                        <p class="text-sm text-text-muted">{{ t["milestone_done_1"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-cyan-struct flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-cyan-struct tracking-widest border border-cyan-struct px-2 py-0.5 mb-1">COMPLETE</span>
+                        <p class="text-sm text-text-muted">{{ t["milestone_done_2"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-cyan-struct flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-cyan-struct tracking-widest border border-cyan-struct px-2 py-0.5 mb-1">COMPLETE</span>
+                        <p class="text-sm text-text-muted">{{ t["milestone_done_3"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-cyan-struct flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-cyan-struct tracking-widest border border-cyan-struct px-2 py-0.5 mb-1">COMPLETE</span>
+                        <p class="text-sm text-text-muted">{{ t["milestone_done_4"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-cyan-struct flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-cyan-struct tracking-widest border border-cyan-struct px-2 py-0.5 mb-1">COMPLETE</span>
+                        <p class="text-sm text-text-muted">{{ t["milestone_done_5"] }}</p>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-cyan-muted my-6"></div>
+
+                <!-- Future milestones -->
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 bg-orange-active flex-shrink-0 animate-pulse"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-orange-active tracking-widest border border-orange-active px-2 py-0.5 mb-1">Q3 2026</span>
+                        <p class="text-sm text-text-primary">{{ t["milestone_next_1"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 border border-orange-active flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-orange-active tracking-widest border border-orange-active px-2 py-0.5 mb-1">2027</span>
+                        <p class="text-sm text-text-primary">{{ t["milestone_next_2"] }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-3 h-3 mt-1.5 border border-orange-active flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <span class="inline-block text-xs font-tech text-orange-active tracking-widest border border-orange-active px-2 py-0.5 mb-1">2028</span>
+                        <p class="text-sm text-text-primary">{{ t["milestone_next_3"] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 09: ECOSYSTEM PARTNERS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="partners" class="py-16 sm:py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
             <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-primary">
                 NODE_03 // ACTIVE NODES
             </span>
-            <h2 class="text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
                 {{ t["partners_title"] }}
             </h2>
             <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
@@ -426,22 +779,222 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECTION 06: CTA
+     SECTION 10: TEAM
      ═══════════════════════════════════════════════════════════════════ -->
-<section class="py-24 border-t border-cyan-muted bg-surface">
-    <div class="max-w-4xl mx-auto px-6">
-        <div class="brand-panel p-12 text-center relative overflow-hidden bg-isometric">
+<section id="team" class="py-16 sm:py-24 bg-primary relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
-            <div class="relative z-10">
-                <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-6">{{ t["cta_title"] }}</h2>
-                <p class="text-text-muted mb-10 text-lg max-w-2xl mx-auto">{{ t["cta_desc"] }}</p>
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_07 // TEAM_PROFILES
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["team_title"]|safe }}
+            </h2>
+        </div>
 
-                <a href="mailto:data@actuators.me"
-                    class="inline-flex items-center justify-center bg-cyan-struct text-black border border-cyan-struct px-8 py-3.5 font-bold transition-none hover:bg-transparent hover:text-cyan-struct text-sm tracking-widest font-tech">
-                    [ {{ t["cta_btn"] }} ]
-                </a>
+        <!-- Team Grid -->
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+            <!-- Yahya Demeriah -->
+            <div class="brand-panel p-8 border-t-4 border-t-cyan-struct">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-14 h-14 bg-primary border-2 border-cyan-struct flex items-center justify-center text-cyan-struct font-tech font-bold text-xl">YD</div>
+                    <div>
+                        <div class="text-lg font-bold text-text-primary">Yahya Demeriah</div>
+                        <div class="text-xs font-tech text-text-muted tracking-widest">CO-FOUNDER &amp; CEO // 55% EQUITY</div>
+                    </div>
+                </div>
+                <p class="text-sm text-text-muted leading-relaxed mb-6">{{ t["team_yahya_bio"] }}</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-xs font-tech text-cyan-struct border border-cyan-muted px-2 py-1">{{ t["team_yahya_tag1"] }}</span>
+                    <span class="text-xs font-tech text-cyan-struct border border-cyan-muted px-2 py-1">{{ t["team_yahya_tag2"] }}</span>
+                    <span class="text-xs font-tech text-cyan-struct border border-cyan-muted px-2 py-1">{{ t["team_yahya_tag3"] }}</span>
+                    <span class="text-xs font-tech text-cyan-struct border border-cyan-muted px-2 py-1">{{ t["team_yahya_tag4"] }}</span>
+                </div>
+            </div>
+
+            <!-- Mahmoud Al-Sawan -->
+            <div class="brand-panel p-8 border-t-4 border-t-orange-active">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-14 h-14 bg-primary border-2 border-orange-active flex items-center justify-center text-orange-active font-tech font-bold text-xl">MA</div>
+                    <div>
+                        <div class="text-lg font-bold text-text-primary">Mahmoud Al-Sawan</div>
+                        <div class="text-xs font-tech text-text-muted tracking-widest">CO-FOUNDER &amp; CTO // 45% EQUITY</div>
+                    </div>
+                </div>
+                <p class="text-sm text-text-muted leading-relaxed mb-6">{{ t["team_mahmoud_bio"] }}</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-xs font-tech text-orange-active border border-cyan-muted px-2 py-1">{{ t["team_mahmoud_tag1"] }}</span>
+                    <span class="text-xs font-tech text-orange-active border border-cyan-muted px-2 py-1">{{ t["team_mahmoud_tag2"] }}</span>
+                    <span class="text-xs font-tech text-orange-active border border-cyan-muted px-2 py-1">{{ t["team_mahmoud_tag3"] }}</span>
+                    <span class="text-xs font-tech text-orange-active border border-cyan-muted px-2 py-1">{{ t["team_mahmoud_tag4"] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Evidence -->
+        <div class="brand-panel p-8 border-s-4 border-s-cyan-struct text-center">
+            <p class="text-text-muted text-sm md:text-base italic max-w-3xl mx-auto">
+                {{ t["team_evidence"] }}
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 11: BUSINESS MODEL
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="model" class="py-16 sm:py-24 bg-surface relative z-10 border-b border-cyan-muted scroll-mt-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16 sr">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-primary">
+                NODE_08 // BUSINESS_MODEL
+            </span>
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-bold text-text-primary mb-6 tracking-tight">
+                {{ t["model_title"]|safe }}
+            </h2>
+            <p class="text-text-muted text-lg md:text-xl leading-relaxed mx-auto max-w-3xl">
+                {{ t["model_subtitle"] }}
+            </p>
+        </div>
+
+        <!-- 3 Model Cards -->
+        <div class="grid md:grid-cols-3 gap-6 mb-16">
+            <!-- Freemium Core -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-cyan-struct">
+                <div class="text-xs font-tech text-cyan-struct tracking-widest mb-2">LAYER_01</div>
+                <h3 class="text-xl font-bold text-text-primary mb-1">{{ t["model_l1_title"] }}</h3>
+                <div class="text-xs font-tech text-text-muted tracking-widest mb-2">{{ t["model_l1_users"] }}</div>
+                <div class="text-2xl font-bold text-cyan-struct font-tech mb-4">FREE</div>
+                <p class="text-sm text-text-muted leading-relaxed">{{ t["model_l1_desc"] }}</p>
+            </div>
+
+            <!-- Enablement Layer -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-orange-active">
+                <div class="text-xs font-tech text-orange-active tracking-widest mb-2">LAYER_02</div>
+                <h3 class="text-xl font-bold text-text-primary mb-1">{{ t["model_l2_title"] }}</h3>
+                <div class="text-xs font-tech text-text-muted tracking-widest mb-2">{{ t["model_l2_users"] }}</div>
+                <div class="text-2xl font-bold text-orange-active font-tech mb-4">{{ t["model_l2_price"] }}</div>
+                <p class="text-sm text-text-muted leading-relaxed">{{ t["model_l2_desc"] }}</p>
+            </div>
+
+            <!-- Market Infrastructure -->
+            <div class="brand-panel p-8 flex flex-col border-t-4 border-t-cyan-struct bg-isometric">
+                <div class="text-xs font-tech text-cyan-struct tracking-widest mb-2">LAYER_03</div>
+                <h3 class="text-xl font-bold text-text-primary mb-1">{{ t["model_l3_title"] }}</h3>
+                <div class="text-xs font-tech text-text-muted tracking-widest mb-2">{{ t["model_l3_users"] }}</div>
+                <div class="text-2xl font-bold text-cyan-struct font-tech mb-4">€5K–€25K</div>
+                <p class="text-sm text-text-muted leading-relaxed">{{ t["model_l3_desc"] }}</p>
+            </div>
+        </div>
+
+        <!-- Revenue Projections -->
+        <div class="brand-panel p-8 md:p-10">
+            <h3 class="text-xs font-tech text-cyan-struct mb-8 tracking-widest uppercase">{{ t["model_proj_header"] }}</h3>
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="text-xs font-tech text-text-muted w-20 flex-shrink-0">YEAR_01</div>
+                    <div class="flex-1 bg-primary h-6 relative overflow-hidden border border-cyan-muted">
+                        <div class="bg-cyan-struct h-full" style="width: 4%"></div>
+                    </div>
+                    <div class="text-xs font-tech text-text-muted whitespace-nowrap">{{ t["model_year1"] }}</div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-xs font-tech text-text-muted w-20 flex-shrink-0">YEAR_02</div>
+                    <div class="flex-1 bg-primary h-6 relative overflow-hidden border border-cyan-muted">
+                        <div class="bg-cyan-struct h-full" style="width: 38%"></div>
+                    </div>
+                    <div class="text-xs font-tech text-text-muted whitespace-nowrap">{{ t["model_year2"] }}</div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-xs font-tech text-text-muted w-20 flex-shrink-0">YEAR_03</div>
+                    <div class="flex-1 bg-primary h-6 relative overflow-hidden border border-cyan-muted">
+                        <div class="bg-orange-active h-full" style="width: 100%"></div>
+                    </div>
+                    <div class="text-xs font-tech text-text-muted whitespace-nowrap">{{ t["model_year3"] }}</div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 12: CTA / GET ACCESS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="cta" class="py-16 sm:py-24 border-t border-cyan-muted bg-primary">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+
+        <div class="text-center mb-12">
+            <span class="inline-block text-cyan-struct font-tech tracking-widest text-xs uppercase mb-6 px-3 py-1 border border-cyan-muted bg-surface">
+                NODE_09 // GET_ACCESS
+            </span>
+            <h2 class="text-3xl md:text-4xl font-bold text-text-primary mb-6">{{ t["access_title"]|safe }}</h2>
+            <p class="text-text-muted text-lg max-w-2xl mx-auto">{{ t["access_subtitle"] }}</p>
+        </div>
+
+        <div class="brand-panel p-8 md:p-12 relative overflow-hidden bg-isometric">
+            <div class="relative z-10">
+                <div class="text-xs font-tech text-cyan-struct tracking-widest mb-6">{{ t["access_form_tag"] }}</div>
+
+                <form id="access-form" class="space-y-4 max-w-lg mx-auto" novalidate>
+                    <input type="email" id="access-email"
+                        class="w-full bg-primary border border-cyan-muted text-text-primary px-4 py-3 font-tech text-sm focus:border-cyan-struct focus:outline-none placeholder:text-text-muted"
+                        placeholder="{{ t["access_email_placeholder"] }}" required>
+                    <select id="access-role"
+                        class="w-full bg-primary border border-cyan-muted text-text-primary px-4 py-3 font-tech text-sm focus:border-cyan-struct focus:outline-none appearance-none cursor-pointer">
+                        <option value="">{{ t["access_role_placeholder"] }}</option>
+                        <option value="founder">{{ t["access_role_founder"] }}</option>
+                        <option value="diaspora">{{ t["access_role_diaspora"] }}</option>
+                        <option value="ingo">{{ t["access_role_ingo"] }}</option>
+                        <option value="investor">{{ t["access_role_investor"] }}</option>
+                        <option value="researcher">{{ t["access_role_researcher"] }}</option>
+                        <option value="other">{{ t["access_role_other"] }}</option>
+                    </select>
+                    <button type="submit"
+                        class="w-full bg-cyan-struct text-black border border-cyan-struct px-8 py-3.5 font-bold transition-none hover:bg-transparent hover:text-cyan-struct text-sm tracking-widest font-tech">
+                        [ {{ t["access_submit"] }} ]
+                    </button>
+                </form>
+
+                <div id="access-success" class="hidden text-center mt-6 text-cyan-struct font-tech text-sm">
+                    {{ t["access_success"] }}
+                </div>
+
+                <div class="text-center mt-8 text-xs font-tech text-text-muted space-x-4 rtl:space-x-reverse">
+                    <a href="mailto:actuators.os@gmail.com" class="text-cyan-struct hover:underline">actuators.os@gmail.com</a>
+                    <span>//</span>
+                    <a href="https://actuators.me" target="_blank" rel="noopener" class="text-cyan-struct hover:underline">actuators.me</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+(function() {
+    var form = document.getElementById('access-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = document.getElementById('access-email').value;
+            var role = document.getElementById('access-role').value;
+            if (!email) return;
+            fetch('/api/auth/org-request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email, role: role, type: 'early_access'})
+            }).then(function() {
+                form.style.display = 'none';
+                document.getElementById('access-success').classList.remove('hidden');
+            }).catch(function() {
+                form.style.display = 'none';
+                document.getElementById('access-success').classList.remove('hidden');
+            });
+        });
+    }
+})();
+</script>
 {% endblock %}

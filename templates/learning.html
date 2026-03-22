@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}" class="dark antialiased">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t["learning_title"] }} — Actuators</title>
+    <meta name="description" content="{{ t["learning_subtitle"] }}">
+    <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0B1A2A">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── Actuators Brand System (matches base.html) ── */
+        /* Dark mode (default) — activated by class="dark" on <html> */
+        :root, .dark {
+            --bg-primary: #0B1A2A;
+            --bg-surface: rgba(11, 26, 42, 0.8);
+            --bg-card: rgba(11, 26, 42, 0.95);
+            --text-primary: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --structure-cyan: #00B7C2;
+            --structure-cyan-muted: rgba(0, 183, 194, 0.3);
+            --activation-orange: #FF6A2A;
+            --font-primary-ar: 'IBM Plex Sans Arabic', sans-serif;
+            --font-primary-en: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Light mode — when class="dark" is removed */
+        :root:not(.dark) {
+            --bg-primary: #F0F4F8;
+            --bg-surface: rgba(255, 255, 255, 0.9);
+            --bg-card: rgba(255, 255, 255, 0.98);
+            --text-primary: #0B1A2A;
+            --text-muted: rgba(11, 26, 42, 0.55);
+            --structure-cyan: #00919A;
+            --structure-cyan-muted: rgba(0, 145, 154, 0.2);
+            --activation-orange: #E55A1B;
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .hidden { display: none !important; }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        [dir="rtl"] body { font-family: var(--font-primary-ar); }
+        [dir="ltr"] body { font-family: var(--font-primary-en); }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* ── Isometric Grid Background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Node Map Decoration ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 30px 30px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Navbar ── */
+        .lp-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--structure-cyan-muted);
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .lp-navbar-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lp-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon-wrap {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 8px rgba(0,183,194,0.25));
+            transition: filter 0.15s linear;
+        }
+        .logo-icon-wrap .li-default,
+        .logo-icon-wrap .li-hover {
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.4s cubic-bezier(1,0,0,1);
+        }
+        .logo-icon-wrap .li-hover { opacity: 0; }
+        .lp-logo:hover .logo-icon-wrap .li-default { opacity: 0; }
+        .lp-logo:hover .logo-icon-wrap .li-hover   { opacity: 1; }
+        .lp-logo:hover .logo-icon-wrap {
+            filter: drop-shadow(0 0 12px rgba(255,106,42,0.35));
+        }
+
+        .logo-wordmark-wrap {
+            position: relative;
+            width: 160px;
+            height: 32px;
+        }
+        .logo-wordmark-wrap .lw-default,
+        .logo-wordmark-wrap .lw-hover {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.4s cubic-bezier(1,0,0,1);
+        }
+        .logo-wordmark-wrap .lw-hover { opacity: 0; }
+        .lp-logo:hover .logo-wordmark-wrap .lw-default { opacity: 0; }
+        .lp-logo:hover .logo-wordmark-wrap .lw-hover { opacity: 1; }
+        @media (max-width: 640px) {
+            .logo-wordmark-wrap { display: none; }
+            color: var(--text-primary);
+        }
+
+        .lp-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lp-nav-link {
+            padding: 8px 16px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 2px;
+            transition: all 0.15s linear;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: none;
+        }
+
+        .lp-nav-link:hover {
+            color: var(--structure-cyan);
+            border-color: var(--structure-cyan-muted);
+        }
+
+        .lp-nav-link.active {
+            color: var(--structure-cyan);
+            border-color: var(--structure-cyan);
+            background: rgba(0, 183, 194, 0.08);
+        }
+
+        .lp-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid var(--structure-cyan-muted);
+            background: var(--bg-surface);
+        }
+
+        .lp-nav-action-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.15s linear;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-inline-end: 1px solid var(--structure-cyan-muted);
+        }
+
+        .lp-nav-action-item:last-child {
+            border-inline-end: none;
+        }
+
+        .lp-nav-action-item:hover {
+            color: var(--structure-cyan);
+        }
+
+        .lp-login-btn {
+            padding: 6px 16px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-primary);
+            background: transparent;
+            border: 1px solid var(--structure-cyan);
+            border-radius: 2px;
+            text-decoration: none;
+            transition: all 0.15s linear;
+            cursor: pointer;
+            margin-inline-start: 12px;
+        }
+
+        .lp-login-btn:hover {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+        }
+
+        .lp-avatar-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 2px;
+            background: var(--structure-cyan-muted);
+            border: 1px solid var(--structure-cyan);
+            color: var(--structure-cyan);
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s linear;
+            margin-inline-start: 12px;
+        }
+
+        .lp-avatar-btn:hover {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+        }
+
+        /* ── Mobile Menu ── */
+        .lp-mobile-toggle {
+            display: none;
+            width: 32px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            margin-inline-start: 8px;
+        }
+
+        .lp-mobile-menu {
+            display: none;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--structure-cyan-muted);
+            z-index: 99;
+            padding: 16px 24px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lp-mobile-menu.open { display: flex; }
+
+        /* ── Hero Section ── */
+        .lp-hero {
+            padding: 120px 24px 48px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lp-hero-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .lp-hero-sub {
+            font-size: 15px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 24px;
+        }
+
+        .structure-line {
+            width: 100%;
+            height: 1px;
+            background: var(--structure-cyan-muted);
+        }
+
+        .structure-line-hero {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* ── Content Area ── */
+        .lp-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Filter Bar ── */
+        .lp-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 20px 0;
+        }
+
+        .lp-filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .lp-filter-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-inline-end: 8px;
+            font-family: var(--font-mono);
+        }
+
+        .lp-pill {
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 2px;
+            border: 1px solid var(--structure-cyan-muted);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s linear;
+        }
+
+        .lp-pill:hover {
+            border-color: var(--structure-cyan);
+            color: var(--text-primary);
+        }
+
+        .lp-pill.active {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+            border-color: var(--structure-cyan);
+            font-weight: 700;
+        }
+
+        /* ── Courses Grid ── */
+        .lp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* ── Course Card ── */
+        .lp-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.15s linear;
+            position: relative;
+        }
+
+        .lp-card:hover {
+            border-color: var(--structure-cyan);
+        }
+
+        /* ── Corner Marks ── */
+        .corner-marks {
+            position: absolute;
+            inset: -1px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .corner-marks::before,
+        .corner-marks::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--structure-cyan);
+            border-style: solid;
+        }
+
+        .corner-marks::before {
+            top: 0;
+            inset-inline-start: 0;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-start-width: 1px;
+        }
+
+        .corner-marks::after {
+            bottom: 0;
+            inset-inline-end: 0;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-end-width: 1px;
+        }
+
+        .corner-marks-alt::before {
+            top: 0;
+            inset-inline-end: 0;
+            inset-inline-start: auto;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-end-width: 1px;
+        }
+
+        .corner-marks-alt::after {
+            bottom: 0;
+            inset-inline-start: 0;
+            inset-inline-end: auto;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-start-width: 1px;
+        }
+
+        .lp-card-thumb {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lp-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lp-card-thumb-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+        }
+
+        /* Hex pattern overlay on placeholder */
+        .lp-card-thumb-placeholder::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--structure-cyan-muted) 1px, transparent 1px),
+                linear-gradient(90deg, var(--structure-cyan-muted) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .lp-card-badges {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .lp-badge {
+            padding: 3px 8px;
+            font-size: 10px;
+            font-weight: 500;
+            border-radius: 2px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .lp-badge-cat {
+            background: rgba(0, 183, 194, 0.15);
+            color: var(--structure-cyan);
+            border: 1px solid var(--structure-cyan-muted);
+        }
+
+        .lp-badge-level {
+            background: rgba(255, 106, 42, 0.1);
+            color: var(--activation-orange);
+            border: 1px solid rgba(255, 106, 42, 0.3);
+        }
+
+        .lp-badge-price-free {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+            border: 1px solid var(--structure-cyan);
+        }
+
+        .lp-badge-price-paid {
+            background: var(--activation-orange);
+            color: #fff;
+            border: 1px solid var(--activation-orange);
+        }
+
+        .lp-card-body {
+            padding: 16px;
+        }
+
+        .lp-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .lp-card-instructor {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: var(--font-mono);
+        }
+
+        .lp-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--structure-cyan-muted);
+        }
+
+        .lp-price {
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .lp-price-free {
+            color: var(--structure-cyan);
+        }
+
+        .lp-price-paid {
+            color: var(--activation-orange);
+        }
+
+        .lp-students {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: var(--font-mono);
+        }
+
+        /* ── Course Detail ── */
+        .lp-detail {
+            display: none;
+        }
+
+        .lp-detail.visible {
+            display: block;
+        }
+
+        .lp-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--structure-cyan);
+            background: transparent;
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.15s linear;
+            margin-bottom: 24px;
+            text-decoration: none;
+        }
+
+        .lp-back-btn:hover {
+            border-color: var(--structure-cyan);
+            background: rgba(0, 183, 194, 0.08);
+        }
+
+        .lp-detail-header {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .lp-detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .lp-detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .lp-detail-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .lp-detail-sidebar {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 88px;
+            position: relative;
+        }
+
+        .lp-detail-price {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            margin-bottom: 16px;
+        }
+
+        .lp-enroll-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: opacity 0.15s linear;
+            text-decoration: none;
+        }
+
+        .lp-enroll-btn-primary {
+            background: var(--activation-orange);
+            color: #fff;
+        }
+
+        .lp-enroll-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .lp-enroll-btn-continue {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+        }
+
+        .lp-enroll-btn-login {
+            background: transparent;
+            border: 1px solid var(--structure-cyan);
+            color: var(--structure-cyan);
+        }
+
+        .lp-detail-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .lp-stat-item {
+            text-align: center;
+            padding: 12px;
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+        }
+
+        .lp-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--structure-cyan);
+        }
+
+        .lp-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Lessons List ── */
+        .lp-lessons {
+            background: var(--bg-surface);
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .lp-lessons-title {
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--structure-cyan-muted);
+        }
+
+        .lp-lesson-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--structure-cyan-muted);
+            transition: background 0.15s linear;
+            cursor: pointer;
+        }
+
+        .lp-lesson-item:last-child { border-bottom: none; }
+
+        .lp-lesson-item:hover {
+            background: rgba(0, 183, 194, 0.05);
+        }
+
+        .lp-lesson-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 2px;
+            border: 1px solid var(--structure-cyan-muted);
+            color: var(--structure-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .lp-lesson-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lp-lesson-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .lp-lesson-duration {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .lp-lesson-lock {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* ── Video Player ── */
+        .lp-video-container {
+            margin-bottom: 24px;
+            border-radius: 2px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--structure-cyan-muted);
+        }
+
+        .lp-video-container video {
+            width: 100%;
+            display: block;
+        }
+
+        /* ── Attachments ── */
+        .lp-attachments {
+            margin-top: 16px;
+        }
+
+        .lp-attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            margin-bottom: 6px;
+            transition: border-color 0.15s linear;
+        }
+
+        .lp-attachment-item:hover {
+            border-color: var(--structure-cyan);
+        }
+
+        .lp-attachment-name {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .lp-download-btn {
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--structure-cyan);
+            background: transparent;
+            border: 1px solid var(--structure-cyan-muted);
+            border-radius: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s linear;
+        }
+
+        .lp-download-btn:hover {
+            background: var(--structure-cyan);
+            color: var(--bg-primary);
+        }
+
+        /* ── Progress Bar (thin cyan line) ── */
+        .lp-progress-wrap {
+            background: var(--structure-cyan-muted);
+            border-radius: 0;
+            height: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .lp-progress-bar {
+            height: 100%;
+            background: var(--structure-cyan);
+            border-radius: 0;
+            transition: width 0.15s linear;
+        }
+
+        /* ── My Courses Grid ── */
+        .lp-my-progress {
+            font-size: 12px;
+            color: var(--structure-cyan);
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        /* ── Empty State ── */
+        .lp-empty {
+            text-align: center;
+            padding: 80px 24px;
+            color: var(--text-muted);
+        }
+
+        .lp-empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .lp-empty-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* ── Loading Spinner ── */
+        .lp-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .lp-spinner::after {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--structure-cyan-muted);
+            border-top-color: var(--structure-cyan);
+            border-radius: 50%;
+            animation: lp-spin 0.8s linear infinite;
+        }
+
+        @keyframes lp-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Toast Notification ── */
+        .lp-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 10px 20px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            z-index: 200;
+            transition: transform 0.15s linear;
+        }
+
+        .lp-toast.show { transform: translateX(-50%) translateY(0); }
+
+        .lp-toast-success {
+            background: var(--bg-primary);
+            color: var(--structure-cyan);
+            border: 1px solid var(--structure-cyan);
+        }
+
+        .lp-toast-error {
+            background: var(--bg-primary);
+            color: var(--activation-orange);
+            border: 1px solid var(--activation-orange);
+        }
+
+        /* ── Assembly Animation ── */
+        .assemble {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: assemble 0.3s linear forwards;
+        }
+
+        .assemble-1 { animation-delay: 0.05s; }
+        .assemble-2 { animation-delay: 0.1s; }
+        .assemble-3 { animation-delay: 0.15s; }
+        .assemble-4 { animation-delay: 0.2s; }
+
+        @keyframes assemble {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .lp-nav-links {
+                display: none;
+            }
+
+            .lp-nav-actions .lp-nav-action-item-desktop {
+                display: none;
+            }
+
+            .lp-mobile-toggle { display: flex; }
+
+            .lp-hero-title { font-size: 24px; }
+            .lp-hero-sub { font-size: 13px; }
+            .lp-hero { padding: 100px 24px 32px; }
+
+            .lp-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .lp-detail-header {
+                grid-template-columns: 1fr;
+            }
+
+            .lp-detail-sidebar {
+                position: static;
+            }
+
+            .lp-detail-title { font-size: 22px; }
+        }
+
+        @media (max-width: 480px) {
+            .lp-card-thumb { height: 150px; }
+            .lp-navbar-inner { padding: 0 16px; }
+            .lp-content { padding: 0 16px 60px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ══════════════════════ NAVBAR ══════════════════════ -->
+    <nav class="lp-navbar">
+        <div class="lp-navbar-inner">
+            <!-- Logo: Hex Cluster + ACTUATORS wordmark -->
+            <a href="/?lang={{ lang }}" class="lp-logo">
+                <div class="logo-icon-wrap">
+                    <svg class="li-default" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="36" height="36" aria-hidden="true">
+                        <defs><g id="lc-d"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></g></defs>
+                        <g transform="translate(60,60)"><use href="#lc-d" x="34.641" y="0" color="#00B7C2"/><use href="#lc-d" x="-34.641" y="0" color="#00B7C2"/><use href="#lc-d" x="17.3205" y="-30" color="#00B7C2"/><use href="#lc-d" x="-17.3205" y="-30" color="#00B7C2"/><use href="#lc-d" x="17.3205" y="30" color="#00B7C2"/><use href="#lc-d" x="-17.3205" y="30" color="#00B7C2"/><use href="#lc-d" x="0" y="0" color="#FF6A2A"/></g>
+                    </svg>
+                    <svg class="li-hover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="36" height="36" aria-hidden="true">
+                        <defs><g id="lc-r"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></g></defs>
+                        <g transform="translate(60,60)"><use href="#lc-r" x="34.641" y="0" color="#FF6A2A"/><use href="#lc-r" x="-34.641" y="0" color="#FF6A2A"/><use href="#lc-r" x="17.3205" y="-30" color="#FF6A2A"/><use href="#lc-r" x="-17.3205" y="-30" color="#FF6A2A"/><use href="#lc-r" x="17.3205" y="30" color="#FF6A2A"/><use href="#lc-r" x="-17.3205" y="30" color="#FF6A2A"/><use href="#lc-r" x="0" y="0" color="#00B7C2"/></g>
+                    </svg>
+                </div>
+                <div class="logo-wordmark-wrap">
+                    <svg class="lw-default" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145" aria-hidden="true">
+                        <line x1="40" y1="120" x2="960" y2="120" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/>
+                        <path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#FF6A2A" stroke-width="2" opacity="0.3" fill="none"/>
+                        <text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#00B7C2" letter-spacing="7" text-anchor="middle">ACTUATORS</text>
+                    </svg>
+                    <svg class="lw-hover" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145" aria-hidden="true">
+                        <line x1="40" y1="120" x2="960" y2="120" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#00B7C2" stroke-width="2" opacity="0.5"/>
+                        <path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#00B7C2" stroke-width="2" opacity="0.3" fill="none"/>
+                        <text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#FF6A2A" letter-spacing="7" text-anchor="middle">ACTUATORS</text>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <div class="lp-nav-links">
+                <button class="lp-nav-link active" onclick="showTab('browse')" id="tab-browse">{{ t["learning_browse"] }}</button>
+                <button class="lp-nav-link" onclick="showTab('mycourses')" id="tab-mycourses" style="display:none;">{{ t["learning_my_courses"] }}</button>
+            </div>
+
+            <!-- Actions: unified control block (same style as login page) -->
+            <div style="display:flex;align-items:center;">
+                <div class="lp-nav-actions">
+                    <!-- Language Toggle -->
+                    <a href="/learning?lang={% if lang == "ar" %}en{% else %}ar{% endif %}" class="lp-nav-action-item" title="{% if lang == "ar" %}English{% else %}العربية{% endif %}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+                        {% if lang == "ar" %}EN{% else %}عربي{% endif %}
+                    </a>
+
+                    <!-- Theme Toggle -->
+                    <button class="lp-nav-action-item" onclick="toggleTheme()" title="Toggle theme" id="theme-toggle-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="theme-icon-moon"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="theme-icon-sun" style="display:none;"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </button>
+                </div>
+
+                <!-- Login Button (shown when not logged in) -->
+                <a href="/admin/login?lang={{ lang }}" class="lp-login-btn" id="lp-login-btn">{{ t["nav_login"] }}</a>
+
+                <!-- User Avatar (shown when logged in) -->
+                <button class="lp-avatar-btn" id="lp-avatar-btn" style="display:none;" onclick="window.location.href='/admin/profile'">U</button>
+
+                <!-- Mobile Toggle -->
+                <button class="lp-mobile-toggle" onclick="toggleMobileMenu()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="lp-mobile-menu" id="mobile-menu">
+        <button class="lp-nav-link active" onclick="showTab('browse'); toggleMobileMenu();" id="mtab-browse">{{ t["learning_browse"] }}</button>
+        <button class="lp-nav-link" onclick="showTab('mycourses'); toggleMobileMenu();" id="mtab-mycourses" style="display:none;">{{ t["learning_my_courses"] }}</button>
+    </div>
+
+    <!-- ══════════════════════ HERO ══════════════════════ -->
+    <section class="lp-hero assemble assemble-1" id="lp-hero">
+        <h1 class="lp-hero-title">{{ t["learning_title"] }}</h1>
+        <p class="lp-hero-sub">{{ t["learning_subtitle"] }}</p>
+    </section>
+    <div class="structure-line structure-line-hero" id="hero-line"></div>
+
+    <!-- ══════════════════════ MAIN CONTENT ══════════════════════ -->
+    <main class="lp-content">
+
+        <!-- ── BROWSE TAB ── -->
+        <div id="view-browse" class="assemble assemble-2">
+            <!-- Filter Bar -->
+            <div class="lp-filters">
+                <div class="lp-filter-group" id="filter-category">
+                    <span class="lp-filter-label">{{ t["form_category"] }}</span>
+                    <button class="lp-pill active" onclick="filterCategory('all', this)">{{ t["courses_all"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('programming', this)">{{ t["courses_cat_programming"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('business', this)">{{ t["courses_cat_business"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('design', this)">{{ t["courses_cat_design"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('marketing', this)">{{ t["courses_cat_marketing"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('languages', this)">{{ t["courses_cat_languages"] }}</button>
+                    <button class="lp-pill" onclick="filterCategory('other', this)">{{ t["courses_cat_other"] }}</button>
+                </div>
+                <div class="lp-filter-group" id="filter-level">
+                    <span class="lp-filter-label">{{ t["courses_level"] }}</span>
+                    <button class="lp-pill active" onclick="filterLevel('all', this)">{{ t["courses_all"] }}</button>
+                    <button class="lp-pill" onclick="filterLevel('beginner', this)">{{ t["courses_level_beginner"] }}</button>
+                    <button class="lp-pill" onclick="filterLevel('intermediate', this)">{{ t["courses_level_intermediate"] }}</button>
+                    <button class="lp-pill" onclick="filterLevel('advanced', this)">{{ t["courses_level_advanced"] }}</button>
+                </div>
+                <div class="lp-filter-group" id="filter-price">
+                    <span class="lp-filter-label">{{ t["courses_price"] }}</span>
+                    <button class="lp-pill active" onclick="filterPrice('all', this)">{{ t["courses_all"] }}</button>
+                    <button class="lp-pill" onclick="filterPrice('free', this)">{{ t["learning_free"] }}</button>
+                    <button class="lp-pill" onclick="filterPrice('paid', this)">{{ t["courses_price_paid"] }}</button>
+                </div>
+            </div>
+
+            <div class="structure-line" style="margin-bottom:32px;"></div>
+
+            <!-- Course Grid -->
+            <div id="courses-grid" class="lp-grid">
+                <div class="lp-spinner" id="courses-spinner"></div>
+            </div>
+        </div>
+
+        <!-- ── COURSE DETAIL ── -->
+        <div id="view-detail" class="lp-detail">
+            <button class="lp-back-btn" onclick="backToBrowse()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                {{ t["learning_back"] }}
+            </button>
+
+            <!-- Video Player Area -->
+            <div class="lp-video-container" id="detail-video" style="display:none;"></div>
+
+            <div class="lp-detail-header">
+                <div>
+                    <h1 class="lp-detail-title" id="detail-title"></h1>
+                    <div class="lp-detail-meta" id="detail-meta"></div>
+                    <div class="structure-line" style="margin: 16px 0;"></div>
+                    <div class="lp-detail-desc" id="detail-desc"></div>
+
+                    <!-- Attachments -->
+                    <div class="lp-attachments" id="detail-attachments" style="display:none;">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">{{ t["learning_attachments"] }}</h3>
+                        <div id="detail-attachments-list"></div>
+                    </div>
+                </div>
+
+                <div class="lp-detail-sidebar">
+                    <div class="corner-marks"></div>
+                    <div class="corner-marks corner-marks-alt"></div>
+                    <div class="lp-detail-price" id="detail-price"></div>
+                    <div id="detail-enroll-area"></div>
+                    <div class="structure-line" style="margin: 16px 0;"></div>
+                    <div class="lp-detail-stats" id="detail-stats"></div>
+
+                    <!-- Progress bar (for enrolled) -->
+                    <div id="detail-progress-wrap" style="display:none; margin-top: 16px;">
+                        <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 4px; font-family: var(--font-mono);">
+                            <span style="color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em;">{{ t["learning_progress"] }}</span>
+                            <span class="lp-my-progress" id="detail-progress-pct">0%</span>
+                        </div>
+                        <div class="lp-progress-wrap">
+                            <div class="lp-progress-bar" id="detail-progress-bar" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lessons -->
+            <div class="lp-lessons">
+                <div class="corner-marks"></div>
+                <div class="corner-marks corner-marks-alt"></div>
+                <h3 class="lp-lessons-title">{{ t["learning_lesson_list"] }}</h3>
+                <div id="detail-lessons"></div>
+            </div>
+        </div>
+
+        <!-- ── MY COURSES TAB ── -->
+        <div id="view-mycourses" style="display:none;">
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 24px; font-weight: 700;">{{ t["learning_my_courses"] }}</h2>
+                <div class="structure-line" style="margin-top: 12px;"></div>
+            </div>
+            <div id="my-courses-grid" class="lp-grid">
+                <div class="lp-spinner" id="my-courses-spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="lp-toast" id="lp-toast"></div>
+
+    <!-- ══════════════════════ JAVASCRIPT ══════════════════════ -->
+    <script>
+        // ── i18n from server ──
+        const T = {
+            learning_enroll_now: "{{ t["learning_enroll_now"] }}",
+            learning_enrolled: "{{ t["learning_enrolled"] }}",
+            learning_login_to_enroll: "{{ t["learning_login_to_enroll"] }}",
+            learning_students: "{{ t["learning_students"] }}",
+            learning_lessons: "{{ t["learning_lessons"] }}",
+            learning_mins: "{{ t["learning_mins"] }}",
+            learning_no_courses: "{{ t["learning_no_courses"] }}",
+            learning_progress: "{{ t["learning_progress"] }}",
+            learning_free: "{{ t["learning_free"] }}",
+            learning_download: "{{ t["learning_download"] }}",
+            learning_attachments: "{{ t["learning_attachments"] }}",
+            courses_level_beginner: "{{ t["courses_level_beginner"] }}",
+            courses_level_intermediate: "{{ t["courses_level_intermediate"] }}",
+            courses_level_advanced: "{{ t["courses_level_advanced"] }}",
+            courses_cat_programming: "{{ t["courses_cat_programming"] }}",
+            courses_cat_business: "{{ t["courses_cat_business"] }}",
+            courses_cat_design: "{{ t["courses_cat_design"] }}",
+            courses_cat_marketing: "{{ t["courses_cat_marketing"] }}",
+            courses_cat_languages: "{{ t["courses_cat_languages"] }}",
+            courses_cat_other: "{{ t["courses_cat_other"] }}",
+        };
+
+        const LANG = "{{ lang }}";
+
+        // ── Helpers ──
+        function getCookie(name) {
+            const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return v ? v.pop() : '';
+        }
+
+        function tid(t) {
+            if (!t) return '';
+            if (typeof t === 'string') return t;
+            if (t.id) {
+                if (typeof t.id === 'string') return t.id;
+                if (typeof t.id === 'object') return t.id.String || t.id.Number || Object.values(t.id)[0] || '';
+            }
+            return String(t);
+        }
+
+        function authHeaders() {
+            const token = getCookie('auth_token');
+            if (!token) return {};
+            return { 'Authorization': 'Bearer ' + token };
+        }
+
+        // ── State ──
+        let allCourses = [];
+        let currentUser = null;
+        let myEnrollments = [];
+        let activeCategory = 'all';
+        let activeLevel = 'all';
+        let activePrice = 'all';
+        let currentTab = 'browse';
+
+        // ── Theme (same as base.html — class="dark" toggle) ──
+        function initTheme() {
+            if (localStorage.theme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+            updateThemeIcons();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            document.cookie = 'theme=' + (isDark ? 'dark' : 'light') + ';path=/;max-age=31536000';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcons();
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const moon = document.getElementById('theme-icon-moon');
+            const sun = document.getElementById('theme-icon-sun');
+            if (moon && sun) {
+                moon.style.display = isDark ? 'block' : 'none';
+                sun.style.display = isDark ? 'none' : 'block';
+            }
+        }
+
+        // ── Mobile menu ──
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('open');
+        }
+
+        // ── Toast ──
+        function showToast(msg, type = 'success') {
+            const el = document.getElementById('lp-toast');
+            el.textContent = msg;
+            el.className = 'lp-toast lp-toast-' + type + ' show';
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // ── Tab switching ──
+        function showTab(tab) {
+            currentTab = tab;
+            document.getElementById('view-browse').style.display = tab === 'browse' ? 'block' : 'none';
+            document.getElementById('view-detail').className = 'lp-detail';
+            document.getElementById('view-mycourses').style.display = tab === 'mycourses' ? 'block' : 'none';
+            document.getElementById('lp-hero').style.display = tab === 'browse' ? 'block' : 'none';
+            document.getElementById('hero-line').style.display = tab === 'browse' ? 'block' : 'none';
+
+            // Update active tab
+            ['tab-browse', 'tab-mycourses', 'mtab-browse', 'mtab-mycourses'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            document.getElementById('tab-' + tab)?.classList.add('active');
+            document.getElementById('mtab-' + tab)?.classList.add('active');
+
+            if (tab === 'mycourses') loadMyEnrollments();
+        }
+
+        // ── Category gradients for placeholders ──
+        const catGradients = {
+            programming: 'linear-gradient(135deg, rgba(0,183,194,0.3) 0%, rgba(11,26,42,0.9) 100%)',
+            business: 'linear-gradient(135deg, rgba(255,106,42,0.3) 0%, rgba(11,26,42,0.9) 100%)',
+            design: 'linear-gradient(135deg, rgba(0,183,194,0.2) 0%, rgba(255,106,42,0.2) 100%)',
+            marketing: 'linear-gradient(135deg, rgba(0,183,194,0.25) 0%, rgba(11,26,42,0.8) 100%)',
+            languages: 'linear-gradient(135deg, rgba(255,106,42,0.2) 0%, rgba(0,183,194,0.2) 100%)',
+            other: 'linear-gradient(135deg, rgba(0,183,194,0.15) 0%, rgba(11,26,42,0.9) 100%)',
+        };
+
+        const catIcons = {
+            programming: '&#x1f4bb;',
+            business: '&#x1f4c8;',
+            design: '&#x1f3a8;',
+            marketing: '&#x1f4e3;',
+            languages: '&#x1f310;',
+            other: '&#x1f4da;',
+        };
+
+        function getCatLabel(cat) {
+            const key = 'courses_cat_' + cat;
+            return T[key] || cat;
+        }
+
+        function getLevelLabel(level) {
+            const key = 'courses_level_' + level;
+            return T[key] || level;
+        }
+
+        // ── Render course card ──
+        function renderCard(course) {
+            const id = tid(course.id);
+            const cat = course.category || 'other';
+            const level = course.level || 'beginner';
+            const isFree = !course.price || course.price <= 0;
+            const enrollCount = course.enrollment_count || 0;
+            const thumb = course.thumbnail;
+
+            let thumbHtml;
+            if (thumb) {
+                thumbHtml = `<img src="${thumb}" alt="${course.title}" loading="lazy">`;
+            } else {
+                const bg = catGradients[cat] || catGradients.other;
+                const icon = catIcons[cat] || catIcons.other;
+                thumbHtml = `<div class="lp-card-thumb-placeholder" style="background:${bg}">${icon}</div>`;
+            }
+
+            // Check if enrolled
+            const enrollment = myEnrollments.find(e => tid(e.course_id || e.course) === id);
+            let progressHtml = '';
+            if (enrollment) {
+                const pct = enrollment.progress || 0;
+                progressHtml = `
+                    <div class="lp-my-progress">${Math.round(pct)}%</div>
+                    <div class="lp-progress-wrap" style="margin-top:4px;">
+                        <div class="lp-progress-bar" style="width:${pct}%"></div>
+                    </div>`;
+            }
+
+            return `
+                <div class="lp-card" onclick="openCourse('${id}')" data-category="${cat}" data-level="${level}" data-price="${isFree ? 'free' : 'paid'}">
+                    <div class="corner-marks"></div>
+                    <div class="corner-marks corner-marks-alt"></div>
+                    <div class="lp-card-thumb">
+                        ${thumbHtml}
+                        <div class="lp-card-badges">
+                            <span class="lp-badge lp-badge-cat">${getCatLabel(cat)}</span>
+                            <span class="lp-badge ${isFree ? 'lp-badge-price-free' : 'lp-badge-price-paid'}">${isFree ? T.learning_free : ('$' + (course.price || 0).toFixed(2))}</span>
+                        </div>
+                    </div>
+                    <div class="lp-card-body">
+                        <h3 class="lp-card-title">${course.title || ''}</h3>
+                        <p class="lp-card-instructor">${course.instructor || ''}</p>
+                        ${progressHtml}
+                        <div class="lp-card-footer">
+                            <span class="lp-badge lp-badge-level">${getLevelLabel(level)}</span>
+                            <span class="lp-students">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                                ${enrollCount}
+                            </span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // ── Render Grid ──
+        function renderGrid() {
+            const grid = document.getElementById('courses-grid');
+            let filtered = allCourses.filter(c => c.published !== false);
+
+            if (activeCategory !== 'all') {
+                filtered = filtered.filter(c => (c.category || 'other') === activeCategory);
+            }
+            if (activeLevel !== 'all') {
+                filtered = filtered.filter(c => (c.level || 'beginner') === activeLevel);
+            }
+            if (activePrice !== 'all') {
+                if (activePrice === 'free') filtered = filtered.filter(c => !c.price || c.price <= 0);
+                else filtered = filtered.filter(c => c.price && c.price > 0);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="lp-empty" style="grid-column: 1/-1;">
+                        <div class="lp-empty-icon">&#x1f4da;</div>
+                        <p class="lp-empty-text">${T.learning_no_courses}</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(renderCard).join('');
+        }
+
+        // ── Filters ──
+        function filterCategory(val, btn) {
+            activeCategory = val;
+            document.querySelectorAll('#filter-category .lp-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid();
+        }
+
+        function filterLevel(val, btn) {
+            activeLevel = val;
+            document.querySelectorAll('#filter-level .lp-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid();
+        }
+
+        function filterPrice(val, btn) {
+            activePrice = val;
+            document.querySelectorAll('#filter-price .lp-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid();
+        }
+
+        // ── Open Course Detail ──
+        async function openCourse(courseId) {
+            document.getElementById('view-browse').style.display = 'none';
+            document.getElementById('view-mycourses').style.display = 'none';
+            document.getElementById('lp-hero').style.display = 'none';
+            document.getElementById('hero-line').style.display = 'none';
+
+            const detail = document.getElementById('view-detail');
+            detail.className = 'lp-detail visible';
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            try {
+                const res = await fetch('/api/courses-public/' + courseId);
+                const data = await res.json();
+                const course = data.course || data;
+                const lessons = data.lessons || course.lessons || [];
+
+                // Title
+                document.getElementById('detail-title').textContent = course.title || '';
+
+                // Meta badges
+                const cat = course.category || 'other';
+                const level = course.level || 'beginner';
+                document.getElementById('detail-meta').innerHTML = `
+                    <span class="lp-badge lp-badge-cat">${getCatLabel(cat)}</span>
+                    <span class="lp-badge lp-badge-level">${getLevelLabel(level)}</span>
+                `;
+
+                // Description
+                document.getElementById('detail-desc').textContent = course.description || '';
+
+                // Price
+                const isFree = !course.price || course.price <= 0;
+                document.getElementById('detail-price').innerHTML = `
+                    <span class="${isFree ? 'lp-price-free' : 'lp-price-paid'}">
+                        ${isFree ? T.learning_free : ('$' + (course.price || 0).toFixed(2))}
+                    </span>`;
+
+                // Stats
+                const enrollCount = course.enrollment_count || 0;
+                document.getElementById('detail-stats').innerHTML = `
+                    <div class="lp-stat-item">
+                        <div class="lp-stat-value">${enrollCount}</div>
+                        <div class="lp-stat-label">${T.learning_students}</div>
+                    </div>
+                    <div class="lp-stat-item">
+                        <div class="lp-stat-value">${lessons.length}</div>
+                        <div class="lp-stat-label">${T.learning_lessons}</div>
+                    </div>`;
+
+                // Enrollment button
+                const enrollment = myEnrollments.find(e => tid(e.course_id || e.course) === courseId);
+                const enrollArea = document.getElementById('detail-enroll-area');
+                const progressWrap = document.getElementById('detail-progress-wrap');
+
+                if (enrollment) {
+                    enrollArea.innerHTML = `<button class="lp-enroll-btn lp-enroll-btn-continue" onclick="showToast('${T.learning_enrolled}')">${T.learning_enrolled}</button>`;
+                    const pct = enrollment.progress || 0;
+                    progressWrap.style.display = 'block';
+                    document.getElementById('detail-progress-pct').textContent = Math.round(pct) + '%';
+                    document.getElementById('detail-progress-bar').style.width = pct + '%';
+                } else if (currentUser) {
+                    enrollArea.innerHTML = `<button class="lp-enroll-btn lp-enroll-btn-primary" onclick="enrollCourse('${courseId}')">${T.learning_enroll_now}</button>`;
+                    progressWrap.style.display = 'none';
+                } else {
+                    enrollArea.innerHTML = `<a href="/admin/login?lang=${LANG}" class="lp-enroll-btn lp-enroll-btn-login">${T.learning_login_to_enroll}</a>`;
+                    progressWrap.style.display = 'none';
+                }
+
+                // Lessons list
+                const lessonsContainer = document.getElementById('detail-lessons');
+                if (lessons.length === 0) {
+                    lessonsContainer.innerHTML = `<div style="padding: 24px; text-align:center; color:var(--text-muted); font-family:var(--font-mono); font-size:12px;">${T.learning_no_courses}</div>`;
+                } else {
+                    lessonsContainer.innerHTML = lessons.map((lesson, i) => {
+                        const duration = lesson.duration_minutes || lesson.duration || '';
+                        const locked = !enrollment;
+                        return `
+                            <div class="lp-lesson-item" onclick="${locked ? '' : `playLesson('${tid(lesson.id)}', this)`}">
+                                <div class="lp-lesson-num">${i + 1}</div>
+                                <div class="lp-lesson-info">
+                                    <div class="lp-lesson-name">${lesson.title || ''}</div>
+                                    ${duration ? `<div class="lp-lesson-duration">${duration} ${T.learning_mins}</div>` : ''}
+                                </div>
+                                <div class="lp-lesson-lock">
+                                    ${locked ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'}
+                                </div>
+                            </div>`;
+                    }).join('');
+                }
+
+                // Video container
+                document.getElementById('detail-video').style.display = 'none';
+                document.getElementById('detail-video').innerHTML = '';
+
+                // Attachments
+                const attachContainer = document.getElementById('detail-attachments');
+                const attachList = document.getElementById('detail-attachments-list');
+                const attachments = course.attachments || [];
+                if (attachments.length > 0 && enrollment) {
+                    attachContainer.style.display = 'block';
+                    attachList.innerHTML = attachments.map(a => `
+                        <div class="lp-attachment-item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--structure-cyan)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span class="lp-attachment-name">${a.name || a.filename || 'File'}</span>
+                            <a href="${a.url || '#'}" class="lp-download-btn" target="_blank">${T.learning_download}</a>
+                        </div>`).join('');
+                } else {
+                    attachContainer.style.display = 'none';
+                }
+
+            } catch (err) {
+                console.error('Failed to load course:', err);
+                showToast('Failed to load course', 'error');
+            }
+        }
+
+        // ── Play Lesson ──
+        function playLesson(lessonId, el) {
+            const videoContainer = document.getElementById('detail-video');
+            videoContainer.style.display = 'block';
+            videoContainer.innerHTML = `
+                <video controls autoplay style="width:100%;">
+                    <source src="/api/courses-public/lessons/${lessonId}/stream" type="video/mp4">
+                    Your browser does not support video.
+                </video>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ── Enroll ──
+        async function enrollCourse(courseId) {
+            try {
+                const res = await fetch('/api/courses-enroll/' + courseId + '/enroll', {
+                    method: 'POST',
+                    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+                });
+
+                if (res.ok) {
+                    showToast(T.learning_enrolled);
+                    await loadMyEnrollments();
+                    openCourse(courseId);
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    showToast(data.error || 'Enrollment failed', 'error');
+                }
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // ── Back to browse ──
+        function backToBrowse() {
+            showTab(currentTab === 'mycourses' ? 'mycourses' : 'browse');
+        }
+
+        // ── Load Public Courses ──
+        async function loadCourses() {
+            try {
+                const res = await fetch('/api/courses-public');
+                const data = await res.json();
+                allCourses = Array.isArray(data) ? data : (data.courses || data.data || []);
+                renderGrid();
+            } catch (err) {
+                console.error('Failed to load courses:', err);
+                document.getElementById('courses-grid').innerHTML = `
+                    <div class="lp-empty" style="grid-column:1/-1;">
+                        <div class="lp-empty-icon">&#x26a0;&#xfe0f;</div>
+                        <p class="lp-empty-text">${T.learning_no_courses}</p>
+                    </div>`;
+            }
+        }
+
+        // ── Load My Enrollments ──
+        async function loadMyEnrollments() {
+            if (!currentUser) {
+                document.getElementById('my-courses-grid').innerHTML = `
+                    <div class="lp-empty" style="grid-column:1/-1;">
+                        <div class="lp-empty-icon">&#x1f512;</div>
+                        <p class="lp-empty-text">${T.learning_login_to_enroll}</p>
+                    </div>`;
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/courses-enroll/my', {
+                    headers: authHeaders(),
+                });
+                const data = await res.json();
+                myEnrollments = Array.isArray(data) ? data : (data.enrollments || data.data || []);
+
+                const grid = document.getElementById('my-courses-grid');
+                if (myEnrollments.length === 0) {
+                    grid.innerHTML = `
+                        <div class="lp-empty" style="grid-column:1/-1;">
+                            <div class="lp-empty-icon">&#x1f4da;</div>
+                            <p class="lp-empty-text">${T.learning_no_courses}</p>
+                        </div>`;
+                    return;
+                }
+
+                // Match enrollments with courses
+                grid.innerHTML = myEnrollments.map(enrollment => {
+                    const courseId = tid(enrollment.course_id || enrollment.course);
+                    const course = allCourses.find(c => tid(c.id) === courseId);
+                    if (!course) return '';
+
+                    const pct = enrollment.progress || 0;
+                    const cat = course.category || 'other';
+                    const thumb = course.thumbnail;
+
+                    let thumbHtml;
+                    if (thumb) {
+                        thumbHtml = `<img src="${thumb}" alt="${course.title}" loading="lazy">`;
+                    } else {
+                        const bg = catGradients[cat] || catGradients.other;
+                        const icon = catIcons[cat] || catIcons.other;
+                        thumbHtml = `<div class="lp-card-thumb-placeholder" style="background:${bg}">${icon}</div>`;
+                    }
+
+                    return `
+                        <div class="lp-card" onclick="openCourse('${courseId}')">
+                            <div class="corner-marks"></div>
+                            <div class="corner-marks corner-marks-alt"></div>
+                            <div class="lp-card-thumb">
+                                ${thumbHtml}
+                            </div>
+                            <div class="lp-card-body">
+                                <h3 class="lp-card-title">${course.title || ''}</h3>
+                                <p class="lp-card-instructor">${course.instructor || ''}</p>
+                                <div style="margin-top:12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 4px; font-family:var(--font-mono);">
+                                        <span style="color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em;">${T.learning_progress}</span>
+                                        <span class="lp-my-progress">${Math.round(pct)}%</span>
+                                    </div>
+                                    <div class="lp-progress-wrap">
+                                        <div class="lp-progress-bar" style="width:${pct}%"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-top:12px;">
+                                    <button class="lp-enroll-btn lp-enroll-btn-continue" style="font-size:11px; padding:8px;">${T.learning_enrolled}</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch (err) {
+                console.error('Failed to load enrollments:', err);
+            }
+        }
+
+        // ── Check Auth ──
+        async function checkAuth() {
+            const token = getCookie('auth_token');
+            if (!token) return;
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: authHeaders(),
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+
+                    // Show avatar, hide login
+                    document.getElementById('lp-login-btn').style.display = 'none';
+                    const avatarBtn = document.getElementById('lp-avatar-btn');
+                    avatarBtn.style.display = 'flex';
+                    const name = currentUser.name || currentUser.email || 'U';
+                    avatarBtn.textContent = name.charAt(0).toUpperCase();
+
+                    // Show my courses tab
+                    document.getElementById('tab-mycourses').style.display = '';
+                    document.getElementById('mtab-mycourses').style.display = '';
+
+                    // Load enrollments
+                    await loadMyEnrollments();
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+            }
+        }
+
+        // ── Init ──
+        document.addEventListener('DOMContentLoaded', async () => {
+            initTheme();
+            await checkAuth();
+            await loadCourses();
+            renderGrid();
+        });
+    </script>
+</body>
+
+</html>

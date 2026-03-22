@@ -27,11 +27,19 @@ pub async fn create_client(state: &AppState, req: CreateClientRequest) -> Result
     Ok(created)
 }
 
-pub async fn get_all_clients(state: &AppState) -> Result<Vec<Client>, DbError> {
-    let clients: Vec<Client> = state.db
-        .query("SELECT * FROM client WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?
-        .take(0)?;
+pub async fn get_all_clients(state: &AppState, org_id: Option<&str>) -> Result<Vec<Client>, DbError> {
+    let clients: Vec<Client> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM client WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM client WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?
+            .take(0)?
+    };
     Ok(clients)
 }
 

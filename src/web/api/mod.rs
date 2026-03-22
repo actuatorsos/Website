@@ -47,6 +47,11 @@ use crate::domains::payroll_adv::handlers as payroll_handlers;
 use crate::domains::projects_adv::handlers as projects_adv_handlers;
 use crate::domains::store::handlers as store_handlers;
 use crate::domains::training::handlers as training_handlers;
+use crate::domains::ai_legal::handlers as ai_legal_handlers;
+use crate::domains::field_service::handlers as field_service_handlers;
+use crate::domains::client_portal::handlers as client_portal_handlers;
+use crate::domains::iot::handlers as iot_handlers;
+use crate::domains::courses::handlers as courses_handlers;
 
 // ============================================================================
 // Routes
@@ -59,7 +64,9 @@ pub fn routes(state: AppState) -> Router<AppState> {
         .merge(health::routes())
         .nest("/auth", auth::public_routes())
         .nest("/store", store_handlers::public_routes())
-        .nest("/screenshot", screenshot::routes());
+        .nest("/screenshot", screenshot::routes())
+        .nest("/iot", iot_handlers::public_routes())
+        .nest("/courses-public", courses_handlers::public_routes());
 
     // Protected routes — JWT required
     let protected = Router::new()
@@ -113,9 +120,13 @@ pub fn routes(state: AppState) -> Router<AppState> {
         .nest("/organizations", organizations::routes())
         .nest("/events", events::routes())
         .nest("/pdf", pdf::routes())
-        .nest("/accounts", accounts::routes())
+        // accounts moved to admin_routes for security
         .nest("/projects-adv", projects_adv_handlers::routes())
         .nest("/documents", documents_handlers::routes())
+        // AI Legal Advisor
+        .nest("/legal", ai_legal_handlers::legal_routes())
+        // Course enrollment (auth required, not manager)
+        .nest("/courses-enroll", courses_handlers::enrollment_routes())
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),
             require_auth,
@@ -129,6 +140,9 @@ pub fn routes(state: AppState) -> Router<AppState> {
         .nest("/leave", leave_handlers::routes())
         .nest("/training", training_handlers::routes())
         .nest("/manufacturing", manufacturing_handlers::routes())
+        .nest("/field-service", field_service_handlers::routes())
+        .nest("/client-portal", client_portal_handlers::routes())
+        .nest("/courses", courses_handlers::routes())
         .route_layer(axum::middleware::from_fn(
             crate::middleware::auth::require_manager,
         ))
@@ -145,6 +159,8 @@ pub fn routes(state: AppState) -> Router<AppState> {
         .nest("/email", email_handlers::routes())
         .nest("/agents", agent_handlers::admin_routes())
         .nest("/store-admin", store_handlers::admin_routes())
+        .nest("/iot", iot_handlers::routes())
+        .nest("/accounts", accounts::routes())
         .route("/backup", axum::routing::get(backup::export_backup))
         .route_layer(axum::middleware::from_fn(
             crate::middleware::auth::require_admin,

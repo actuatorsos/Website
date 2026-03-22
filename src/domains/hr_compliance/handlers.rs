@@ -2,17 +2,19 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::CurrentUser;
 use axum::{
     Router,
-    extract::{Path, State},
+    extract::{Extension, Path, State},
     response::Json,
     routing::{get, post, put},
 };
 
 async fn list_all_warnings(
     State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
 ) -> Result<Json<Vec<Warning>>, DbError> {
-    Ok(Json(repo::get_all_warnings(&s).await?))
+    Ok(Json(repo::get_all_warnings(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_warning(
     State(s): State<AppState>,
@@ -34,8 +36,9 @@ async fn calculate_eos(
 }
 async fn list_all_overtime(
     State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
 ) -> Result<Json<Vec<OvertimeRequest>>, DbError> {
-    Ok(Json(repo::get_all_overtime(&s).await?))
+    Ok(Json(repo::get_all_overtime(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_overtime(
     State(s): State<AppState>,

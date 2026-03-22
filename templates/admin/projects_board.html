@@ -49,18 +49,29 @@
         flex-direction: column;
         height: calc(100vh - 80px);
     }
+
+    /* Mobile: columns scroll horizontally */
+    @media (max-width: 639px) {
+        .board-wrapper {
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+        }
+        .board-wrapper > div {
+            scroll-snap-align: start;
+        }
+    }
 </style>
 <div class="animate-fade-in projects-page-layout" dir="{{ dir }}">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 p-3 sm:p-4 md:p-0">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["projects_title"] }}</h1>
-            <p class="text-text-secondary mt-1">{{ t["auto_projects_board_370"] }}</p>
+            <h1 class="text-lg sm:text-2xl md:text-3xl font-bold text-primary">{{ t["projects_title"] }}</h1>
+            <p class="text-text-secondary mt-1 text-sm">{{ t["auto_projects_board_370"] }}</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-col sm:flex-row gap-2">
             <button onclick="openMembersModal()" id="manage-members-btn"
-                class="hidden bg-surface text-text-secondary border border-border px-5 py-2.5 rounded-xl font-semibold hover:bg-background transition-colors flex items-center gap-2 text-sm">
+                class="hidden bg-surface text-text-secondary border border-border px-5 py-2.5 rounded-xl font-semibold hover:bg-background transition-colors flex items-center justify-center gap-2 text-sm w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -68,7 +79,7 @@
                 {{ t["auto_projects_board_371"] }}
             </button>
             <button onclick="document.getElementById('new-project-modal').classList.remove('hidden')"
-                class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2 text-sm">
+                class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2 text-sm w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -78,7 +89,7 @@
     </div>
 
     <!-- Projects Selector -->
-    <div class="flex items-center gap-3 mb-6 overflow-x-auto pb-2">
+    <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 overflow-x-auto pb-2 px-3 sm:px-0">
         <span class="text-sm font-medium text-text-secondary whitespace-nowrap">{{ t["auto_projects_board_373"] }}</span>
         <div id="projects-tabs" class="flex gap-2">
             <div class="w-6 h-6 rounded-full border-2 border-border border-dashed animate-pulse"></div>
@@ -86,7 +97,7 @@
     </div>
 
     <!-- Board Area -->
-    <div id="board-area" class="board-wrapper flex gap-4 pb-4">
+    <div id="board-area" class="board-wrapper flex gap-3 sm:gap-4 pb-4 px-3 sm:px-0">
         <div class="flex items-center justify-center w-full py-16">
             <div class="text-center text-text-secondary">
                 <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,7 +113,7 @@
     <div id="card-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div
-            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-border m-4 max-h-[90vh] overflow-y-auto">
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-3 sm:p-4 md:p-6 border border-border mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-start justify-between mb-4">
                 <div class="flex-1">
                     <input id="card-title-input" type="text"
@@ -127,7 +138,7 @@
             </div>
 
             <!-- Priority & Labels -->
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div>
                     <label class="text-xs font-semibold text-text-secondary uppercase mb-2 block">{{ t["auto_agents_33"] }}</label>
                     <select id="card-priority"
@@ -158,7 +169,7 @@
                     onkeydown="if(event.key==='Enter'){addChecklistItem();}">
             </div>
 
-            <div class="flex justify-between items-center pt-4 border-t border-border">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center pt-4 border-t border-border gap-3">
                 <div class="flex items-center gap-3">
                     <button id="card-complete-btn" onclick="toggleCardComplete()"
                         class="text-sm font-medium text-green-600 hover:text-green-700 flex items-center gap-1">
@@ -177,7 +188,7 @@
                     </button>
                 </div>
                 <button onclick="saveCard()"
-                    class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
+                    class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors w-full sm:w-auto">
                     {{ t["save_changes"] }}
                 </button>
             </div>
@@ -187,7 +198,7 @@
     <!-- New Project Modal -->
     <div id="new-project-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-3 sm:p-4 md:p-6 border border-border mx-4">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-primary">{{ t["auto_projects_board_372"] }}</h3>
                 <button onclick="document.getElementById('new-project-modal').classList.add('hidden')"
@@ -198,7 +209,7 @@
                     class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
                 <textarea id="proj-desc" rows="3" placeholder="{{ t["auto_attr_projects_board_403"] }}"
                     class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none resize-none"></textarea>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div><label class="text-xs text-text-secondary block mb-1">{{ t["auto_projects_board_380"] }}</label>
                         <input id="proj-start" type="date"
                             class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
@@ -223,7 +234,7 @@
     <div id="members-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div
-            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-border m-4 max-h-[90vh] flex flex-col">
+            class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-3 sm:p-4 md:p-6 border border-border mx-4 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xl font-bold text-primary">{{ t["auto_projects_board_383"] }}</h3>
                 <button onclick="document.getElementById('members-modal').classList.add('hidden')"
@@ -231,7 +242,7 @@
             </div>
 
             <div class="mb-4">
-                <form id="add-member-form" class="flex gap-2">
+                <form id="add-member-form" class="flex flex-col sm:flex-row gap-2">
                     <select id="user-select"
                         class="flex-1 bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none"
                         required>
@@ -244,7 +255,7 @@
                         <option value="viewer">{{ t["auto_projects_board_387"] }}</option>
                     </select>
                     <button type="submit"
-                        class="bg-secondary text-white px-4 py-2 rounded-xl font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["form_submit"] }}</button>
+                        class="bg-secondary text-white px-4 py-2 rounded-xl font-semibold hover:bg-secondary/90 transition-colors text-sm w-full sm:w-auto">{{ t["form_submit"] }}</button>
                 </form>
             </div>
 
@@ -259,7 +270,7 @@
     <!-- New Card Modal -->
     <div id="new-card-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-5 border border-border m-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-3 sm:p-5 border border-border mx-4">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-primary">{{ t["auto_projects_board_388"] }}</h3>
                 <button onclick="document.getElementById('new-card-modal').classList.add('hidden')"
@@ -287,7 +298,7 @@
     <!-- New List Modal -->
     <div id="new-list-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-5 border border-border m-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-3 sm:p-5 border border-border mx-4">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold text-primary">{{ t["auto_projects_board_389"] }}</h3>
                 <button onclick="document.getElementById('new-list-modal').classList.add('hidden')"
@@ -443,7 +454,7 @@
 
         lists.forEach(list => {
             const listEl = document.createElement('div');
-            listEl.className = 'flex-shrink-0 w-72 bg-surface rounded-2xl border border-border shadow-card flex flex-col max-h-[80vh]';
+            listEl.className = 'flex-shrink-0 w-[85vw] sm:w-72 bg-surface rounded-2xl border border-border shadow-card flex flex-col max-h-[80vh]';
             listEl.innerHTML = `
       <div class="p-4 border-b border-border flex items-center justify-between">
         <h3 class="font-bold text-primary text-sm">${list.title || list.name || '—'}</h3>
@@ -489,7 +500,7 @@
 
         // Add "+" button for new list
         const addListBtn = document.createElement('div');
-        addListBtn.className = 'flex-shrink-0 w-72';
+        addListBtn.className = 'flex-shrink-0 w-[85vw] sm:w-72';
         addListBtn.innerHTML = `<button onclick="addList()" class="flex items-center gap-2 px-5 py-3 bg-surface/50 border border-dashed border-border rounded-2xl text-text-secondary hover:text-primary hover:border-secondary hover:bg-surface transition-colors w-full">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
     <span class="text-sm font-medium">{{ t["auto_projects_board_395"] }}</span>

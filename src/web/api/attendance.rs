@@ -4,7 +4,7 @@
 
 use askama::Template;
 use axum::{
-    Form, Router,
+    Extension, Form, Router,
     extract::{Path, Query, State},
     response::Html,
     routing::{delete, get, post},
@@ -17,6 +17,7 @@ use crate::db::AppState;
 use crate::domains::hr::models::{Attendance, CheckInRequest, Employee, PersonType, Trainee};
 use crate::domains::hr::repository;
 use crate::i18n::Language;
+use crate::models::{AccountRole, CurrentUser};
 
 // ============================================================================
 // Templates
@@ -106,6 +107,16 @@ async fn check_in(
 
     match repository::check_in(&state, request).await {
         Ok(attendance) => {
+            // Broadcast to WebSocket clients
+            let _ = state.notification_tx.send(serde_json::json!({
+                "type": "notification",
+                "action": "attendance_recorded",
+                "data": {
+                    "id": attendance.id.as_ref().map(|t| t.id.to_raw()),
+                    "person_name": &attendance.person_name
+                }
+            }).to_string());
+
             let template = AttendanceRowTemplate { attendance, t };
             Html(
                 template
@@ -146,17 +157,23 @@ async fn check_out(
 
 async fn list_attendance(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     cookies: Cookies,
     Query(query): Query<DateQuery>,
 ) -> Html<String> {
     let lang = resolve_language(&cookies);
     let t = state.i18n.get_dictionary(lang.as_str());
 
+    let scope_id = match user.role {
+        AccountRole::Admin | AccountRole::Manager => None,
+        _ => Some(user.id.as_str()),
+    };
+
     let records = match query.date {
-        Some(ref date) if !date.is_empty() => repository::get_attendance_by_date(&state, date)
+        Some(ref date) if !date.is_empty() => repository::get_attendance_by_date(&state, date, scope_id)
             .await
             .unwrap_or_else(|_| Vec::<Attendance>::new()),
-        _ => repository::get_today_attendance(&state)
+        _ => repository::get_today_attendance(&state, scope_id)
             .await
             .unwrap_or_else(|_| Vec::<Attendance>::new()),
     };
@@ -180,11 +197,15 @@ async fn delete_attendance(State(state): State<AppState>, Path(id): Path<String>
 }
 
 /// Returns employee and trainee options as HTML for select dropdown
-async fn people_options(State(state): State<AppState>, cookies: Cookies) -> Html<String> {
+async fn people_options(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+    cookies: Cookies,
+) -> Html<String> {
     let lang = resolve_language(&cookies);
     let t = state.i18n.get_dictionary(lang.as_str());
 
-    let employees: Vec<Employee> = repository::get_all_employees(&state)
+    let employees: Vec<Employee> = repository::get_all_employees(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     let trainees: Vec<Trainee> = repository::get_all_trainees(&state)

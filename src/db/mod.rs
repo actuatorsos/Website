@@ -227,12 +227,11 @@ pub async fn audit_log(
 
 /// Archive a record (soft delete) instead of physical delete
 pub async fn soft_delete(db: &Surreal<Client>, table: &str, id: &str) -> Result<(), DbError> {
-    // type::thing() requires the table name as a literal, not a bind variable
     let query = format!(
         "UPDATE type::thing('{}', $id) SET is_archived = true",
         table
     );
-    db.query(&query).bind(("id", id.to_string())).await?;
+    db.query(&query).bind(("id", id.to_string())).await.map_err(DbError::Database)?;
     Ok(())
 }
 
@@ -257,6 +256,8 @@ pub struct AppState {
     pub board_events: broadcast::Sender<BoardEvent>,
     /// In-memory cache for dashboard stats
     pub stats_cache: Arc<RwLock<StatsCache>>,
+    /// Broadcast channel for WebSocket live notifications
+    pub notification_tx: broadcast::Sender<String>,
 }
 
 /// Event sent to SSE clients when board changes
@@ -308,6 +309,8 @@ impl AppState {
                         let i18n = Arc::new(I18n::new());
                         // Create broadcast channel for SSE (capacity 100)
                         let (tx, _) = broadcast::channel(100);
+                        // Create broadcast channel for WebSocket notifications
+                        let (notification_tx, _) = broadcast::channel(256);
                         let state = Self {
                             db,
                             i18n,
@@ -318,6 +321,7 @@ impl AppState {
                                 data: HashMap::new(),
                                 last_updated: Instant::now(),
                             })),
+                            notification_tx,
                         };
 
                         // Apply database schema
@@ -427,6 +431,31 @@ impl AppState {
                 tracing::error!("❌ Schema application failed: {}", e);
                 Err(DbError::Database(e))
             }
+        }
+    }
+}
+
+// ============================================================================
+// Organization-Scoped Query Helper
+// ============================================================================
+
+impl AppState {
+    /// Query records from a table, optionally filtered by organization.
+    /// If `org_id` is `Some`, only records matching `organization = $org` are returned.
+    /// If `org_id` is `None`, all records are returned (backward compatible).
+    pub async fn query_scoped<T: for<'de> serde::Deserialize<'de>>(&self, table: &str, org_id: Option<&str>) -> Result<Vec<T>, DbError> {
+        if let Some(org) = org_id {
+            let result: Vec<T> = self.db
+                .query(&format!("SELECT * FROM {} WHERE organization = type::record($org)", table))
+                .bind(("org", org.to_string()))
+                .await
+                .map_err(DbError::Database)?
+                .take(0)
+                .map_err(DbError::Database)?;
+            Ok(result)
+        } else {
+            let result: Vec<T> = self.db.select(table).await.map_err(DbError::Database)?;
+            Ok(result)
         }
     }
 }
@@ -611,12 +640,45 @@ impl AppState {
         Ok(())
     }
 
+    /// Delete account permanently
+    pub async fn delete_account(&self, id: &str) -> Result<(), DbError> {
+        self.db
+            .query("DELETE type::thing('account', $id)")
+            .bind(("id", id.to_string()))
+            .await
+            .map_err(DbError::Database)?;
+
+        Ok(())
+    }
+
     /// Update account avatar
     pub async fn update_account_avatar(&self, id: &str, avatar_url: &str) -> Result<(), DbError> {
         self.db
             .query("UPDATE type::thing('account', $id) SET avatar = $avatar")
             .bind(("id", id.to_string()))
             .bind(("avatar", avatar_url.to_string()))
+            .await
+            .map_err(DbError::Database)?;
+
+        Ok(())
+    }
+
+    /// Update account personal info (full_name, phone)
+    pub async fn update_account_info(
+        &self,
+        id: &str,
+        full_name: Option<&str>,
+        phone: Option<&str>,
+    ) -> Result<(), DbError> {
+        // Always update both fields — use current value if None
+        let name_val = full_name.unwrap_or("").to_string();
+        let phone_val = phone.unwrap_or("").to_string();
+
+        self.db
+            .query("UPDATE type::thing('account', $id) SET full_name = $full_name, phone = $phone")
+            .bind(("id", id.to_string()))
+            .bind(("full_name", name_val))
+            .bind(("phone", phone_val))
             .await
             .map_err(DbError::Database)?;
 

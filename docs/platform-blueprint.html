@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actuators | Platform Blueprint v4.1</title>
+<meta name="description" content="Actuators Platform Blueprint — B2B Service Marketplace">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Actuators Brand System ── */
+:root, :root[data-theme="dark"] {
+    --bg-primary: #0B1A2A;
+    --bg-surface: rgba(11, 26, 42, 0.8);
+    --bg-surface-hover: rgba(11, 26, 42, 0.95);
+    --text-primary: #FFFFFF;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --cyan: #00B7C2;
+    --cyan-muted: rgba(0, 183, 194, 0.3);
+    --cyan-bg: rgba(0, 183, 194, 0.1);
+    --orange: #FF6A2A;
+    --orange-muted: rgba(255, 106, 42, 0.2);
+    --border: rgba(0, 183, 194, 0.2);
+    --border-hover: rgba(0, 183, 194, 0.5);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 8px 32px rgba(0, 183, 194, 0.15);
+    --table-alt: rgba(0, 183, 194, 0.04);
+    --font-ar: 'IBM Plex Sans Arabic', sans-serif;
+    --font-en: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --hr-color: #0d9488;
+    --fin-color: #d97706;
+    --mfg-color: #dc2626;
+    --sales-color: #7c3aed;
+    --adv-color: #FF6A2A;
+    --plat-color: #00B7C2;
+}
+[data-theme="light"] {
+    --bg-primary: #F0F4F8;
+    --bg-surface: rgba(255, 255, 255, 0.9);
+    --bg-surface-hover: rgba(255, 255, 255, 1);
+    --text-primary: #0B1A2A;
+    --text-muted: rgba(11, 26, 42, 0.55);
+    --cyan: #00919A;
+    --cyan-muted: rgba(0, 145, 154, 0.2);
+    --cyan-bg: rgba(0, 145, 154, 0.08);
+    --orange: #E55A1B;
+    --orange-muted: rgba(229, 90, 27, 0.15);
+    --border: rgba(0, 145, 154, 0.2);
+    --border-hover: rgba(0, 145, 154, 0.5);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 32px rgba(0, 145, 154, 0.1);
+    --table-alt: rgba(0, 145, 154, 0.04);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-ar);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.7;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* ── Grid Background ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--cyan-muted) 1px, transparent 1px),
+        linear-gradient(90deg, var(--cyan-muted) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── Container ── */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* ── Theme Toggle ── */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s;
+    backdrop-filter: blur(8px);
+}
+.theme-toggle:hover { border-color: var(--cyan); box-shadow: var(--shadow-hover); }
+
+/* ── Header ── */
+.blueprint-header {
+    background: linear-gradient(135deg, #0B1A2A 0%, #001520 100%);
+    padding: 60px 0 48px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--cyan-muted);
+}
+[data-theme="light"] .blueprint-header {
+    background: linear-gradient(135deg, #0B1A2A 0%, #001520 100%);
+    color: #FFFFFF;
+}
+[data-theme="light"] .blueprint-header .text-muted { color: rgba(255,255,255,0.6) !important; }
+.header-hex-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='52' viewBox='0 0 60 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l26 15v30L30 60 4 45V15z' fill='none' stroke='%2300B7C2' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 60px 52px;
+    pointer-events: none;
+}
+.header-content { position: relative; z-index: 1; text-align: center; }
+.header-logo-cluster {
+    width: 100px; height: 100px;
+    margin: 0 auto 24px;
+}
+.header-logo-cluster svg { width: 100%; height: 100%; }
+.header-title {
+    font-family: var(--font-en);
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #FFFFFF;
+    margin-bottom: 12px;
+}
+.header-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 700px;
+    margin: 0 auto 20px;
+    line-height: 1.8;
+}
+.header-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 16px; }
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    border: 1px solid rgba(0,183,194,0.3);
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,183,194,0.1);
+}
+.header-badge.orange { border-color: rgba(255,106,42,0.3); background: rgba(255,106,42,0.1); }
+.tech-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.tech-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Section Styling ── */
+.section {
+    padding: 60px 0;
+    border-bottom: 1px solid var(--border);
+}
+.section:last-of-type { border-bottom: none; }
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-right: 16px;
+    border-right: 4px solid var(--cyan);
+    display: inline-block;
+}
+[dir="ltr"] .section-title { border-right: none; border-left: 4px solid var(--cyan); padding-right: 0; padding-left: 16px; }
+.section-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+}
+.section-num {
+    font-family: var(--font-mono);
+    color: var(--cyan);
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* ── Card ── */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    transition: all 0.3s;
+    backdrop-filter: blur(8px);
+}
+.card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-hover);
+    background: var(--bg-surface-hover);
+}
+.card::before {
+    content: '';
+    position: absolute;
+    top: -1px; right: -1px;
+    width: 12px; height: 12px;
+    border-top: 2px solid var(--cyan);
+    border-right: 2px solid var(--cyan);
+    border-radius: 0 8px 0 0;
+    pointer-events: none;
+}
+[dir="ltr"] .card::before { right: auto; left: -1px; border-right: none; border-left: 2px solid var(--cyan); border-radius: 8px 0 0 0; }
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: -1px;
+    width: 12px; height: 12px;
+    border-bottom: 2px solid var(--cyan);
+    border-left: 2px solid var(--cyan);
+    border-radius: 0 0 0 8px;
+    pointer-events: none;
+}
+[dir="ltr"] .card::after { left: auto; right: -1px; border-left: none; border-right: 2px solid var(--cyan); border-radius: 0 0 8px 0; }
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--cyan);
+}
+.card-text { color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; }
+
+/* ── Grids ── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th {
+    background: var(--cyan-bg);
+    padding: 12px 16px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--cyan);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+[dir="ltr"] thead th { text-align: left; }
+tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+}
+tbody tr:nth-child(even) { background: var(--table-alt); }
+tbody tr:hover { background: var(--cyan-bg); }
+
+/* ── Badge / Pill ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid;
+    white-space: nowrap;
+}
+.badge-cyan { color: var(--cyan); border-color: var(--cyan-muted); background: var(--cyan-bg); }
+.badge-orange { color: var(--orange); border-color: var(--orange-muted); background: rgba(255,106,42,0.08); }
+
+/* ── Flow Diagram ── */
+.flow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0; direction: rtl; }
+.flow-step {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+.flow-arrow { color: var(--cyan); font-size: 1.2rem; font-weight: 700; }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-right: 40px; margin: 24px 0; }
+[dir="ltr"] .timeline { padding-right: 0; padding-left: 40px; }
+.timeline::before {
+    content: '';
+    position: absolute;
+    right: 14px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--cyan-muted);
+}
+[dir="ltr"] .timeline::before { right: auto; left: 14px; }
+.timeline-item { position: relative; margin-bottom: 32px; }
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    right: -34px; top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--cyan);
+    border: 3px solid var(--bg-primary);
+}
+[dir="ltr"] .timeline-item::before { right: auto; left: -34px; }
+.timeline-label {
+    font-family: var(--font-mono);
+    color: var(--cyan);
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+}
+.timeline-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.timeline-desc { color: var(--text-muted); font-size: 0.88rem; }
+
+/* ── Layer Diagram ── */
+.layer-diagram { display: flex; flex-direction: column; gap: 4px; margin: 24px 0; }
+.layer-row {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+.layer-label {
+    font-weight: 700;
+    color: var(--cyan);
+    min-width: 140px;
+    font-size: 0.9rem;
+}
+.layer-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    background: var(--cyan-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+.layer-arrow {
+    text-align: center;
+    color: var(--cyan);
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* ── Service Card ── */
+.svc-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+.svc-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-hover); }
+.svc-card .svc-icon { font-size: 1.4rem; margin-bottom: 6px; }
+.svc-card .svc-name { font-size: 0.82rem; font-weight: 600; }
+.svc-card .svc-name-en { font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-en); direction: ltr; }
+.svc-card .svc-bar { position: absolute; top: 0; right: 0; left: 0; height: 3px; }
+
+/* Domain colors */
+.domain-platform .svc-bar { background: var(--plat-color); }
+.domain-hr .svc-bar { background: var(--hr-color); }
+.domain-finance .svc-bar { background: var(--fin-color); }
+.domain-mfg .svc-bar { background: var(--mfg-color); }
+.domain-sales .svc-bar { background: var(--sales-color); }
+.domain-advanced .svc-bar { background: var(--adv-color); }
+
+/* ── Legend ── */
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; justify-content: center; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--text-muted); }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* ── Stat Card ── */
+.stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+}
+.stat-num { font-family: var(--font-mono); font-size: 2.2rem; font-weight: 700; color: var(--cyan); }
+.stat-label { font-size: 0.88rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Footer ── */
+.blueprint-footer {
+    background: linear-gradient(135deg, #0B1A2A 0%, #001520 100%);
+    padding: 40px 0;
+    text-align: center;
+    border-top: 1px solid var(--cyan-muted);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.88rem;
+}
+[data-theme="light"] .blueprint-footer { color: rgba(255,255,255,0.6); }
+.footer-brand { font-family: var(--font-en); font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.footer-stats { display: flex; justify-content: center; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+.footer-stat { font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+.footer-stat span { color: var(--cyan); }
+
+/* ── Nav (Table of Contents) ── */
+.toc {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    width: 200px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    backdrop-filter: blur(12px);
+    z-index: 90;
+    font-size: 0.75rem;
+    transition: transform 0.3s;
+}
+.toc-title { font-weight: 700; color: var(--cyan); margin-bottom: 8px; font-size: 0.8rem; }
+.toc a {
+    display: block;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.2s;
+}
+.toc a:hover { color: var(--cyan); }
+
+/* ── Print ── */
+@media print {
+    body::before, .theme-toggle, .toc { display: none !important; }
+    .blueprint-header, .blueprint-footer { background: #0B1A2A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section { page-break-inside: avoid; }
+    .card, .svc-card, .stat-card { break-inside: avoid; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1400px) { .toc { display: none; } }
+@media (max-width: 1024px) {
+    .grid-6 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .header-title { font-size: 2.5rem; }
+}
+@media (max-width: 640px) {
+    .grid-6 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .section { padding: 40px 0; }
+    .header-title { font-size: 2rem; }
+    .flow { gap: 4px; }
+    .flow-step { font-size: 0.75rem; padding: 6px 10px; }
+}
+
+/* ── Misc ── */
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.text-muted { color: var(--text-muted); }
+.text-cyan { color: var(--cyan); }
+.text-orange { color: var(--orange); }
+.text-en { font-family: var(--font-en); direction: ltr; display: inline-block; }
+.text-mono { font-family: var(--font-mono); }
+.sub-title { font-size: 1.15rem; font-weight: 700; margin: 28px 0 14px; }
+.sub-title-sm { font-size: 1rem; font-weight: 600; margin: 20px 0 12px; color: var(--cyan); }
+ul.clean { list-style: none; padding: 0; }
+ul.clean li { padding: 4px 0; color: var(--text-muted); font-size: 0.88rem; }
+ul.clean li::before { content: '\25C6'; color: var(--cyan); margin-left: 8px; font-size: 0.6rem; vertical-align: middle; }
+[dir="ltr"] ul.clean li::before { margin-left: 0; margin-right: 8px; }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle light/dark theme">
+    <span id="theme-icon">&#9788;</span>
+</button>
+
+<!-- Table of Contents -->
+<nav class="toc" id="toc">
+    <div class="toc-title">&#9776; الفهرس</div>
+    <a href="#s1">1. نموذج العمل</a>
+    <a href="#s2">2. كتالوج الخدمات</a>
+    <a href="#s3">3. البنية التقنية</a>
+    <a href="#s4">4. رحلة المستخدم</a>
+    <a href="#s5">5. مجتمع Actuators</a>
+    <a href="#s6">6. سير العمليات</a>
+    <a href="#s7">7. مصفوفة الصلاحيات</a>
+    <a href="#s8">8. المواصفات التقنية</a>
+    <a href="#s9">9. التكاملات والامتثال</a>
+    <a href="#s10">10. مراحل البناء</a>
+    <a href="#s11">11. تطبيقات الموبايل</a>
+    <a href="#s12">12. وكلاء الذكاء الاصطناعي</a>
+</nav>
+
+<!-- ██ HEADER ██ -->
+<header class="blueprint-header">
+    <div class="header-hex-pattern"></div>
+    <div class="container header-content">
+        <div class="header-logo-cluster">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5 L85 25 L85 65 L50 85 L15 65 L15 25 Z" stroke="#00B7C2" stroke-width="1.5" fill="rgba(0,183,194,0.08)"/>
+                <path d="M50 20 L72 33 L72 59 L50 72 L28 59 L28 33 Z" stroke="#00B7C2" stroke-width="1" fill="rgba(0,183,194,0.05)"/>
+                <path d="M50 35 L61 42 L61 56 L50 63 L39 56 L39 42 Z" stroke="#00B7C2" stroke-width="1.5" fill="rgba(0,183,194,0.12)"/>
+                <circle cx="50" cy="5" r="2.5" fill="#00B7C2"/>
+                <circle cx="85" cy="25" r="2.5" fill="#00B7C2"/>
+                <circle cx="85" cy="65" r="2.5" fill="#00B7C2"/>
+                <circle cx="50" cy="85" r="2.5" fill="#FF6A2A"/>
+                <circle cx="15" cy="65" r="2.5" fill="#00B7C2"/>
+                <circle cx="15" cy="25" r="2.5" fill="#00B7C2"/>
+                <circle cx="50" cy="49" r="4" fill="#00B7C2" opacity="0.8"/>
+            </svg>
+        </div>
+        <div class="header-title">Actuators</div>
+        <p class="header-subtitle">
+            منصة B2B تبيع خدمات الأتمتة وإدارة الأعمال للشركات عبر اشتراكات مرنة بعزل تام لكل مستأجر
+        </p>
+        <div class="header-badges">
+            <span class="header-badge">B2B Service Marketplace</span>
+            <span class="header-badge">26 خدمة قابلة للاشتراك</span>
+            <span class="header-badge orange">4 باقات</span>
+        </div>
+        <div class="tech-badges">
+            <span class="tech-badge">Rust / Axum</span>
+            <span class="tech-badge">SurrealDB</span>
+            <span class="tech-badge">Database-per-Tenant</span>
+            <span class="tech-badge">AR + EN</span>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+<!-- ████████ SECTION 1: Business Model ████████ -->
+<section class="section" id="s1">
+    <span class="section-num">01</span>
+    <h2 class="section-title">نموذج العمل &mdash; Actuators كمنصة B2B</h2>
+    <p class="section-subtitle">المنصة تبيع خدمات أتمتة وإدارة أعمال جاهزة للشركات الناشئة والفرق التطوعية عبر اشتراكات شهرية مرنة.</p>
+
+    <div class="grid-3 mb-32">
+        <div class="card">
+            <div class="card-title">&#9670; مصادر الإيراد</div>
+            <ul class="clean card-text">
+                <li>اشتراكات شهرية (4 باقات)</li>
+                <li>رسوم خدمات إضافية (SMS، تخزين، API)</li>
+                <li>خدمات استشارية واحترافية</li>
+                <li>رسوم إعداد مخصص للمؤسسات</li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9670; ما يحصل عليه المشترك</div>
+            <ul class="clean card-text">
+                <li>قاعدة بيانات معزولة لمنظمته فقط</li>
+                <li>لوحة تحكم كاملة (HR, Finance, CRM...)</li>
+                <li>خدمات حسب الباقة المختارة</li>
+                <li>دعم فني ومجتمع مهني</li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9670; الشرائح المستهدفة</div>
+            <ul class="clean card-text">
+                <li>الشركات الناشئة (5-200 موظف)</li>
+                <li>الفرق التطوعية والمنظمات غير الربحية</li>
+                <li>المصانع والورش الصغيرة والمتوسطة</li>
+                <li>مكاتب المحاماة والاستشارات</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="sub-title">&#9671; جدول الباقات</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>الباقة</th>
+                    <th>السعر / شهر</th>
+                    <th>الخدمات</th>
+                    <th>المستخدمون</th>
+                    <th>الدعم</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>مجاني</strong></td>
+                    <td class="text-mono text-cyan">0 ر.س</td>
+                    <td>الملف الشخصي + المجتمع + التقديم على الوظائف</td>
+                    <td>1</td>
+                    <td>مجتمعي</td>
+                </tr>
+                <tr>
+                    <td><strong>أساسي</strong></td>
+                    <td class="text-mono text-cyan">199 ر.س</td>
+                    <td>HR + الحضور + الإجازات + CRM</td>
+                    <td>حتى 15</td>
+                    <td>بريد إلكتروني</td>
+                </tr>
+                <tr>
+                    <td><strong>احترافي</strong></td>
+                    <td class="text-mono text-cyan">499 ر.س</td>
+                    <td>الأساسي + المالية + التصنيع + المخزون</td>
+                    <td>حتى 50</td>
+                    <td>أولوية + دردشة</td>
+                </tr>
+                <tr>
+                    <td><strong>مؤسسي</strong></td>
+                    <td class="text-mono text-orange">999 ر.س</td>
+                    <td>جميع الخدمات + AI Agents + API كامل</td>
+                    <td>غير محدود</td>
+                    <td>مخصص + مدير حساب</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ████████ SECTION 2: Service Catalog ████████ -->
+<section class="section" id="s2">
+    <span class="section-num">02</span>
+    <h2 class="section-title">كتالوج الخدمات &mdash; 26 خدمة</h2>
+    <p class="section-subtitle">كل خدمة يمكن تفعيلها أو إيقافها بشكل مستقل حسب اشتراك المنظمة.</p>
+
+    <div class="grid-6 mb-24">
+        <!-- Platform -->
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9881;</div><div class="svc-name">الحسابات</div><div class="svc-name-en">Accounts</div></div>
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9878;</div><div class="svc-name">الملف الشخصي</div><div class="svc-name-en">Profile</div></div>
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9875;</div><div class="svc-name">المنظمات</div><div class="svc-name-en">Organizations</div></div>
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9733;</div><div class="svc-name">الإشعارات</div><div class="svc-name-en">Notifications</div></div>
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9883;</div><div class="svc-name">المجتمع</div><div class="svc-name-en">Community</div></div>
+        <div class="svc-card domain-platform"><div class="svc-bar"></div><div class="svc-icon">&#9737;</div><div class="svc-name">متجر الخدمات</div><div class="svc-name-en">Store</div></div>
+        <!-- HR -->
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9823;</div><div class="svc-name">الموارد البشرية</div><div class="svc-name-en">HR</div></div>
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9201;</div><div class="svc-name">الحضور</div><div class="svc-name-en">Attendance</div></div>
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9729;</div><div class="svc-name">الإجازات</div><div class="svc-name-en">Leave</div></div>
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9734;</div><div class="svc-name">التدريب</div><div class="svc-name-en">Training</div></div>
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9882;</div><div class="svc-name">الشهادات</div><div class="svc-name-en">Certificates</div></div>
+        <div class="svc-card domain-hr"><div class="svc-bar"></div><div class="svc-icon">&#9888;</div><div class="svc-name">التوظيف</div><div class="svc-name-en">Recruitment</div></div>
+        <!-- Finance -->
+        <div class="svc-card domain-finance"><div class="svc-bar"></div><div class="svc-icon">&#9830;</div><div class="svc-name">الرواتب</div><div class="svc-name-en">Payroll</div></div>
+        <div class="svc-card domain-finance"><div class="svc-bar"></div><div class="svc-icon">&#9831;</div><div class="svc-name">الفواتير</div><div class="svc-name-en">Invoices</div></div>
+        <div class="svc-card domain-finance"><div class="svc-bar"></div><div class="svc-icon">&#9826;</div><div class="svc-name">المحاسبة</div><div class="svc-name-en">Accounting</div></div>
+        <div class="svc-card domain-finance"><div class="svc-bar"></div><div class="svc-icon">&#9832;</div><div class="svc-name">الامتثال</div><div class="svc-name-en">Compliance</div></div>
+        <!-- Manufacturing -->
+        <div class="svc-card domain-mfg"><div class="svc-bar"></div><div class="svc-icon">&#9874;</div><div class="svc-name">التصنيع</div><div class="svc-name-en">Manufacturing</div></div>
+        <div class="svc-card domain-mfg"><div class="svc-bar"></div><div class="svc-icon">&#9881;</div><div class="svc-name">الصيانة</div><div class="svc-name-en">Repairs</div></div>
+        <div class="svc-card domain-mfg"><div class="svc-bar"></div><div class="svc-icon">&#9744;</div><div class="svc-name">المخزون</div><div class="svc-name-en">Inventory</div></div>
+        <div class="svc-card domain-mfg"><div class="svc-bar"></div><div class="svc-icon">&#9878;</div><div class="svc-name">الأصول</div><div class="svc-name-en">Assets</div></div>
+        <div class="svc-card domain-mfg"><div class="svc-bar"></div><div class="svc-icon">&#9939;</div><div class="svc-name">الآلات</div><div class="svc-name-en">Machines</div></div>
+        <!-- Sales -->
+        <div class="svc-card domain-sales"><div class="svc-bar"></div><div class="svc-icon">&#9742;</div><div class="svc-name">CRM</div><div class="svc-name-en">CRM</div></div>
+        <div class="svc-card domain-sales"><div class="svc-bar"></div><div class="svc-icon">&#9997;</div><div class="svc-name">المشاريع</div><div class="svc-name-en">Projects</div></div>
+        <div class="svc-card domain-sales"><div class="svc-bar"></div><div class="svc-icon">&#9733;</div><div class="svc-name">الفعاليات</div><div class="svc-name-en">Events</div></div>
+        <!-- Advanced -->
+        <div class="svc-card domain-advanced"><div class="svc-bar"></div><div class="svc-icon">&#9889;</div><div class="svc-name">وكلاء AI</div><div class="svc-name-en">AI Agents</div></div>
+        <div class="svc-card domain-advanced"><div class="svc-bar"></div><div class="svc-icon">&#9635;</div><div class="svc-name">سجل التدقيق</div><div class="svc-name-en">Audit Log</div></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--plat-color)"></div> المنصة Platform</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--hr-color)"></div> الموارد البشرية HR</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--fin-color)"></div> المالية Finance</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--mfg-color)"></div> التصنيع Manufacturing</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--sales-color)"></div> المبيعات Sales</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--adv-color)"></div> متقدم Advanced</div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 3: Technical Architecture ████████ -->
+<section class="section" id="s3">
+    <span class="section-num">03</span>
+    <h2 class="section-title">البنية التقنية &mdash; 5 طبقات</h2>
+    <p class="section-subtitle">بنية متعددة الطبقات مع عزل كامل لكل مستأجر على مستوى قاعدة البيانات.</p>
+
+    <div class="layer-diagram">
+        <div class="layer-row">
+            <span class="layer-label">&#9650; المنصة Platform</span>
+            <span class="layer-badge">Auth Service</span>
+            <span class="layer-badge">Tenant Router</span>
+            <span class="layer-badge">Subscription Manager</span>
+            <span class="layer-badge">Service Registry</span>
+        </div>
+        <div class="layer-arrow">&#9660;</div>
+        <div class="layer-row">
+            <span class="layer-label">&#9654; نقاط الدخول Entry</span>
+            <span class="layer-badge">REST API</span>
+            <span class="layer-badge">HTMX Endpoints</span>
+            <span class="layer-badge">WebSocket</span>
+            <span class="layer-badge">Webhook Handlers</span>
+        </div>
+        <div class="layer-arrow">&#9660;</div>
+        <div class="layer-row">
+            <span class="layer-label">&#9654; البرمجيات الوسيطة Middleware</span>
+            <span class="layer-badge">JWT Auth</span>
+            <span class="layer-badge">Tenant Isolation</span>
+            <span class="layer-badge">Rate Limiter</span>
+            <span class="layer-badge">CORS</span>
+            <span class="layer-badge">i18n</span>
+            <span class="layer-badge">Audit Logger</span>
+        </div>
+        <div class="layer-arrow">&#9660;</div>
+        <div class="layer-row">
+            <span class="layer-label">&#9654; الخدمات Services</span>
+            <span class="layer-badge">HR</span>
+            <span class="layer-badge">Payroll</span>
+            <span class="layer-badge">CRM</span>
+            <span class="layer-badge">Inventory</span>
+            <span class="layer-badge">Manufacturing</span>
+            <span class="layer-badge">Invoices</span>
+            <span class="layer-badge">AI Agents</span>
+            <span class="layer-badge">+19 more</span>
+        </div>
+        <div class="layer-arrow">&#9660;</div>
+        <div class="layer-row">
+            <span class="layer-label">&#9660; قاعدة البيانات Database</span>
+            <span class="layer-badge">SurrealDB</span>
+            <span class="layer-badge">Platform DB (shared)</span>
+            <span class="layer-badge">Tenant DB (per-org)</span>
+            <span class="layer-badge">File Storage</span>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 4: User Journey ████████ -->
+<section class="section" id="s4">
+    <span class="section-num">04</span>
+    <h2 class="section-title">رحلة المستخدم</h2>
+    <p class="section-subtitle">من إنشاء الحساب حتى إدارة المنظمة بالكامل.</p>
+
+    <!-- Phase A -->
+    <div class="sub-title">المرحلة أ &mdash; إنشاء الحساب</div>
+    <div class="flow">
+        <div class="flow-step">صفحة التسجيل</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إدخال البيانات</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تأكيد البريد</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تسجيل الدخول</div>
+    </div>
+
+    <!-- Phase B -->
+    <div class="sub-title">المرحلة ب &mdash; لوحة التحكم الشخصية</div>
+    <p class="text-muted mb-16" style="font-size:0.9rem;">بعد تسجيل الدخول، يرى المستخدم 5 خيارات:</p>
+    <div class="grid-5">
+        <div class="card" style="text-align:center;padding:20px;">
+            <div style="font-size:1.5rem;margin-bottom:6px;">&#9971;</div>
+            <div class="card-title" style="font-size:0.88rem;">تأسيس شركة</div>
+            <div class="card-text">إنشاء منظمة جديدة</div>
+        </div>
+        <div class="card" style="text-align:center;padding:20px;">
+            <div style="font-size:1.5rem;margin-bottom:6px;">&#9996;</div>
+            <div class="card-title" style="font-size:0.88rem;">فريق تطوعي</div>
+            <div class="card-text">إنشاء فريق تطوعي</div>
+        </div>
+        <div class="card" style="text-align:center;padding:20px;">
+            <div style="font-size:1.5rem;margin-bottom:6px;">&#10140;</div>
+            <div class="card-title" style="font-size:0.88rem;">انضمام لمنظمة</div>
+            <div class="card-text">عبر رمز دعوة</div>
+        </div>
+        <div class="card" style="text-align:center;padding:20px;">
+            <div style="font-size:1.5rem;margin-bottom:6px;">&#9733;</div>
+            <div class="card-title" style="font-size:0.88rem;">البحث عن وظيفة</div>
+            <div class="card-text">تصفح الوظائف المتاحة</div>
+        </div>
+        <div class="card" style="text-align:center;padding:20px;">
+            <div style="font-size:1.5rem;margin-bottom:6px;">&#9998;</div>
+            <div class="card-title" style="font-size:0.88rem;">التدريب</div>
+            <div class="card-text">البحث عن فرص تدريب</div>
+        </div>
+    </div>
+
+    <!-- Phase C -->
+    <div class="sub-title">المرحلة ج &mdash; تجهيز المنظمة (Organization Provisioning)</div>
+    <div class="flow">
+        <div class="flow-step">اختيار نوع الكيان</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إدخال بيانات المنظمة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">اختيار الباقة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إنشاء قاعدة بيانات معزولة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تفعيل الخدمات</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">دعوة الفريق</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">لوحة تحكم المنظمة</div>
+    </div>
+
+    <!-- Phase D -->
+    <div class="sub-title">المرحلة د &mdash; التوظيف (اتجاهان)</div>
+    <div class="grid-2 mb-24">
+        <div class="card">
+            <div class="card-title">&#10140; المنظمة تنشر وظيفة</div>
+            <div class="flow" style="font-size:0.8rem;">
+                <div class="flow-step">إنشاء إعلان</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">استقبال طلبات</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">فرز المتقدمين</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">قبول / رفض</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#10140; الفرد يبحث عن وظيفة</div>
+            <div class="flow" style="font-size:0.8rem;">
+                <div class="flow-step">تصفح الوظائف</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">تقديم طلب</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">مقابلة</div>
+                <span class="flow-arrow">&larr;</span>
+                <div class="flow-step">انضمام</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Hierarchy -->
+    <div class="sub-title">هرمية الحسابات</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>المستوى</th><th>قاعدة البيانات</th><th>الوصف</th><th>أمثلة</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Platform Account</strong></td>
+                    <td class="text-mono">platform_db</td>
+                    <td>حساب موحد على مستوى المنصة</td>
+                    <td>البريد، الملف الشخصي، المجتمع</td>
+                </tr>
+                <tr>
+                    <td><strong>Tenant Account</strong></td>
+                    <td class="text-mono">tenant_{org_id}</td>
+                    <td>عضوية داخل منظمة محددة</td>
+                    <td>الدور الوظيفي، الصلاحيات، البيانات</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="grid-3 mt-24">
+        <div class="card">
+            <div class="card-title">&#9881; Service Gating</div>
+            <div class="card-text">كل خدمة تتحقق من اشتراك المنظمة قبل التفعيل. الخدمات غير المشمولة بالباقة تظهر مقفلة مع خيار الترقية.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9888; Security Isolation</div>
+            <div class="card-text">كل منظمة لها قاعدة بيانات منفصلة (Database-per-Tenant). لا يمكن لأي مستأجر الوصول لبيانات مستأجر آخر.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9733; Investor Dashboard</div>
+            <div class="card-text">لوحة تحكم للمستثمرين تعرض: عدد المنظمات، المشتركين النشطين، الإيرادات الشهرية، معدل النمو.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 5: Community ████████ -->
+<section class="section" id="s5">
+    <span class="section-num">05</span>
+    <h2 class="section-title">مجتمع Actuators</h2>
+    <p class="section-subtitle">شبكة مهنية متكاملة على مستوى المنصة لربط الأفراد والمنظمات.</p>
+
+    <div class="grid-3 mb-24">
+        <div class="card">
+            <div class="card-title">&#9776; Feed</div>
+            <div class="card-text">تايم لاين يعرض منشورات المجتمع، الوظائف الجديدة، والفعاليات القادمة. يدعم التصفية والبحث.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9998; Posts</div>
+            <div class="card-text">إنشاء منشورات نصية مع مرفقات. دعم الإعجاب والتعليق والمشاركة. وسوم (Hashtags) للتصنيف.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9823; Profile</div>
+            <div class="card-text">ملف شخصي مهني: المهارات، الخبرات، الشهادات، المشاريع. يمكن مشاركته كسيرة ذاتية رقمية.</div>
+        </div>
+    </div>
+
+    <div class="sub-title">مساحات المجتمع</div>
+    <div class="grid-5 mb-24">
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9733; الوظائف</div>
+            <div class="card-text" style="font-size:0.78rem;">إعلانات التوظيف من المنظمات المشتركة</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9998; التدريب</div>
+            <div class="card-text" style="font-size:0.78rem;">فرص التدريب والتطوع</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9878; الفعاليات</div>
+            <div class="card-text" style="font-size:0.78rem;">ورش عمل ومؤتمرات</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9881; المقالات</div>
+            <div class="card-text" style="font-size:0.78rem;">محتوى مهني وتقني</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9996; التطوع</div>
+            <div class="card-text" style="font-size:0.78rem;">فرق ومبادرات تطوعية</div>
+        </div>
+    </div>
+
+    <div class="sub-title">جداول المجتمع في Platform DB</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>#</th><th>الجدول</th><th>الوصف</th><th>الحقول الرئيسية</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td class="text-mono">community_post</td><td>المنشورات</td><td>author, content, tags, likes_count</td></tr>
+                <tr><td>2</td><td class="text-mono">community_comment</td><td>التعليقات</td><td>post, author, content</td></tr>
+                <tr><td>3</td><td class="text-mono">community_like</td><td>الإعجابات</td><td>post, account</td></tr>
+                <tr><td>4</td><td class="text-mono">community_follow</td><td>المتابعات</td><td>follower, following</td></tr>
+                <tr><td>5</td><td class="text-mono">community_space</td><td>المساحات</td><td>name, type, members_count</td></tr>
+                <tr><td>6</td><td class="text-mono">job_posting</td><td>إعلانات الوظائف</td><td>organization, title, requirements</td></tr>
+                <tr><td>7</td><td class="text-mono">job_application</td><td>طلبات التوظيف</td><td>job, applicant, status</td></tr>
+                <tr><td>8</td><td class="text-mono">event</td><td>الفعاليات</td><td>title, date, location, capacity</td></tr>
+                <tr><td>9</td><td class="text-mono">notification</td><td>الإشعارات</td><td>account, type, message, read</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ████████ SECTION 6: Automated Workflows ████████ -->
+<section class="section" id="s6">
+    <span class="section-num">06</span>
+    <h2 class="section-title">سير العمليات الآلية &mdash; 13 Workflow</h2>
+    <p class="section-subtitle">عمليات مؤتمتة بالكامل من البداية للنهاية.</p>
+
+    <!-- Workflow 1: Hire-to-Pay -->
+    <div class="sub-title">1. Hire-to-Pay &mdash; من التوظيف إلى الراتب</div>
+    <div class="flow mb-24">
+        <div class="flow-step">نشر وظيفة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">استقبال طلبات</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">مقابلة وتقييم</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">عرض وظيفي</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إنشاء ملف موظف</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تسجيل بيانات مالية</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">صرف الراتب</div>
+    </div>
+
+    <!-- Workflow 2: Attendance-to-Payroll -->
+    <div class="sub-title">2. Attendance-to-Payroll &mdash; من الحضور إلى الرواتب</div>
+    <div class="flow mb-24">
+        <div class="flow-step">تسجيل حضور يومي</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">حساب الساعات</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">خصم الغياب</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إضافة العمل الإضافي</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">احتساب الراتب الصافي</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إصدار مسير الرواتب</div>
+    </div>
+
+    <!-- Workflow 3: Quote-to-Cash -->
+    <div class="sub-title">3. Quote-to-Cash &mdash; من العرض إلى التحصيل</div>
+    <div class="flow mb-24">
+        <div class="flow-step">إنشاء عرض سعر</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">موافقة العميل</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تحويل لطلب</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إصدار فاتورة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إرسال ZATCA</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تحصيل الدفعة</div>
+    </div>
+
+    <!-- Workflow 4: Repair Lifecycle -->
+    <div class="sub-title">4. Repair Lifecycle &mdash; دورة حياة الإصلاح</div>
+    <div class="flow mb-24">
+        <div class="flow-step">بلاغ عطل</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تصنيف وأولوية</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تعيين فني</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">فحص وتشخيص</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">طلب قطع غيار</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تنفيذ الإصلاح</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">اعتماد وإغلاق</div>
+    </div>
+
+    <!-- Workflow 5: ZATCA -->
+    <div class="sub-title">5. ZATCA E-Invoice &mdash; الفوترة الإلكترونية</div>
+    <div class="flow mb-24">
+        <div class="flow-step">إنشاء فاتورة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">توليد XML</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">التوقيع الرقمي</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إرسال لـ ZATCA API</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">استلام الاعتماد</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">تخزين QR Code</div>
+    </div>
+
+    <!-- Workflow 6: AI Agent -->
+    <div class="sub-title">6. AI Agent Workflow &mdash; سير عمل الوكيل الذكي</div>
+    <div class="flow mb-32">
+        <div class="flow-step">سؤال المستخدم</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">RAG Search</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">استخراج السياق</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">Claude API</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">توليد الإجابة</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">عرض + مراجع</div>
+    </div>
+
+    <!-- Summary Workflows -->
+    <div class="sub-title">سير عمليات إضافية</div>
+    <div class="grid-4">
+        <div class="card">
+            <div class="card-title" style="font-size:0.88rem;">&#9874; أمر الإنتاج</div>
+            <div class="card-text" style="font-size:0.8rem;">أمر إنتاج &#8592; تخصيص مواد &#8592; تتبع مراحل &#8592; فحص جودة &#8592; إدخال مخزون</div>
+        </div>
+        <div class="card">
+            <div class="card-title" style="font-size:0.88rem;">&#9729; طلب إجازة</div>
+            <div class="card-text" style="font-size:0.8rem;">تقديم طلب &#8592; موافقة مدير &#8592; خصم الرصيد &#8592; تحديث الحضور &#8592; إشعار</div>
+        </div>
+        <div class="card">
+            <div class="card-title" style="font-size:0.88rem;">&#9888; تذكرة دعم</div>
+            <div class="card-text" style="font-size:0.8rem;">فتح تذكرة &#8592; تصنيف &#8592; تعيين &#8592; حل &#8592; تقييم العميل</div>
+        </div>
+        <div class="card">
+            <div class="card-title" style="font-size:0.88rem;">&#9744; طلب حتى التسليم</div>
+            <div class="card-text" style="font-size:0.8rem;">طلب شراء &#8592; موافقة &#8592; أمر توريد &#8592; استلام &#8592; فحص &#8592; إدخال مخزون</div>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 7: RBAC ████████ -->
+<section class="section" id="s7">
+    <span class="section-num">07</span>
+    <h2 class="section-title">مصفوفة الصلاحيات (RBAC)</h2>
+    <p class="section-subtitle">نظام صلاحيات دقيق على مستوى كل خدمة.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>الخدمة</th>
+                    <th>Admin</th>
+                    <th>Manager</th>
+                    <th>Employee</th>
+                    <th>Org Admin</th>
+                    <th>Org Member</th>
+                    <th>Intern</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>الموارد البشرية</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9675; ذاتي</td></tr>
+                <tr><td>الحضور</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9681; ذاتي+</td><td>&#9679; كامل</td><td>&#9681; ذاتي+</td><td>&#9681; ذاتي</td></tr>
+                <tr><td>الإجازات</td><td>&#9679; كامل</td><td>&#9679; اعتماد</td><td>&#9681; تقديم</td><td>&#9679; اعتماد</td><td>&#9681; تقديم</td><td>&#9675; لا</td></tr>
+                <tr><td>الرواتب</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9675; ذاتي</td><td>&#9679; كامل</td><td>&#9675; لا</td><td>&#9675; لا</td></tr>
+                <tr><td>الفواتير</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9675; لا</td></tr>
+                <tr><td>CRM</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9681; محدود</td><td>&#9679; كامل</td><td>&#9681; محدود</td><td>&#9675; لا</td></tr>
+                <tr><td>المخزون</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9675; لا</td></tr>
+                <tr><td>التصنيع</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9681; محدود</td><td>&#9679; كامل</td><td>&#9675; قراءة</td><td>&#9675; لا</td></tr>
+                <tr><td>المشاريع</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9681; مهامه</td><td>&#9679; كامل</td><td>&#9681; مهامه</td><td>&#9675; قراءة</td></tr>
+                <tr><td>AI Agents</td><td>&#9679; كامل</td><td>&#9679; كامل</td><td>&#9681; استعلام</td><td>&#9679; كامل</td><td>&#9681; استعلام</td><td>&#9675; لا</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted mt-16" style="font-size:0.8rem;">&#9679; = تحكم كامل &nbsp; &#9681; = وصول محدود &nbsp; &#9675; = قراءة فقط أو لا وصول</p>
+</section>
+
+<!-- ████████ SECTION 8: Technical Specs ████████ -->
+<section class="section" id="s8">
+    <span class="section-num">08</span>
+    <h2 class="section-title">المواصفات التقنية</h2>
+    <p class="section-subtitle">الأرقام والتقنيات الأساسية للمنصة.</p>
+
+    <div class="grid-4 mb-32">
+        <div class="stat-card">
+            <div class="stat-num">130+</div>
+            <div class="stat-label">جدول بيانات</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">26</div>
+            <div class="stat-label">خدمة</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">13</div>
+            <div class="stat-label">سير عمل مؤتمت</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">60+</div>
+            <div class="stat-label">نقطة API</div>
+        </div>
+    </div>
+
+    <div class="sub-title">المكدس التقني (Tech Stack)</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>الطبقة</th><th>التقنية</th><th>الوصف</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Backend</td><td class="text-mono">Rust + Axum</td><td>خادم API عالي الأداء مع type safety</td></tr>
+                <tr><td>Database</td><td class="text-mono">SurrealDB</td><td>قاعدة بيانات متعددة النماذج مع دعم multi-tenant</td></tr>
+                <tr><td>Frontend</td><td class="text-mono">HTMX + Alpine.js</td><td>واجهة تفاعلية بدون SPA framework</td></tr>
+                <tr><td>Templates</td><td class="text-mono">Askama (Jinja2)</td><td>محرك قوالب مترجم (compiled templates)</td></tr>
+                <tr><td>Styling</td><td class="text-mono">Tailwind CSS</td><td>نظام تصميم مبني على utility classes</td></tr>
+                <tr><td>AI</td><td class="text-mono">Claude API</td><td>وكلاء ذكاء اصطناعي مع RAG</td></tr>
+                <tr><td>Auth</td><td class="text-mono">JWT + SurrealDB Auth</td><td>مصادقة متعددة المستويات</td></tr>
+                <tr><td>i18n</td><td class="text-mono">AR + EN (JSON)</td><td>دعم ثنائي اللغة مع RTL/LTR</td></tr>
+                <tr><td>Mobile</td><td class="text-mono">PWA</td><td>تطبيقات ويب تقدمية للموبايل</td></tr>
+                <tr><td>Infra</td><td class="text-mono">Docker + Nginx</td><td>حاويات مع reverse proxy</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ████████ SECTION 9: Integrations & Saudi Compliance ████████ -->
+<section class="section" id="s9">
+    <span class="section-num">09</span>
+    <h2 class="section-title">التكاملات والامتثال السعودي</h2>
+    <p class="section-subtitle">تكاملات مع الأنظمة السعودية والخدمات الخارجية.</p>
+
+    <div class="grid-4">
+        <div class="card">
+            <div class="card-title">&#9830; ZATCA</div>
+            <div class="card-text">
+                الفوترة الإلكترونية المرحلة الثانية (الربط). توليد XML/UBL متوافق، التوقيع الرقمي، إرسال تلقائي عبر API، تخزين QR Code وختم التشفير.
+            </div>
+            <div class="badge badge-cyan mt-16" style="font-size:0.72rem;">Phase 2 Integration</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9823; GOSI</div>
+            <div class="card-text">
+                التكامل مع التأمينات الاجتماعية. حساب اشتراكات الموظفين، تقارير شهرية آلية، تحديث حالة الموظفين، حساب نسب صاحب العمل.
+            </div>
+            <div class="badge badge-cyan mt-16" style="font-size:0.72rem;">Social Insurance</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9830; WPS</div>
+            <div class="card-text">
+                نظام حماية الأجور. توليد ملفات WPS بالتنسيق المطلوب، إرسال بيانات الرواتب للبنك، تتبع حالة التحويلات.
+            </div>
+            <div class="badge badge-cyan mt-16" style="font-size:0.72rem;">Wage Protection</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9993; SMS / WhatsApp</div>
+            <div class="card-text">
+                إرسال إشعارات عبر SMS و WhatsApp Business API. تنبيهات الرواتب، تذكيرات المواعيد، رموز التحقق (OTP).
+            </div>
+            <div class="badge badge-orange mt-16" style="font-size:0.72rem;">Notifications</div>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 10: Build Phases ████████ -->
+<section class="section" id="s10">
+    <span class="section-num">10</span>
+    <h2 class="section-title">مراحل بناء المنصة</h2>
+    <p class="section-subtitle">خارطة طريق التطوير على 6 مراحل.</p>
+
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 0 &mdash; الأساس</div>
+            <div class="timeline-title">البنية التحتية والمصادقة</div>
+            <div class="timeline-desc">إعداد المشروع، SurrealDB schema، نظام المصادقة (JWT)، هيكل الملفات، i18n، Middleware أساسي.</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 1 &mdash; النواة</div>
+            <div class="timeline-title">الخدمات الأساسية</div>
+            <div class="timeline-desc">HR + الحضور + الإجازات + الملف الشخصي + لوحة التحكم. أول tenant يعمل بالكامل.</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 2 &mdash; التوسع</div>
+            <div class="timeline-title">الخدمات المالية والتصنيعية</div>
+            <div class="timeline-desc">الرواتب + الفواتير + ZATCA + المخزون + التصنيع + الصيانة. تكاملات سعودية أولية.</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 3 &mdash; المجتمع</div>
+            <div class="timeline-title">الشبكة المهنية والتوظيف</div>
+            <div class="timeline-desc">المجتمع + التوظيف + CRM + المشاريع + الفعاليات. إطلاق الباقة المجانية.</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 4 &mdash; الذكاء</div>
+            <div class="timeline-title">وكلاء AI والتحليلات</div>
+            <div class="timeline-desc">المستشار القانوني AI + لوحة التحليلات + التقارير المتقدمة + Audit Log.</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-label">Phase 5 &mdash; النضج</div>
+            <div class="timeline-title">PWA وتطبيقات الموبايل والتحسينات</div>
+            <div class="timeline-desc">تطبيقات PWA + أداء + أمان متقدم + GOSI/WPS + Investor Dashboard + API عام.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 11: Mobile PWA ████████ -->
+<section class="section" id="s11">
+    <span class="section-num">11</span>
+    <h2 class="section-title">تطبيقات الموبايل PWA</h2>
+    <p class="section-subtitle">تطبيقات ويب تقدمية مخصصة لكل دور.</p>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="card-title">&#9823; تطبيق الموظف</div>
+            <ul class="clean card-text">
+                <li>تسجيل الحضور بالموقع الجغرافي</li>
+                <li>طلب إجازة وعرض الرصيد</li>
+                <li>عرض كشف الراتب</li>
+                <li>إشعارات فورية (Push)</li>
+                <li>الملف الشخصي والمستندات</li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9874; تطبيق الفني</div>
+            <ul class="clean card-text">
+                <li>قائمة أوامر الصيانة</li>
+                <li>تسجيل التشخيص والإصلاح</li>
+                <li>طلب قطع غيار من المخزون</li>
+                <li>التقاط صور قبل/بعد</li>
+                <li>إغلاق البلاغ وتقييم</li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9733; تطبيق المدير</div>
+            <ul class="clean card-text">
+                <li>لوحة KPI ومؤشرات الأداء</li>
+                <li>اعتماد الإجازات والمصروفات</li>
+                <li>متابعة المشاريع والمهام</li>
+                <li>تقارير مالية مختصرة</li>
+                <li>إدارة الفريق والصلاحيات</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ████████ SECTION 12: AI Agents ████████ -->
+<section class="section" id="s12">
+    <span class="section-num">12</span>
+    <h2 class="section-title">وكلاء الذكاء الاصطناعي &mdash; المستشار القانوني السوري</h2>
+    <p class="section-subtitle">مستشار قانوني ذكي مبني على RAG + Claude API متخصص بالقانون السوري.</p>
+
+    <div class="grid-4 mb-32">
+        <div class="card" style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">&#9878;</div>
+            <div class="card-title">قانون العمل</div>
+            <div class="card-text">عقود، فصل، تعويضات، إجازات، ساعات عمل</div>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">&#9830;</div>
+            <div class="card-title">القانون التجاري</div>
+            <div class="card-text">تأسيس شركات، عقود تجارية، إفلاس</div>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">&#9881;</div>
+            <div class="card-title">القانون المدني</div>
+            <div class="card-text">عقود، ملكية، التزامات، تعويضات</div>
+        </div>
+        <div class="card" style="text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">&#9733;</div>
+            <div class="card-title">الأحوال الشخصية</div>
+            <div class="card-text">زواج، طلاق، ميراث، حضانة</div>
+        </div>
+    </div>
+
+    <!-- RAG Flow -->
+    <div class="sub-title">سير عمل RAG + Claude API</div>
+    <div class="flow mb-24">
+        <div class="flow-step">سؤال المستخدم</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">Embedding</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">Vector Search</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">استخراج المواد القانونية</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">Prompt + Context</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">Claude API</div>
+        <span class="flow-arrow">&larr;</span>
+        <div class="flow-step">إجابة + مراجع</div>
+    </div>
+
+    <div class="grid-3 mb-32">
+        <div class="card">
+            <div class="card-title">&#9889; RAG Pipeline</div>
+            <div class="card-text">
+                تحويل النصوص القانونية إلى chunks مفهرسة بـ embeddings. بحث دلالي (semantic search) لاسترجاع المواد الأكثر صلة بالسؤال.
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9881; Claude API</div>
+            <div class="card-text">
+                استخدام Claude كمحرك توليد مع system prompt قانوني متخصص. يضمن دقة الإجابة مع الإشارة للمواد القانونية.
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9878; Knowledge Base</div>
+            <div class="card-text">
+                قاعدة معرفية تشمل: قانون العمل السوري، القانون التجاري، القانون المدني، قانون الأحوال الشخصية. محدّثة ومفهرسة.
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="sub-title">واجهة المحادثة</div>
+    <div class="grid-3 mb-32">
+        <div class="card">
+            <div class="card-title">&#9993; المحادثة</div>
+            <div class="card-text">واجهة دردشة تفاعلية مع دعم Markdown وعرض المراجع القانونية كروابط قابلة للنقر.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9734; السجل</div>
+            <div class="card-text">حفظ تاريخ المحادثات لكل مستخدم. إمكانية العودة للاستشارات السابقة والبناء عليها.</div>
+        </div>
+        <div class="card">
+            <div class="card-title">&#9878; التقييم</div>
+            <div class="card-text">تقييم جودة الإجابات من المستخدم لتحسين النموذج. تقارير دقة الاستشارات.</div>
+        </div>
+    </div>
+
+    <!-- API Endpoints -->
+    <div class="sub-title">نقاط API للوكيل الذكي</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>الوصف</th></tr>
+            </thead>
+            <tbody>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">POST</td><td class="text-mono">/api/agents/chat</td><td>إرسال سؤال واستقبال إجابة</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">GET</td><td class="text-mono">/api/agents/history</td><td>سجل المحادثات</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">GET</td><td class="text-mono">/api/agents/session/:id</td><td>تفاصيل جلسة محادثة</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">POST</td><td class="text-mono">/api/agents/feedback</td><td>تقييم إجابة</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">GET</td><td class="text-mono">/api/agents/specialties</td><td>التخصصات المتاحة</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">POST</td><td class="text-mono">/api/agents/embed</td><td>إضافة نص قانوني للقاعدة المعرفية</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">GET</td><td class="text-mono">/api/agents/search</td><td>بحث دلالي في القاعدة المعرفية</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">GET</td><td class="text-mono">/api/agents/stats</td><td>إحصائيات الاستخدام</td></tr>
+                <tr><td class="text-mono badge-cyan" style="background:transparent;">DELETE</td><td class="text-mono">/api/agents/session/:id</td><td>حذف جلسة محادثة</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Covered Law Categories -->
+    <div class="sub-title mt-32">الفئات القانونية المغطاة</div>
+    <div class="grid-4">
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9878; قانون العمل السوري</div>
+            <div class="card-text" style="font-size:0.78rem;">القانون رقم 17 لعام 2010 &mdash; 270+ مادة</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9830; القانون التجاري</div>
+            <div class="card-text" style="font-size:0.78rem;">المرسوم التشريعي رقم 29 &mdash; الشركات والعقود</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9881; القانون المدني</div>
+            <div class="card-text" style="font-size:0.78rem;">المرسوم التشريعي رقم 84 &mdash; الالتزامات والعقود</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px;">
+            <div class="card-title" style="font-size:0.85rem;">&#9733; الأحوال الشخصية</div>
+            <div class="card-text" style="font-size:0.78rem;">القانون رقم 59 لعام 1953 &mdash; الزواج والميراث</div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ██ FOOTER ██ -->
+<footer class="blueprint-footer">
+    <div class="container">
+        <div class="footer-brand">Actuators by Dr. Machine L.L.C</div>
+        <div style="color:rgba(255,255,255,0.4);font-size:0.82rem;margin-bottom:8px;">Platform Blueprint v4.1</div>
+        <div class="footer-stats">
+            <div class="footer-stat"><span>130+</span> Tables</div>
+            <div class="footer-stat"><span>26</span> Services</div>
+            <div class="footer-stat"><span>13</span> Workflows</div>
+            <div class="footer-stat"><span>60+</span> APIs</div>
+            <div class="footer-stat"><span>4</span> Tiers</div>
+        </div>
+    </div>
+</footer>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const icon = document.getElementById('theme-icon');
+    if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        icon.innerHTML = '&#9790;';
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        icon.innerHTML = '&#9788;';
+    }
+}
+</script>
+</body>
+</html>

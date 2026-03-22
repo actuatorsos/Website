@@ -1,33 +1,33 @@
 {% extends "admin/base_admin.html" %}
 
-{% block title %}الفيديوهات التعليمية — Dr. Machine{% endblock %}
+{% block title %}{{ t["videos_title"] }} — Dr. Machine{% endblock %}
 
 {% block admin_content %}
-<div class="space-y-6" dir="{{ dir }}">
+<div class="space-y-3 sm:space-y-6" dir="{{ dir }}">
 
   <!-- ══════════════════════════════════════════════════
        Page Header
   ══════════════════════════════════════════════════ -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-text flex items-center gap-2">
+      <h1 class="text-lg sm:text-2xl font-bold text-text flex items-center gap-2">
         <svg class="w-7 h-7 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
-        الفيديوهات التعليمية
+        {{ t["videos_title"] }}
       </h1>
-      <p class="text-sm text-text-secondary mt-1">ارفع وشاهد فيديوهات التدريب والتعليم الخاصة بالشركة</p>
+      <p class="text-sm text-text-secondary mt-1">{{ t["videos_subtitle"] }}</p>
     </div>
 
     {% if user_role == "admin" %}
-    <!-- زر فتح نموذج الرفع -->
+    <!-- Upload button -->
     <button onclick="document.getElementById('upload-modal').classList.remove('hidden')"
-      class="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl hover:bg-secondary/80 transition-smooth shadow-lg shadow-secondary/20 font-medium text-sm">
+      class="flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl hover:bg-secondary/80 transition-smooth shadow-lg shadow-secondary/20 font-medium text-sm w-full sm:w-auto">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
-      رفع فيديو جديد
+      {{ t["videos_upload_new"] }}
     </button>
     {% endif %}
   </div>
@@ -35,12 +35,12 @@
   <!-- ══════════════════════════════════════════════════
        Stats Bar
   ══════════════════════════════════════════════════ -->
-  <div class="flex items-center gap-3 px-4 py-3 bg-surface border border-border rounded-xl text-sm text-text-secondary">
+  <div class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-surface border border-border rounded-xl text-sm text-text-secondary">
     <svg class="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
-    <span>إجمالي الفيديوهات: <strong class="text-text">{{ videos.len() }}</strong></span>
+    <span>{{ t["videos_total"] }} <strong class="text-text">{{ videos.len() }}</strong></span>
   </div>
 
   <!-- ══════════════════════════════════════════════════
@@ -54,22 +54,22 @@
           d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
       </svg>
     </div>
-    <h3 class="text-lg font-semibold text-text mb-1">لا توجد فيديوهات بعد</h3>
+    <h3 class="text-lg font-semibold text-text mb-1">{{ t["videos_empty"] }}</h3>
     <p class="text-text-secondary text-sm max-w-xs">
       {% if user_role == "admin" %}
-      ابدأ بالضغط على "رفع فيديو جديد" لإضافة أول فيديو تعليمي.
+      {{ t["videos_empty_hint_admin"] }}
       {% else %}
-      لم يرفع المسؤول أي فيديوهات بعد. تابع لاحقاً.
+      {{ t["videos_empty_hint_user"] }}
       {% endif %}
     </p>
   </div>
   {% else %}
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="video-gallery">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-6" id="video-gallery">
     {% for video in videos %}
     <div class="bg-surface border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300 group"
          id="video-card-{{ video.id }}">
 
-      <!-- مشغّل الفيديو HTML5 -->
+      <!-- Video player -->
       <div class="relative bg-black aspect-video">
         <video
           class="w-full h-full object-contain"
@@ -77,9 +77,9 @@
           preload="metadata"
           poster=""
           src="/admin/videos/stream/{{ video.id }}">
-          متصفّحك لا يدعم تشغيل الفيديو.
+          {{ t["videos_browser_unsupported"] }}
         </video>
-        <!-- شارة نوع الملف -->
+        <!-- File type badge -->
         <div class="absolute top-2 end-2 pointer-events-none">
           <span class="px-2 py-0.5 bg-black/70 text-white text-[10px] rounded-md font-mono uppercase">
             {{ video.mime_type }}
@@ -87,7 +87,7 @@
         </div>
       </div>
 
-      <!-- معلومات الفيديو -->
+      <!-- Video info -->
       <div class="p-4 space-y-3">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
@@ -98,10 +98,10 @@
             {% when None %}{% endmatch %}
           </div>
           {% if user_role == "admin" %}
-          <!-- زر الحذف — HTMX -->
+          <!-- Delete button — HTMX -->
           <button
             hx-delete="/admin/videos/{{ video.id }}"
-            hx-confirm="هل أنت متأكد من حذف هذا الفيديو؟"
+            hx-confirm="{{ t["videos_delete_confirm"] }}"
             hx-target="#video-card-{{ video.id }}"
             hx-swap="outerHTML swap:0.3s"
             class="shrink-0 p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-smooth opacity-0 group-hover:opacity-100">
@@ -113,7 +113,7 @@
           {% endif %}
         </div>
 
-        <!-- Footer المعلومات -->
+        <!-- Footer info -->
         <div class="flex items-center gap-3 text-xs text-text-secondary border-t border-border pt-2">
           <span class="flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,17 +143,17 @@
 ══════════════════════════════════════════════════ -->
 {% if user_role == "admin" %}
 <div id="upload-modal"
-  class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
-  <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg ring-1 ring-border overflow-hidden">
+  class="hidden fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-4 bg-gray-900/60 backdrop-blur-sm">
+  <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg ring-1 ring-border overflow-hidden mx-2 sm:mx-4">
 
     <!-- Modal Header -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-background/50">
+    <div class="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-border bg-background/50">
       <h2 class="font-bold text-text text-lg flex items-center gap-2">
         <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
         </svg>
-        رفع فيديو تعليمي
+        {{ t["videos_upload_new"] }}
       </h2>
       <button onclick="closeUploadModal()"
         class="p-2 rounded-lg hover:bg-background text-text-secondary hover:text-text transition-smooth">
@@ -164,32 +164,32 @@
     </div>
 
     <!-- Upload Form -->
-    <form id="upload-form" class="p-6 space-y-4">
-      <!-- العنوان -->
+    <form id="upload-form" class="p-3 sm:p-4 md:p-6 space-y-4">
+      <!-- Title -->
       <div>
         <label for="video-title" class="block text-sm font-medium text-text mb-1.5">
-          عنوان الفيديو <span class="text-red-500">*</span>
+          {{ t["videos_field_title"] }} <span class="text-red-500">*</span>
         </label>
         <input type="text" id="video-title" name="title" required
-          placeholder="مثال: دورة السلامة المهنية — الجزء الأول"
+          placeholder="{{ t["videos_field_title_placeholder"] }}"
           class="input input-bordered w-full bg-background border-border text-text placeholder-text-secondary focus:border-secondary focus:ring-secondary/20" />
       </div>
 
-      <!-- الوصف -->
+      <!-- Description -->
       <div>
-        <label for="video-desc" class="block text-sm font-medium text-text mb-1.5">الوصف (اختياري)</label>
+        <label for="video-desc" class="block text-sm font-medium text-text mb-1.5">{{ t["videos_field_description"] }}</label>
         <textarea id="video-desc" name="description" rows="2"
-          placeholder="وصف مختصر لمحتوى الفيديو..."
+          placeholder="{{ t["videos_field_desc_placeholder"] }}"
           class="textarea textarea-bordered w-full bg-background border-border text-text placeholder-text-secondary focus:border-secondary resize-none"></textarea>
       </div>
 
-      <!-- اختيار الملف -->
+      <!-- File selection -->
       <div>
         <label class="block text-sm font-medium text-text mb-1.5">
-          ملف الفيديو <span class="text-red-500">*</span>
+          {{ t["videos_field_file"] }} <span class="text-red-500">*</span>
         </label>
         <div id="drop-zone"
-          class="relative border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-secondary transition-colors cursor-pointer"
+          class="relative border-2 border-dashed border-border rounded-xl p-3 sm:p-6 text-center hover:border-secondary transition-colors cursor-pointer"
           onclick="document.getElementById('video-file').click()"
           ondragover="handleDragOver(event)"
           ondrop="handleDrop(event)">
@@ -199,15 +199,15 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
               d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
-          <p id="drop-label" class="text-sm text-text-secondary">اسحب وأفلت الفيديو هنا، أو <span class="text-secondary font-medium">انقر للاختيار</span></p>
-          <p class="text-xs text-text-secondary mt-1 opacity-60">MP4, WebM, AVI, MOV — حتى 500 MB</p>
+          <p id="drop-label" class="text-sm text-text-secondary">{{ t["videos_drag_drop"] }}<span class="text-secondary font-medium">{{ t["videos_choose_file"] }}</span></p>
+          <p class="text-xs text-text-secondary mt-1 opacity-60">MP4, WebM, AVI, MOV — {{ t["videos_max_size"] }}</p>
         </div>
       </div>
 
-      <!-- شريط التقدم -->
+      <!-- Progress bar -->
       <div id="progress-container" class="hidden space-y-1">
         <div class="flex justify-between text-xs text-text-secondary">
-          <span>جارٍ الرفع...</span>
+          <span>{{ t["videos_uploading"] }}</span>
           <span id="progress-pct">0%</span>
         </div>
         <div class="w-full h-2 bg-background rounded-full overflow-hidden border border-border">
@@ -217,22 +217,22 @@
         </div>
       </div>
 
-      <!-- رسالة Feedback -->
+      <!-- Feedback message -->
       <div id="upload-feedback" class="hidden"></div>
 
-      <!-- أزرار -->
-      <div class="flex gap-3 pt-2">
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
         <button type="submit" id="upload-btn"
           class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-medium text-sm hover:bg-secondary/80 transition-smooth disabled:opacity-50 disabled:cursor-not-allowed">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
-          رفع الفيديو
+          {{ t["videos_upload_btn"] }}
         </button>
         <button type="button" onclick="closeUploadModal()"
-          class="px-4 py-2.5 border border-border rounded-xl text-sm font-medium text-text-secondary hover:bg-background transition-smooth">
-          إلغاء
+          class="px-4 py-2.5 border border-border rounded-xl text-sm font-medium text-text-secondary hover:bg-background transition-smooth w-full sm:w-auto">
+          {{ t["videos_cancel"] }}
         </button>
       </div>
     </form>
@@ -240,11 +240,22 @@
 </div>
 
 <script>
+  // ── Translation strings for JS ──────────────────────
+  const vt = {
+    validation_title: "{{ t["videos_validate_title"] }}",
+    validation_file: "{{ t["videos_validate_file"] }}",
+    validation_size: "{{ t["videos_validate_size"] }}",
+    upload_success: "{{ t["videos_upload_success"] }}",
+    upload_error: "{{ t["videos_upload_error"] }}",
+    connection_error: "{{ t["videos_connection_error"] }}",
+    drag_drop: "{{ t["videos_drag_drop"] }}",
+  };
+
   // ── Modal Control ──────────────────────────────────
   function closeUploadModal() {
     document.getElementById('upload-modal').classList.add('hidden');
     document.getElementById('upload-form').reset();
-    document.getElementById('drop-label').textContent = 'اسحب وأفلت الفيديو هنا، أو ';
+    document.getElementById('drop-label').textContent = vt.drag_drop;
     document.getElementById('progress-container').classList.add('hidden');
     document.getElementById('upload-feedback').classList.add('hidden');
     document.getElementById('progress-bar').style.width = '0%';
@@ -264,7 +275,6 @@
     const file = e.dataTransfer.files[0];
     if (file) {
       const input = document.getElementById('video-file');
-      // تعيين الملف على الـ input لاستخدامه لاحقاً في submit
       const dt = new DataTransfer();
       dt.items.add(file);
       input.files = dt.files;
@@ -294,26 +304,24 @@
     const btn = document.getElementById('upload-btn');
 
     if (!title) {
-      showFeedback('error', 'الرجاء إدخال عنوان للفيديو.');
+      showFeedback('error', vt.validation_title);
       return;
     }
     if (!file) {
-      showFeedback('error', 'الرجاء اختيار ملف فيديو.');
+      showFeedback('error', vt.validation_file);
       return;
     }
     if (file.size > 500 * 1024 * 1024) {
-      showFeedback('error', 'حجم الملف يتجاوز الحد الأقصى (500 MB).');
+      showFeedback('error', vt.validation_size);
       return;
     }
 
     const formData = new FormData(this);
     const xhr = new XMLHttpRequest();
 
-    // إظهار شريط التقدم
     document.getElementById('progress-container').classList.remove('hidden');
     btn.disabled = true;
 
-    // تحديث شريط التقدم
     xhr.upload.onprogress = function (evt) {
       if (evt.lengthComputable) {
         const pct = Math.round((evt.loaded / evt.total) * 100);
@@ -326,17 +334,17 @@
       btn.disabled = false;
       document.getElementById('progress-container').classList.add('hidden');
       if (xhr.status === 200) {
-        showFeedback('success', 'تم رفع الفيديو بنجاح! سيتم تحديث الصفحة...');
+        showFeedback('success', vt.upload_success);
         setTimeout(() => { window.location.reload(); }, 2000);
       } else {
-        showFeedback('error', 'فشل الرفع. تحقق من الملف وحاول مجدداً.');
+        showFeedback('error', vt.upload_error);
       }
     };
 
     xhr.onerror = function () {
       btn.disabled = false;
       document.getElementById('progress-container').classList.add('hidden');
-      showFeedback('error', 'خطأ في الاتصال. تحقق من الشبكة وحاول مجدداً.');
+      showFeedback('error', vt.connection_error);
     };
 
     xhr.open('POST', '/admin/videos/upload');
@@ -352,7 +360,7 @@
       : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'}">${msg}</div>`;
   }
 
-  // إغلاق المودال بالضغط على Escape
+  // Close modal on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const modal = document.getElementById('upload-modal');

@@ -34,12 +34,14 @@ async fn main() {
         .await
         .expect("Failed to select namespace/database");
 
+    let (notification_tx, _) = tokio::sync::broadcast::channel(256);
     let state = AppState {
         db,
         jwt_secret: config.jwt.secret.clone(),
         jwt_expiry_hours: config.jwt.expiry_hours,
         i18n: Arc::new(I18n::new()),
         board_events: board_tx,
+        notification_tx,
         stats_cache: Arc::new(RwLock::new(StatsCache {
             data: HashMap::new(),
             last_updated: std::time::Instant::now(),
@@ -47,13 +49,13 @@ async fn main() {
     };
 
     println!("Testing clients...");
-    match Actuators::domains::customers::repository::get_all_clients(&state).await {
+    match Actuators::domains::customers::repository::get_all_clients(&state, None).await {
         Ok(clients) => println!("Clients loaded: {}", clients.len()),
         Err(e) => println!("Clients Error: {:?}", e),
     }
 
     println!("Testing departments...");
-    match Actuators::domains::hr_org::repository::get_all_departments(&state).await {
+    match Actuators::domains::hr_org::repository::get_all_departments(&state, None).await {
         Ok(deps) => println!("Departments loaded: {}", deps.len()),
         Err(e) => println!("Departments Error: {:?}", e),
     }

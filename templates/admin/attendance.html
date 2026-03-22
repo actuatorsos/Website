@@ -4,14 +4,14 @@
 <div class="max-w-7xl mx-auto animate-fade-in relative">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["attendance_title"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["attendance_title"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["attendance_subtitle"] }}</p>
         </div>
 
         <div class="flex items-center gap-3">
             <div class="relative">
-                <input type="text" id="attendanceSearch" placeholder="Search attendance..."
-                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-64 transition-all">
+                <input type="text" id="attendanceSearch" placeholder="{{ t["common_search_placeholder"] }}"
+                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-full sm:w-64 transition-all">
                 <svg class="w-5 h-5 text-text-secondary absolute left-3 top-2.5" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -26,7 +26,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span class="text-sm font-medium">Export PDF</span>
+                <span class="text-sm font-medium">{{ t["common_export_pdf"] }}</span>
             </a>
 
             <button onclick="document.getElementById('checkinModal').classList.remove('hidden')"
@@ -67,25 +67,25 @@
                 <thead>
                     <tr class="bg-background/50 border-b border-border">
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
                             {{ t["table_person"] }}</th>
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider hidden sm:table-cell">
                             {{ t["form_person_type"] }}</th>
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
                             {{ t["table_checkin"] }}</th>
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider hidden sm:table-cell">
                             {{ t["table_checkout"] }}</th>
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider hidden md:table-cell">
                             {{ t["table_duration"] }}</th>
                         <th
-                            class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider hidden md:table-cell">
                             {{ t["table_notes"] }}</th>
                         <th
-                            class="px-6 py-4 text-end text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                            class="px-3 sm:px-6 py-2 sm:py-4 text-end text-xs font-semibold text-text-secondary uppercase tracking-wider">
                             {{ t["table_actions"] }}</th>
                     </tr>
                 </thead>
@@ -111,7 +111,7 @@
         <div
             class="inline-block align-bottom bg-surface rounded-2xl text-start overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-border">
 
-            <div class="px-6 py-4 border-b border-border flex justify-between items-center bg-background/50">
+            <div class="px-4 sm:px-6 py-2 sm:py-4 border-b border-border flex justify-between items-center bg-background/50">
                 <h3 class="text-xl font-bold text-primary flex items-center gap-2" id="modal-title">
                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -130,7 +130,7 @@
             </div>
 
             <form hx-post="/api/attendance/check-in" hx-target="#attendance-tbody" hx-swap="afterbegin"
-                hx-on::after-request="closeModal('checkinModal'); this.reset();" class="px-6 py-6" id="checkin-form">
+                hx-on::after-request="closeModal('checkinModal'); this.reset();" class="px-4 sm:px-6 py-4 sm:py-6" id="checkin-form">
 
                 <div class="space-y-5">
                     <input type="hidden" name="person_type" id="person-type-select" value="employee">

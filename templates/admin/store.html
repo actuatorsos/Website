@@ -4,13 +4,13 @@
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["ecommerce_section"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["ecommerce_section"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["auto_store_408"] }}</p>
         </div>
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div
             class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-2xl p-4 border border-blue-500/20 text-center">
             <p class="text-text-secondary text-xs mb-1">{{ t["auto_store_409"] }}</p>
@@ -252,13 +252,13 @@
 
         const tbody = document.getElementById('orders-table');
         if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_agents_47"] }}</td></tr>'; return; }
-        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors cursor-pointer" onclick="viewOrder('${r.id?.id || ''}')">
+        tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors cursor-pointer" onclick="viewOrder('${tid(r.id)}')">
         <td class="px-6 py-4 text-sm font-mono font-bold text-secondary">${r.order_number}</td>
         <td class="px-6 py-4 text-sm">${r.customer_name}</td>
         <td class="px-6 py-4 text-sm font-bold">${(r.total || 0).toLocaleString()} ${r.currency || 'SAR'}</td>
         <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${orderStatusColors[r.status] || 'bg-gray-100 text-gray-700'}">${orderStatusLabels[r.status] || r.status}</span></td>
         <td class="px-6 py-4 text-xs text-text-secondary">${r.created_at?.split('T')[0] || '—'}</td>
-        <td class="px-6 py-4">${nextStatus[r.status] ? `<button onclick="event.stopPropagation();advanceOrder('${r.id?.id || ''}','${nextStatus[r.status]}')" class="text-xs bg-secondary text-white px-2 py-1 rounded-lg hover:bg-secondary/90">${orderStatusLabels[nextStatus[r.status]]}</button>` : ''}</td>
+        <td class="px-6 py-4">${nextStatus[r.status] ? `<button onclick="event.stopPropagation();advanceOrder('${tid(r.id)}','${nextStatus[r.status]}')" class="text-xs bg-secondary text-white px-2 py-1 rounded-lg hover:bg-secondary/90">${orderStatusLabels[nextStatus[r.status]]}</button>` : ''}</td>
     </tr>`).join('');
     }
 

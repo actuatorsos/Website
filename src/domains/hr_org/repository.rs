@@ -22,11 +22,19 @@ pub async fn create_department(
     dept.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_departments(state: &AppState) -> Result<Vec<Department>, DbError> {
-    let depts: Vec<Department> = state.db
-        .query("SELECT * FROM department WHERE is_archived = false OR is_archived = NONE ORDER BY code ASC")
-        .await?
-        .take(0)?;
+pub async fn get_all_departments(state: &AppState, org_id: Option<&str>) -> Result<Vec<Department>, DbError> {
+    let depts: Vec<Department> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT *, manager.full_name AS manager_name, (SELECT count() FROM employee WHERE department = $parent.id AND (is_archived = false OR is_archived = NONE) GROUP ALL)[0].count AS employee_count FROM department WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY code ASC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take(0)?
+    } else {
+        state.db
+            .query("SELECT *, manager.full_name AS manager_name, (SELECT count() FROM employee WHERE department = $parent.id AND (is_archived = false OR is_archived = NONE) GROUP ALL)[0].count AS employee_count FROM department WHERE is_archived = false OR is_archived = NONE ORDER BY code ASC")
+            .await?
+            .take(0)?
+    };
     Ok(depts)
 }
 
@@ -102,11 +110,19 @@ pub async fn create_position(
     pos.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_positions(state: &AppState) -> Result<Vec<Position>, DbError> {
-    let positions: Vec<Position> = state.db
-        .query("SELECT * FROM position WHERE is_archived = false OR is_archived = NONE ORDER BY code ASC")
-        .await?
-        .take(0)?;
+pub async fn get_all_positions(state: &AppState, org_id: Option<&str>) -> Result<Vec<Position>, DbError> {
+    let positions: Vec<Position> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT *, department.name AS department_name FROM position WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY code ASC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take(0)?
+    } else {
+        state.db
+            .query("SELECT *, department.name AS department_name FROM position WHERE is_archived = false OR is_archived = NONE ORDER BY code ASC")
+            .await?
+            .take(0)?
+    };
     Ok(positions)
 }
 

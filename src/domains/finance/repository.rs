@@ -105,11 +105,19 @@ pub async fn create_invoice(
     Ok(inv)
 }
 
-pub async fn get_all_invoices(state: &AppState) -> Result<Vec<Invoice>, DbError> {
-    let invoices: Vec<Invoice> = state.db
-        .query("SELECT * FROM invoice WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?
-        .take::<Vec<Invoice>>(0)?;
+pub async fn get_all_invoices(state: &AppState, org_id: Option<&str>) -> Result<Vec<Invoice>, DbError> {
+    let invoices: Vec<Invoice> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM invoice WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take::<Vec<Invoice>>(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM invoice WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?
+            .take::<Vec<Invoice>>(0)?
+    };
     Ok(invoices)
 }
 

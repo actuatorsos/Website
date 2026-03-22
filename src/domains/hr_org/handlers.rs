@@ -2,15 +2,19 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::CurrentUser;
 use axum::{
     Router,
-    extract::{Path, State},
+    extract::{Extension, Path, State},
     response::{Html, Json},
     routing::{delete, get, post, put},
 };
 
-async fn list_departments(State(s): State<AppState>) -> Result<Json<Vec<Department>>, DbError> {
-    Ok(Json(repo::get_all_departments(&s).await?))
+async fn list_departments(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Result<Json<Vec<Department>>, DbError> {
+    Ok(Json(repo::get_all_departments(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_department(
     State(s): State<AppState>,
@@ -45,8 +49,11 @@ async fn get_dept_employees(
     Ok(Json(repo::get_department_employees(&s, &id).await?))
 }
 /// Returns department options as HTML for select dropdowns
-async fn department_options(State(s): State<AppState>) -> Html<String> {
-    let departments: Vec<Department> = repo::get_all_departments(&s)
+async fn department_options(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Html<String> {
+    let departments: Vec<Department> = repo::get_all_departments(&s, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     let options: String = departments
@@ -60,8 +67,11 @@ async fn department_options(State(s): State<AppState>) -> Html<String> {
     Html(options)
 }
 
-async fn list_positions(State(s): State<AppState>) -> Result<Json<Vec<Position>>, DbError> {
-    Ok(Json(repo::get_all_positions(&s).await?))
+async fn list_positions(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Result<Json<Vec<Position>>, DbError> {
+    Ok(Json(repo::get_all_positions(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_position(
     State(s): State<AppState>,

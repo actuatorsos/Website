@@ -22,6 +22,7 @@ dependencies = [
  "lettre",
  "printpdf",
  "rand 0.8.5",
+ "reqwest",
  "rust_decimal",
  "rusttype",
  "serde",

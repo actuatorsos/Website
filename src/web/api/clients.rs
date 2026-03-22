@@ -4,7 +4,7 @@
 
 use askama::Template;
 use axum::{
-    Form, Router,
+    Extension, Form, Router,
     extract::{Path, State},
     response::Html,
     routing::{delete, get, post},
@@ -17,6 +17,7 @@ use crate::db::AppState;
 use crate::domains::customers::models::{Client, ClientStatus, CreateClientRequest};
 use crate::domains::customers::repository;
 use crate::i18n::Language;
+use crate::models::CurrentUser;
 
 // ============================================================================
 // Templates
@@ -127,11 +128,15 @@ async fn create_client(
     }
 }
 
-async fn list_clients(State(state): State<AppState>, cookies: Cookies) -> Html<String> {
+async fn list_clients(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+    cookies: Cookies,
+) -> Html<String> {
     let lang = resolve_language(&cookies);
     let t = state.i18n.get_dictionary(lang.as_str());
 
-    let clients: Vec<Client> = repository::get_all_clients(&state)
+    let clients: Vec<Client> = repository::get_all_clients(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     let template = ClientListTemplate { clients, t };
@@ -181,12 +186,13 @@ async fn delete_client(State(state): State<AppState>, Path(id): Path<String>) ->
 /// Returns client options as HTML for select dropdowns (used by invoices, etc)
 pub async fn clients_options(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     cookies: Cookies,
 ) -> Html<String> {
     let lang = resolve_language(&cookies);
     let t = state.i18n.get_dictionary(lang.as_str());
 
-    let clients: Vec<Client> = repository::get_all_clients(&state)
+    let clients: Vec<Client> = repository::get_all_clients(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
 

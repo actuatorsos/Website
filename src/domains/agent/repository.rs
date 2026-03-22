@@ -243,12 +243,12 @@ pub async fn list_notifications(
 ) -> Result<Vec<Notification>, DbError> {
     let notifs: Vec<Notification> = if unread_only {
         state.db
-            .query("SELECT * FROM notification WHERE recipient = type::thing('account', $uid) AND is_read = false ORDER BY created_at DESC")
+            .query("SELECT * FROM notification WHERE recipient = type::thing('account', $uid) AND is_read = false AND (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC")
             .bind(("uid", user_id.to_string()))
             .await?.take(0)?
     } else {
         state.db
-            .query("SELECT * FROM notification WHERE recipient = type::thing('account', $uid) ORDER BY created_at DESC LIMIT 50")
+            .query("SELECT * FROM notification WHERE recipient = type::thing('account', $uid) AND (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC LIMIT 50")
             .bind(("uid", user_id.to_string()))
             .await?.take(0)?
     };

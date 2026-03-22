@@ -3,12 +3,14 @@
 //! Full-text search across all entities for Command Palette (Ctrl+K).
 
 use axum::{
+    Extension,
     extract::{Query, State},
     response::Html,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::db::AppState;
+use crate::models::CurrentUser;
 
 /// Search query parameters.
 #[derive(Deserialize)]
@@ -37,6 +39,7 @@ pub struct SearchResult {
 /// Returns HTMX fragment with search results.
 pub async fn global_search(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     Query(params): Query<SearchQuery>,
 ) -> Html<String> {
     let query = params.q.trim();
@@ -48,7 +51,7 @@ pub async fn global_search(
     let pattern = format!("%{}%", query);
 
     // Search across multiple tables
-    let results = search_all_entities(&state, pattern).await;
+    let results = search_all_entities(&state, pattern, user.organization_id.as_deref()).await;
 
     if results.is_empty() {
         return Html(format!(
@@ -62,40 +65,40 @@ pub async fn global_search(
 }
 
 /// Search all entity types and combine results.
-async fn search_all_entities(state: &AppState, pattern: String) -> Vec<SearchResult> {
+async fn search_all_entities(state: &AppState, pattern: String, org_id: Option<&str>) -> Vec<SearchResult> {
     let mut all_results = Vec::new();
 
     // Search employees
-    if let Ok(employees) = search_employees(state, pattern.clone()).await {
+    if let Ok(employees) = search_employees(state, pattern.clone(), org_id).await {
         all_results.extend(employees);
     }
 
     // Search assets
-    if let Ok(assets) = search_assets(state, pattern.clone()).await {
+    if let Ok(assets) = search_assets(state, pattern.clone(), org_id).await {
         all_results.extend(assets);
     }
 
     // Search machines
-    if let Ok(machines) = search_machines(state, pattern.clone()).await {
+    if let Ok(machines) = search_machines(state, pattern.clone(), org_id).await {
         all_results.extend(machines);
     }
 
     // Search clients
-    if let Ok(clients) = search_clients(state, pattern.clone()).await {
+    if let Ok(clients) = search_clients(state, pattern.clone(), org_id).await {
         all_results.extend(clients);
     }
 
     // Search invoices
-    if let Ok(invoices) = search_invoices(state, pattern.clone()).await {
+    if let Ok(invoices) = search_invoices(state, pattern.clone(), org_id).await {
         all_results.extend(invoices);
     }
 
     // Search projects
-    if let Ok(projects) = search_projects(state, pattern.clone()).await {
+    if let Ok(projects) = search_projects(state, pattern.clone(), org_id).await {
         all_results.extend(projects);
     }
 
-    // Search certificates
+    // Search certificates (no org filter — certificates are cross-org)
     if let Ok(certificates) = search_certificates(state, pattern).await {
         all_results.extend(certificates);
     }
@@ -105,7 +108,7 @@ async fn search_all_entities(state: &AppState, pattern: String) -> Vec<SearchRes
     all_results
 }
 
-async fn search_employees(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_employees(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct EmployeeResult {
         id: surrealdb::sql::Thing,
@@ -113,10 +116,17 @@ async fn search_employees(state: &AppState, pattern: String) -> Result<Vec<Searc
         role: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, name, role FROM employee WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, name, role FROM employee WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<EmployeeResult> = state
         .db
-        .query("SELECT id, name, role FROM employee WHERE name CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -134,7 +144,7 @@ async fn search_employees(state: &AppState, pattern: String) -> Result<Vec<Searc
         .collect())
 }
 
-async fn search_assets(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_assets(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct AssetResult {
         id: surrealdb::sql::Thing,
@@ -142,10 +152,17 @@ async fn search_assets(state: &AppState, pattern: String) -> Result<Vec<SearchRe
         category: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, name, category FROM asset WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, name, category FROM asset WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<AssetResult> = state
         .db
-        .query("SELECT id, name, category FROM asset WHERE name CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -163,7 +180,7 @@ async fn search_assets(state: &AppState, pattern: String) -> Result<Vec<SearchRe
         .collect())
 }
 
-async fn search_machines(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_machines(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct MachineResult {
         id: surrealdb::sql::Thing,
@@ -171,9 +188,16 @@ async fn search_machines(state: &AppState, pattern: String) -> Result<Vec<Search
         model: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, serial_number, model FROM machine WHERE (serial_number CONTAINS $pattern OR model CONTAINS $pattern) AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, serial_number, model FROM machine WHERE (serial_number CONTAINS $pattern OR model CONTAINS $pattern) AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<MachineResult> = state.db
-        .query("SELECT id, serial_number, model FROM machine WHERE serial_number CONTAINS $pattern OR model CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -191,7 +215,7 @@ async fn search_machines(state: &AppState, pattern: String) -> Result<Vec<Search
         .collect())
 }
 
-async fn search_clients(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_clients(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct ClientResult {
         id: surrealdb::sql::Thing,
@@ -199,10 +223,17 @@ async fn search_clients(state: &AppState, pattern: String) -> Result<Vec<SearchR
         phone: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, name, phone FROM client WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, name, phone FROM client WHERE name CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<ClientResult> = state
         .db
-        .query("SELECT id, name, phone FROM client WHERE name CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -220,7 +251,7 @@ async fn search_clients(state: &AppState, pattern: String) -> Result<Vec<SearchR
         .collect())
 }
 
-async fn search_invoices(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_invoices(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct InvoiceResult {
         id: surrealdb::sql::Thing,
@@ -228,10 +259,17 @@ async fn search_invoices(state: &AppState, pattern: String) -> Result<Vec<Search
         client_name: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, invoice_number, client_name FROM invoice WHERE invoice_number CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, invoice_number, client_name FROM invoice WHERE invoice_number CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<InvoiceResult> = state
         .db
-        .query("SELECT id, invoice_number, client_name FROM invoice WHERE invoice_number CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -249,7 +287,7 @@ async fn search_invoices(state: &AppState, pattern: String) -> Result<Vec<Search
         .collect())
 }
 
-async fn search_projects(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
+async fn search_projects(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
     #[derive(serde::Deserialize)]
     struct ProjectResult {
         id: surrealdb::sql::Thing,
@@ -257,10 +295,17 @@ async fn search_projects(state: &AppState, pattern: String) -> Result<Vec<Search
         customer_name: Option<String>,
     }
 
+    let query = if org_id.is_some() {
+        "SELECT id, title, customer_name FROM project WHERE title CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) AND organization = type::record($org) LIMIT 5"
+    } else {
+        "SELECT id, title, customer_name FROM project WHERE title CONTAINS $pattern AND (is_archived = false OR is_archived = NONE) LIMIT 5"
+    };
+
     let results: Vec<ProjectResult> = state
         .db
-        .query("SELECT id, title, customer_name FROM project WHERE title CONTAINS $pattern LIMIT 5")
+        .query(query)
         .bind(("pattern", pattern))
+        .bind(("org", org_id.unwrap_or_default().to_string()))
         .await
         .map_err(|_| ())?
         .take(0)
@@ -287,7 +332,7 @@ async fn search_certificates(state: &AppState, pattern: String) -> Result<Vec<Se
     }
 
     let results: Vec<CertificateResult> = state.db
-        .query("SELECT id, credential_id, trainee_name FROM certificate WHERE credential_id CONTAINS $pattern OR trainee_name CONTAINS $pattern LIMIT 5")
+        .query("SELECT id, credential_id, trainee_name FROM certificate WHERE (credential_id CONTAINS $pattern OR trainee_name CONTAINS $pattern) AND (is_archived = false OR is_archived = NONE) LIMIT 5")
         .bind(("pattern", pattern))
         .await
         .map_err(|_| ())?

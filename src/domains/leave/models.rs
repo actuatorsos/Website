@@ -6,18 +6,20 @@ use surrealdb::sql::Thing;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaveRequest {
     pub id: Option<Thing>,
-    pub employee: Thing,
+    pub employee: Option<Thing>,
     pub leave_type: String,
-    pub start_date: String,
-    pub end_date: String,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
     pub days: Option<i64>,
     pub reason: Option<String>,
-    pub status: Option<String>, // pending, approved, rejected
+    pub status: Option<String>,
     pub approved_by: Option<Thing>,
-    pub approved_at: Option<String>,
-    pub rejection_reason: Option<String>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
+    #[serde(default)]
+    pub employee_name: Option<String>,
+    #[serde(default)]
+    pub employee_email: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

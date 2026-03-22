@@ -2,121 +2,95 @@
 {% block admin_content %}
 <div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
 
+    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["auto_inventory_240"] }}
-
-                </html>
-                <p class="text-text-secondary mt-1">{{ t["auto_inventory_241"] }}</p>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["nav_assets"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["admin_subtitle"] }}</p>
         </div>
         <div class="flex gap-2">
-            <button onclick="document.getElementById('inv-in-modal').classList.remove('hidden')"
-                class="bg-green-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-green-600 transition-colors">{{ t["auto_inventory_242"] }}</button>
-            <button onclick="document.getElementById('inv-out-modal').classList.remove('hidden')"
-                class="bg-red-500 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors">{{ t["auto_inventory_243"] }}</button>
-        </div>
-    </div>
-
-    <!-- Low Stock Alert -->
-    <div id="low-stock-banner"
-        class="hidden mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4">
-        <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-            <span class="text-orange-700 dark:text-orange-400 font-medium text-sm" id="low-stock-text">{{ t["auto_inventory_244"] }}</span>
-            <button onclick="loadLowStock()" class="ms-auto text-xs text-orange-600 underline">{{ t["auto_inventory_245"] }}</button>
+            <button onclick="document.getElementById('add-item-modal').classList.remove('hidden')"
+                class="flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg font-bold transition-smooth shadow-sm text-sm">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                {{ t["inv_add_item"] }}
+            </button>
         </div>
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 mb-6 border-b border-border">
+    <div class="flex flex-wrap gap-1 sm:gap-2 mb-6 border-b border-border">
         <button onclick="showInvTab('items')" id="invtab-items"
-            class="invtab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_inventory_246"] }}</button>
+            class="invtab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["inv_items"] }}</button>
         <button onclick="showInvTab('warehouses')" id="invtab-warehouses"
-            class="invtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_inventory_247"] }}</button>
+            class="invtab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["inv_warehouses"] }}</button>
+        <button onclick="showInvTab('inout')" id="invtab-inout"
+            class="invtab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["inv_in_out"] }}</button>
         <button onclick="showInvTab('transactions')" id="invtab-transactions"
-            class="invtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_inventory_248"] }}</button>
-        <button onclick="showInvTab('low-stock')" id="invtab-low-stock"
-            class="invtab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_inventory_249"] }}</button>
+            class="invtab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["inv_transactions"] }}</button>
     </div>
 
-    <!-- Items Tab -->
+    <!-- ========== TAB 1: Items ========== -->
     <div id="invtab-content-items">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div class="bg-surface rounded-2xl p-5 border border-border shadow-card lg:col-span-1">
-                <h2 class="text-base font-bold text-primary mb-4">{{ t["auto_inventory_250"] }}</h2>
-                <form id="item-form" class="space-y-3">
-                    <input id="i-name" type="text" placeholder="{{ t["auto_attr_inventory_270"] }}" required
-                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                    <input id="i-sku" type="text" placeholder="{{ t["auto_attr_inventory_271"] }}"
-                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                    <input id="i-unit" type="text" placeholder="{{ t["auto_attr_catalog_82"] }}"
-                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input id="i-qty" type="number" placeholder="{{ t["table_quantity"] }}"
-                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                        <input id="i-min" type="number" placeholder="{{ t["auto_inventory_252"] }}"
-                            class="bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                    </div>
-                    <input id="i-cost" type="number" step="0.01" placeholder="{{ t["auto_attr_inventory_272"] }}"
-                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                    <button type="submit"
-                        class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["form_submit"] }}</button>
-                </form>
+        <!-- Low Stock Alert -->
+        <div id="low-stock-banner"
+            class="hidden mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <span class="text-orange-700 dark:text-orange-400 font-medium text-sm" id="low-stock-text">{{ t["inv_low_stock"] }}</span>
             </div>
-            <div class="lg:col-span-3 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
-                <div class="p-4 border-b border-border bg-background/50 flex items-center gap-3">
-                    <h2 class="text-lg font-bold text-primary flex-1">{{ t["auto_inventory_251"] }}</h2>
-                    <input type="text" placeholder="{{ t["auto_attr_catalog_83"] }}" onkeyup="filterInvItems(this.value)"
-                        class="bg-background border border-border rounded-xl px-3 py-1.5 text-sm focus:outline-none w-36">
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-background/30 border-b border-border">
-                            <tr>
-                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["form_name"] }}</th>
-                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">SKU
-                                </th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["table_quantity"] }}</th>
-                                <th class="px-4 py-3 text-center text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["auto_inventory_252"] }}</th>
-                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["auto_catalog_65"] }}</th>
-                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["table_cost"] }}</th>
-                                <th class="px-4 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
-                                    {{ t["table_status"] }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inv-items-table" class="divide-y divide-border">
-                            <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        </div>
+
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="p-4 border-b border-border bg-background/50 flex items-center gap-3">
+                <h2 class="text-lg font-bold text-primary flex-1">{{ t["inv_items"] }}</h2>
+                <input type="text" placeholder="{{ t["form_search"] }}" onkeyup="filterInvItems(this.value)"
+                    class="bg-background border border-border rounded-xl px-3 py-1.5 text-sm focus:outline-none w-full sm:w-48">
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_name"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["inv_sku"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden md:table-cell">{{ t["inv_category"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-center text-xs font-semibold text-text-secondary uppercase">{{ t["inv_quantity"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-center text-xs font-semibold text-text-secondary uppercase hidden sm:table-cell">{{ t["inv_min_qty"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden lg:table-cell">{{ t["inv_unit_cost"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden lg:table-cell">{{ t["inv_warehouse"] }}</th>
+                            <th class="px-3 sm:px-4 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_status"] }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-items-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="8" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Warehouses Tab -->
+    <!-- ========== TAB 2: Warehouses ========== -->
     <div id="invtab-content-warehouses" class="hidden">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
             <div class="bg-surface rounded-2xl p-5 border border-border shadow-card">
-                <h2 class="text-base font-bold text-primary mb-4">{{ t["auto_inventory_253"] }}</h2>
+                <h2 class="text-base font-bold text-primary mb-4">{{ t["inv_add_warehouse"] }}</h2>
                 <form id="warehouse-form" class="space-y-3">
-                    <input id="w-code" type="text" placeholder="{{ t["auto_attr_inventory_273"] }}" required
+                    <input id="w-name" type="text" placeholder="{{ t["form_name"] }}" required
                         class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                    <input id="w-name" type="text" placeholder="{{ t["auto_attr_inventory_274"] }}" required
+                    <input id="w-code" type="text" placeholder="{{ t["inv_code"] }}" required
                         class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
-                    <input id="w-address" type="text" placeholder="{{ t["auto_attr_inventory_275"] }}"
+                    <input id="w-address" type="text" placeholder="{{ t["inv_address"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <input id="w-capacity" type="number" placeholder="{{ t["inv_capacity"] }}"
                         class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
                     <button type="submit"
-                        class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["auto_inventory_254"] }}</button>
+                        class="w-full bg-secondary text-white rounded-xl py-2 font-semibold hover:bg-secondary/90 transition-colors text-sm">{{ t["inv_add_warehouse"] }}</button>
                 </form>
             </div>
             <div class="md:col-span-2" id="warehouses-grid">
@@ -125,29 +99,85 @@
         </div>
     </div>
 
-    <!-- Transactions Tab -->
+    <!-- ========== TAB 3: In/Out ========== -->
+    <div id="invtab-content-inout" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+            <!-- Material In -->
+            <div class="bg-surface rounded-2xl p-5 border border-border shadow-card">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m0 0l-4-4m4 4l4-4" />
+                        </svg>
+                    </div>
+                    <h2 class="text-base font-bold text-green-700 dark:text-green-400">{{ t["inv_material_in"] }}</h2>
+                </div>
+                <form id="inv-in-form" class="space-y-3">
+                    <select id="in-item-id" required
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                        <option value="">-- {{ t["inv_items"] }} --</option>
+                    </select>
+                    <input id="in-qty" type="number" min="1" placeholder="{{ t["inv_quantity"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <input id="in-cost" type="number" step="0.01" placeholder="{{ t["inv_unit_cost"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <input id="in-ref" type="text" placeholder="{{ t["inv_reference"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <textarea id="in-notes" rows="2" placeholder="{{ t["form_notes"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"></textarea>
+                    <button type="submit"
+                        class="w-full bg-green-500 text-white rounded-xl py-2.5 font-semibold hover:bg-green-600 transition-colors text-sm">{{ t["inv_material_in"] }}</button>
+                </form>
+            </div>
+
+            <!-- Material Out -->
+            <div class="bg-surface rounded-2xl p-5 border border-border shadow-card">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20V4m0 0l-4 4m4-4l4 4" />
+                        </svg>
+                    </div>
+                    <h2 class="text-base font-bold text-red-700 dark:text-red-400">{{ t["inv_material_out"] }}</h2>
+                </div>
+                <form id="inv-out-form" class="space-y-3">
+                    <select id="out-item-id" required
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50">
+                        <option value="">-- {{ t["inv_items"] }} --</option>
+                    </select>
+                    <input id="out-qty" type="number" min="1" placeholder="{{ t["inv_quantity"] }}" required
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <input id="out-ref" type="text" placeholder="{{ t["inv_reference"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                    <textarea id="out-notes" rows="2" placeholder="{{ t["form_notes"] }}"
+                        class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none resize-none"></textarea>
+                    <button type="submit"
+                        class="w-full bg-red-500 text-white rounded-xl py-2.5 font-semibold hover:bg-red-600 transition-colors text-sm">{{ t["inv_material_out"] }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TAB 4: Transactions ========== -->
     <div id="invtab-content-transactions" class="hidden">
         <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="p-4 border-b border-border bg-background/50">
+                <h2 class="text-lg font-bold text-primary">{{ t["inv_transactions"] }}</h2>
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-background/30 border-b border-border">
                         <tr>
-                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_inventory_255"] }}
-                            </th>
-                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_compliance_101"] }}
-                            </th>
-                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_quantity"] }}
-                            </th>
-                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_inventory_256"] }}
-                            </th>
-                            <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}
-                            </th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["form_name"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_type"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-semibold text-text-secondary uppercase">{{ t["inv_quantity"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden sm:table-cell">{{ t["inv_reference"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["table_date"] }}</th>
                         </tr>
                     </thead>
                     <tbody id="txn-table" class="divide-y divide-border">
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_inventory_257"] }}
-                            </td>
+                            <td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -155,69 +185,113 @@
         </div>
     </div>
 
-    <!-- Low Stock Tab -->
-    <div id="invtab-content-low-stock" class="hidden">
-        <div id="low-stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="col-span-3 text-center text-text-secondary py-8">{{ t["loading"] }}</div>
-        </div>
-    </div>
-
-    <!-- Stock In Modal -->
-    <div id="inv-in-modal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-green-600">{{ t["auto_inventory_258"] }}</h3>
-                <button onclick="document.getElementById('inv-in-modal').classList.add('hidden')"
-                    class="text-text-secondary">✕</button>
+    <!-- ========== Add Item Modal ========== -->
+    <div id="add-item-modal"
+        class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" aria-hidden="true"
+                onclick="document.getElementById('add-item-modal').classList.add('hidden')"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-surface rounded-2xl text-start overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-border">
+                <div class="px-6 pt-6 pb-4">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="text-xl font-bold text-primary">{{ t["inv_add_item"] }}</h3>
+                        <button onclick="document.getElementById('add-item-modal').classList.add('hidden')"
+                            class="text-text-secondary hover:text-primary transition-colors text-xl">&times;</button>
+                    </div>
+                    <form id="item-form" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["form_name"] }} *</label>
+                                <input id="i-name" type="text" required
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_sku"] }} *</label>
+                                <input id="i-sku" type="text" required
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_category"] }}</label>
+                                <select id="i-category"
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                                    <option value="spare_parts">Spare Parts</option>
+                                    <option value="raw_materials">Raw Materials</option>
+                                    <option value="consumables">Consumables</option>
+                                    <option value="packaging">Packaging</option>
+                                    <option value="other" selected>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_unit"] }}</label>
+                                <select id="i-unit"
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                                    <option value="piece" selected>Piece</option>
+                                    <option value="kg">Kg</option>
+                                    <option value="meter">Meter</option>
+                                    <option value="liter">Liter</option>
+                                    <option value="box">Box</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_quantity"] }}</label>
+                                <input id="i-qty" type="number" value="0"
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_min_qty"] }}</label>
+                                <input id="i-min" type="number" value="5"
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_unit_cost"] }}</label>
+                                <input id="i-cost" type="number" step="0.01"
+                                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-text-secondary mb-1 block">{{ t["inv_warehouse"] }}</label>
+                            <select id="i-warehouse"
+                                class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none">
+                                <option value="">-- {{ t["inv_warehouse"] }} --</option>
+                            </select>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-secondary text-white rounded-xl py-2.5 font-semibold hover:bg-secondary/90 transition-colors text-sm mt-2">{{ t["form_submit"] }}</button>
+                    </form>
+                </div>
             </div>
-            <form id="inv-in-form" class="space-y-4">
-                <input id="in-item-id" type="text" placeholder="{{ t["auto_attr_inventory_276"] }}" required
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <input id="in-qty" type="number" min="1" placeholder="{{ t["table_quantity"] }}" required
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <input id="in-cost" type="number" step="0.01" placeholder="{{ t["auto_attr_inventory_272"] }}"
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <input id="in-ref" type="text" placeholder="{{ t["auto_attr_inventory_277"] }}"
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <button type="submit"
-                    class="w-full bg-green-500 text-white rounded-xl py-2.5 font-semibold hover:bg-green-600 transition-colors">{{ t["auto_inventory_259"] }}</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Stock Out Modal -->
-    <div id="inv-out-modal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-red-600">{{ t["auto_inventory_260"] }}</h3>
-                <button onclick="document.getElementById('inv-out-modal').classList.add('hidden')"
-                    class="text-text-secondary">✕</button>
-            </div>
-            <form id="inv-out-form" class="space-y-4">
-                <input id="out-item-id" type="text" placeholder="{{ t["auto_attr_inventory_276"] }}" required
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <input id="out-qty" type="number" min="1" placeholder="{{ t["table_quantity"] }}" required
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <input id="out-ref" type="text" placeholder="{{ t["auto_inventory_256"] }}"
-                    class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm focus:outline-none">
-                <button type="submit"
-                    class="w-full bg-red-500 text-white rounded-xl py-2.5 font-semibold hover:bg-red-600 transition-colors">{{ t["auto_inventory_261"] }}</button>
-            </form>
         </div>
     </div>
 </div>
 
 <script>
+    function getCookie(name) {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+    }
+
+    // Cache for items list (used by in/out dropdowns)
+    let cachedItems = [];
+
     function showInvTab(name) {
         document.querySelectorAll('[id^="invtab-content-"]').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('.invtab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
+        document.querySelectorAll('.invtab').forEach(btn => {
+            btn.classList.remove('border-secondary', 'text-secondary');
+            btn.classList.add('border-transparent', 'text-text-secondary');
+        });
         document.getElementById('invtab-content-' + name).classList.remove('hidden');
         const btn = document.getElementById('invtab-' + name);
-        btn.classList.add('border-secondary', 'text-secondary'); btn.classList.remove('border-transparent', 'text-text-secondary');
+        btn.classList.add('border-secondary', 'text-secondary');
+        btn.classList.remove('border-transparent', 'text-text-secondary');
+        if (name === 'items') loadInventoryItems();
         if (name === 'warehouses') loadWarehouses();
-        if (name === 'low-stock') loadLowStock();
+        if (name === 'inout') loadItemDropdowns();
+        if (name === 'transactions') loadTransactions();
     }
 
     function filterInvItems(q) {
@@ -226,109 +300,257 @@
         });
     }
 
+    const categoryLabels = {
+        spare_parts: '{{ t["inv_category"] }}: Spare Parts',
+        raw_materials: 'Raw Materials',
+        consumables: 'Consumables',
+        packaging: 'Packaging',
+        other: 'Other'
+    };
+
+    const txnTypeLabels = { 'in': '{{ t["inv_material_in"] }}', 'out': '{{ t["inv_material_out"] }}', 'adjust': 'Adjust', 'return': 'Return' };
+    const txnTypeColors = { 'in': 'bg-green-100 text-green-700', 'out': 'bg-red-100 text-red-700', 'adjust': 'bg-blue-100 text-blue-700', 'return': 'bg-yellow-100 text-yellow-700' };
+
+    // ========== Load Items ==========
     async function loadInventoryItems() {
-        const res = await fetch('/api/inventory-adv/inventory');
-        const data = await res.json();
-        const tbody = document.getElementById('inv-items-table');
-        // Check low stock
-        const lowCount = (data || []).filter(i => (i.quantity || 0) <= (i.min_quantity || 0)).length;
-        if (lowCount > 0) {
-            document.getElementById('low-stock-banner').classList.remove('hidden');
-            document.getElementById('low-stock-text').textContent = `تحذير: ${lowCount} مادة وصلت للحد الأدنى`;
+        try {
+            const res = await fetch('/api/inventory-adv/inventory', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+            if (!res.ok) throw new Error('Failed to load');
+            const data = await res.json();
+            cachedItems = data || [];
+            const tbody = document.getElementById('inv-items-table');
+
+            // Low stock banner
+            const lowCount = cachedItems.filter(i => (i.quantity || 0) <= (i.min_quantity || 5)).length;
+            if (lowCount > 0) {
+                document.getElementById('low-stock-banner').classList.remove('hidden');
+                document.getElementById('low-stock-text').textContent = '{{ t["inv_low_stock"] }} (' + lowCount + ')';
+            } else {
+                document.getElementById('low-stock-banner').classList.add('hidden');
+            }
+
+            if (cachedItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-text-secondary">{{ t["no_data"] }}</td></tr>';
+                return;
+            }
+            tbody.innerHTML = cachedItems.map(r => {
+                const qty = r.quantity || 0;
+                const minQty = r.min_quantity || 5;
+                const isLow = qty <= minQty;
+                const whName = r.warehouse ? (typeof r.warehouse === 'object' ? (r.warehouse.name || tid(r.warehouse)) : r.warehouse) : '—';
+                return `<tr class="hover:bg-background/50 transition-colors">
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium text-primary">${r.name || '—'}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs font-mono text-text-secondary">${r.sku || '—'}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-xs text-text-secondary hidden md:table-cell">${r.category || '—'}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-center font-bold ${isLow ? 'text-red-600' : 'text-primary'}">${qty}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-center text-text-secondary text-sm hidden sm:table-cell">${minQty}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm hidden lg:table-cell">${r.unit_cost != null ? parseFloat(r.unit_cost).toFixed(2) : '—'}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3 text-sm hidden lg:table-cell">${whName}</td>
+                    <td class="px-3 sm:px-4 py-2 sm:py-3">${isLow
+                        ? '<span class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-bold">{{ t["inv_low_stock"] }}</span>'
+                        : '<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-bold">OK</span>'}</td>
+                </tr>`;
+            }).join('');
+        } catch (e) {
+            showToast(e.message, 'error');
         }
-        if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-text-secondary">{{ t["auto_inventory_262"] }}</td></tr>'; return; }
-        tbody.innerHTML = data.map(r => {
-            const qty = r.quantity || 0;
-            const minQty = r.min_quantity || 0;
-            const isLow = qty <= minQty;
-            return `<tr class="hover:bg-background/50 transition-colors">
-      <td class="px-4 py-3 text-sm font-medium">${r.name || '—'}</td>
-      <td class="px-4 py-3 text-xs font-mono text-text-secondary">${r.sku || '—'}</td>
-      <td class="px-4 py-3 text-center font-bold ${isLow ? 'text-red-600' : 'text-primary'}">${qty}</td>
-      <td class="px-4 py-3 text-center text-text-secondary text-sm">${minQty}</td>
-      <td class="px-4 py-3 text-sm">${r.unit || '—'}</td>
-      <td class="px-4 py-3 text-sm">${parseFloat(r.unit_cost || 0).toFixed(2)}</td>
-      <td class="px-4 py-3">${isLow ? '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">{{ t["auto_inventory_263"] }}</span>' : '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{{ t["auto_inventory_264"] }}</span>'}</td>
-    </tr>`;
-        }).join('');
     }
 
+    // ========== Load Warehouses ==========
     async function loadWarehouses() {
-        const res = await fetch('/api/inventory-adv/warehouses');
-        const data = await res.json();
-        const grid = document.getElementById('warehouses-grid');
-        if (!data || data.length === 0) { grid.innerHTML = '<div class="text-center text-text-secondary py-8">{{ t["auto_inventory_265"] }}</div>'; return; }
-        grid.className = 'md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4';
-        grid.innerHTML = data.map(w => `<div class="bg-surface rounded-2xl border border-border p-5">
-    <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary font-bold">${(w.code || '?').toUpperCase().slice(0, 2)}</div>
-      <div><p class="font-bold text-primary">${w.name || '—'}</p><p class="text-xs text-text-secondary">${w.code || ''}</p></div>
-    </div>
-    <p class="text-sm text-text-secondary">${w.address || '—'}</p>
-  </div>`).join('');
+        try {
+            const res = await fetch('/api/inventory-adv/warehouses', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+            if (!res.ok) throw new Error('Failed to load');
+            const data = await res.json();
+            const grid = document.getElementById('warehouses-grid');
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div class="text-center text-text-secondary py-8">{{ t["no_data"] }}</div>';
+                return;
+            }
+            grid.className = 'md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4';
+            grid.innerHTML = data.map(w => `<div class="bg-surface rounded-2xl border border-border p-5 shadow-card">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary font-bold">${(w.code || '?').toUpperCase().slice(0, 2)}</div>
+                    <div>
+                        <p class="font-bold text-primary">${w.name || '—'}</p>
+                        <p class="text-xs text-text-secondary font-mono">${w.code || ''}</p>
+                    </div>
+                    ${w.is_active !== false ? '<span class="ms-auto px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span>' : '<span class="ms-auto px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-bold">Inactive</span>'}
+                </div>
+                <div class="space-y-1 text-sm text-text-secondary">
+                    <p>${w.address || '—'}</p>
+                    ${w.capacity ? '<p>{{ t["inv_capacity"] }}: <span class="font-medium text-primary">' + w.capacity + '</span></p>' : ''}
+                </div>
+            </div>`).join('');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     }
 
-    async function loadLowStock() {
-        showInvTab('low-stock');
-        const res = await fetch('/api/inventory-adv/inventory/low-stock');
-        const data = await res.json();
-        const list = document.getElementById('low-stock-list');
-        if (!data || data.length === 0) { list.innerHTML = '<div class="col-span-3 text-center text-green-600 py-8 font-medium">{{ t["auto_inventory_266"] }}</div>'; return; }
-        list.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-        list.innerHTML = data.map(r => `<div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-2xl p-4">
-    <p class="font-bold text-orange-700 dark:text-orange-400">${r.name || '—'}</p>
-    <p class="text-sm text-orange-600 mt-1">{{ t["auto_inventory_267"] }} <span class="font-bold">${r.quantity || 0}</span> {{ t["auto_inventory_268"] }} <span class="font-bold">${r.min_quantity || 0}</span></p>
-  </div>`).join('');
+    // ========== Load Item Dropdowns (for In/Out tab) ==========
+    async function loadItemDropdowns() {
+        if (cachedItems.length === 0) {
+            try {
+                const res = await fetch('/api/inventory-adv/inventory', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+                if (res.ok) cachedItems = await res.json();
+            } catch (_) {}
+        }
+        ['in-item-id', 'out-item-id'].forEach(selId => {
+            const sel = document.getElementById(selId);
+            const current = sel.value;
+            sel.innerHTML = '<option value="">-- {{ t["inv_items"] }} --</option>' +
+                cachedItems.map(i => `<option value="${tid(i.id)}">${i.name} (${i.sku || '—'}) [${i.quantity || 0}]</option>`).join('');
+            if (current) sel.value = current;
+        });
     }
 
+    // ========== Load Transactions ==========
+    async function loadTransactions() {
+        try {
+            const res = await fetch('/api/inventory-adv/inventory/transactions', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+            if (!res.ok) throw new Error('Failed to load');
+            const data = await res.json();
+            const tbody = document.getElementById('txn-table');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-text-secondary">{{ t["no_data"] }}</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(t => {
+                const itemId = t.item ? tid(t.item) : '—';
+                const itemObj = cachedItems.find(i => tid(i.id) === itemId);
+                const itemName = itemObj ? itemObj.name : itemId;
+                const typeLabel = txnTypeLabels[t.txn_type] || t.txn_type;
+                const typeColor = txnTypeColors[t.txn_type] || 'bg-gray-100 text-gray-700';
+                const date = t.created_at ? new Date(t.created_at).toLocaleDateString() : '—';
+                return `<tr class="hover:bg-background/50 transition-colors">
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-sm font-medium text-primary">${itemName}</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3"><span class="px-2 py-1 ${typeColor} rounded-full text-xs font-bold">${typeLabel}</span></td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-center font-bold text-sm">${t.quantity}</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-sm text-text-secondary hidden sm:table-cell">${t.reference || '—'}</td>
+                    <td class="px-3 sm:px-6 py-2 sm:py-3 text-sm text-text-secondary">${date}</td>
+                </tr>`;
+            }).join('');
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    }
+
+    // ========== Load warehouse dropdown for add-item modal ==========
+    async function loadWarehouseDropdown() {
+        try {
+            const res = await fetch('/api/inventory-adv/warehouses', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+            if (!res.ok) return;
+            const data = await res.json();
+            const sel = document.getElementById('i-warehouse');
+            sel.innerHTML = '<option value="">-- {{ t["inv_warehouse"] }} --</option>' +
+                (data || []).map(w => `<option value="${tid(w.id)}">${w.name} (${w.code})</option>`).join('');
+        } catch (_) {}
+    }
+
+    // ========== Form Handlers ==========
+
+    // Add item
     document.getElementById('item-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        await fetch('/api/inventory-adv/inventory', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: document.getElementById('i-name').value, sku: document.getElementById('i-sku').value,
-                unit: document.getElementById('i-unit').value, quantity: parseInt(document.getElementById('i-qty').value || 0),
-                min_quantity: parseInt(document.getElementById('i-min').value || 0), unit_cost: parseFloat(document.getElementById('i-cost').value || 0)
-            })
-        });
-        this.reset(); loadInventoryItems();
+        try {
+            const body = {
+                name: document.getElementById('i-name').value,
+                sku: document.getElementById('i-sku').value,
+                category: document.getElementById('i-category').value,
+                unit: document.getElementById('i-unit').value,
+                quantity: parseInt(document.getElementById('i-qty').value || 0),
+                min_quantity: parseInt(document.getElementById('i-min').value || 5),
+                unit_cost: parseFloat(document.getElementById('i-cost').value) || null,
+                warehouse_id: document.getElementById('i-warehouse').value || null
+            };
+            const res = await fetch('/api/inventory-adv/inventory', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Error'); }
+            showToast('{{ t["inv_add_item"] }} ✓', 'success');
+            this.reset();
+            document.getElementById('add-item-modal').classList.add('hidden');
+            loadInventoryItems();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     });
 
+    // Add warehouse
     document.getElementById('warehouse-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        await fetch('/api/inventory-adv/warehouses', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: document.getElementById('w-code').value, name: document.getElementById('w-name').value, address: document.getElementById('w-address').value })
-        });
-        this.reset(); loadWarehouses();
+        try {
+            const body = {
+                name: document.getElementById('w-name').value,
+                code: document.getElementById('w-code').value,
+                address: document.getElementById('w-address').value || null,
+                capacity: parseInt(document.getElementById('w-capacity').value) || null
+            };
+            const res = await fetch('/api/inventory-adv/warehouses', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Error'); }
+            showToast('{{ t["inv_add_warehouse"] }} ✓', 'success');
+            this.reset();
+            loadWarehouses();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     });
 
+    // Inventory In
     document.getElementById('inv-in-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        const res = await fetch('/api/inventory-adv/inventory/in', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                item_id: document.getElementById('in-item-id').value, quantity: parseInt(document.getElementById('in-qty').value),
-                unit_cost: parseFloat(document.getElementById('in-cost').value || 0), reference: document.getElementById('in-ref').value
-            })
-        });
-        if (res.ok) { document.getElementById('inv-in-modal').classList.add('hidden'); this.reset(); loadInventoryItems(); }
-        else { const err = await res.json(); showToast(err.error || 'خطأ في العملية', 'error'); }
+        try {
+            const body = {
+                item_id: document.getElementById('in-item-id').value,
+                quantity: parseInt(document.getElementById('in-qty').value),
+                unit_cost: parseFloat(document.getElementById('in-cost').value) || null,
+                reference: document.getElementById('in-ref').value || null,
+                notes: document.getElementById('in-notes').value || null
+            };
+            const res = await fetch('/api/inventory-adv/inventory/in', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Error'); }
+            showToast('{{ t["inv_material_in"] }} ✓', 'success');
+            this.reset();
+            cachedItems = [];
+            loadItemDropdowns();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     });
 
+    // Inventory Out
     document.getElementById('inv-out-form').addEventListener('submit', async function (e) {
         e.preventDefault();
-        const res = await fetch('/api/inventory-adv/inventory/out', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                item_id: document.getElementById('out-item-id').value, quantity: parseInt(document.getElementById('out-qty').value),
-                reference: document.getElementById('out-ref').value
-            })
-        });
-        if (res.ok) { document.getElementById('inv-out-modal').classList.add('hidden'); this.reset(); loadInventoryItems(); }
-        else { const err = await res.json(); showToast(err.error || 'المخزون غير كافٍ', 'error'); }
+        try {
+            const body = {
+                item_id: document.getElementById('out-item-id').value,
+                quantity: parseInt(document.getElementById('out-qty').value),
+                reference: document.getElementById('out-ref').value || null,
+                notes: document.getElementById('out-notes').value || null
+            };
+            const res = await fetch('/api/inventory-adv/inventory/out', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Error'); }
+            showToast('{{ t["inv_material_out"] }} ✓', 'success');
+            this.reset();
+            cachedItems = [];
+            loadItemDropdowns();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     });
 
+    // ========== Init ==========
     loadInventoryItems();
+    loadWarehouseDropdown();
 </script>
 {% endblock %}

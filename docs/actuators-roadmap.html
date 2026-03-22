@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actuators — خارطة الطريق التنفيذية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ========== CSS CUSTOM PROPERTIES ========== */
+:root {
+  --cyan: #00B7C2;
+  --cyan-light: #00d4e0;
+  --cyan-dark: #009aa3;
+  --orange: #FF6A2A;
+  --orange-light: #ff8a55;
+  --orange-dark: #e05a20;
+  --purple: #7c3aed;
+  --purple-light: #9461f7;
+  --purple-dark: #6325d0;
+  --red: #dc2626;
+  --red-light: #ef4444;
+  --red-dark: #b91c1c;
+  --teal: #0d9488;
+  --teal-light: #14b8a6;
+  --teal-dark: #0f766e;
+  --amber: #d97706;
+  --amber-light: #f59e0b;
+  --amber-dark: #b45309;
+  --green: #16a34a;
+  --green-light: #22c55e;
+
+  /* Dark mode (default) */
+  --bg-primary: #0B1A2A;
+  --bg-secondary: #0f2338;
+  --bg-tertiary: #132d47;
+  --bg-card: #132d47;
+  --bg-card-hover: #17375a;
+  --text-primary: #e8ecf1;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #1e3a5f;
+  --border-light: #253d5b;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --code-bg: #0d2137;
+  --badge-done-bg: rgba(22, 163, 74, 0.15);
+  --badge-done-text: #4ade80;
+  --badge-partial-bg: rgba(217, 119, 6, 0.15);
+  --badge-partial-text: #fbbf24;
+  --badge-planned-bg: rgba(100, 116, 139, 0.15);
+  --badge-planned-text: #94a3b8;
+  --toc-bg: #0f2338;
+  --toc-active: var(--cyan);
+  --scrollbar-track: #0f2338;
+  --scrollbar-thumb: #1e3a5f;
+  --header-overlay: rgba(11, 26, 42, 0.85);
+
+  --font-arabic: 'IBM Plex Sans Arabic', sans-serif;
+  --font-latin: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+[data-theme="light"] {
+  --bg-primary: #F0F4F8;
+  --bg-secondary: #e2e8f0;
+  --bg-tertiary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --text-primary: #0B1A2A;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #cbd5e1;
+  --border-light: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --code-bg: #f1f5f9;
+  --badge-done-bg: rgba(22, 163, 74, 0.1);
+  --badge-done-text: #16a34a;
+  --badge-partial-bg: rgba(217, 119, 6, 0.1);
+  --badge-partial-text: #b45309;
+  --badge-planned-bg: rgba(100, 116, 139, 0.08);
+  --badge-planned-text: #64748b;
+  --toc-bg: #ffffff;
+  --scrollbar-track: #e2e8f0;
+  --scrollbar-thumb: #94a3b8;
+  --header-overlay: rgba(11, 26, 42, 0.92);
+}
+
+/* ========== RESET & BASE ========== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-arabic);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ========== LAYOUT ========== */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; }
+  .toc-sidebar { display: none; }
+}
+
+/* ========== SIDEBAR TOC ========== */
+.toc-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--toc-bg);
+  border-left: 1px solid var(--border-color);
+  padding: 24px 16px;
+  z-index: 100;
+  transition: background 0.3s ease;
+}
+
+.toc-sidebar::-webkit-scrollbar { width: 4px; }
+.toc-sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+.toc-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toc-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--cyan), var(--orange));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+}
+
+.toc-brand-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.toc-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  padding-right: 8px;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
+}
+
+.toc-link:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.toc-link.active {
+  background: rgba(0, 183, 194, 0.1);
+  color: var(--cyan);
+}
+
+.toc-link .toc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toc-phase-0 .toc-dot { background: var(--cyan); }
+.toc-phase-1 .toc-dot { background: var(--orange); }
+.toc-phase-2 .toc-dot { background: var(--purple); }
+.toc-phase-3 .toc-dot { background: var(--red); }
+.toc-phase-4 .toc-dot { background: var(--teal); }
+.toc-phase-5 .toc-dot { background: var(--amber); }
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+  width: 100%;
+}
+
+/* ========== HEADER ========== */
+.hero-header {
+  position: relative;
+  margin: 0 -32px;
+  padding: 60px 48px 40px;
+  background: var(--header-overlay);
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.hero-header canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.hero-title span { color: var(--cyan); }
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 32px;
+  max-width: 600px;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  font-size: 14px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.hero-stat .stat-num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--cyan);
+  font-size: 15px;
+}
+
+/* ========== THEME TOGGLE ========== */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  box-shadow: 0 2px 12px var(--shadow-color);
+}
+
+.theme-toggle:hover {
+  border-color: var(--cyan);
+  transform: scale(1.05);
+}
+
+/* ========== SECTION STYLES ========== */
+.roadmap-section {
+  margin-bottom: 64px;
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-header:hover .section-chevron {
+  color: var(--cyan);
+}
+
+.section-color-bar {
+  width: 4px;
+  height: 32px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.section-number {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  flex-grow: 1;
+}
+
+.section-chevron {
+  font-size: 20px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.section-header[aria-expanded="false"] .section-chevron {
+  transform: rotate(-90deg);
+}
+
+[data-theme="light"] .section-header[aria-expanded="false"] .section-chevron,
+:root:not([data-theme="light"]) .section-header[aria-expanded="false"] .section-chevron {
+  transform: rotate(90deg);
+}
+
+.section-goal {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  padding-right: 20px;
+}
+
+.section-body {
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.section-body.collapsed {
+  max-height: 0 !important;
+  overflow: hidden;
+}
+
+/* Phase color bands */
+.phase-0 .section-color-bar, .phase-0 .section-number { background: var(--cyan); color: #fff; }
+.phase-1 .section-color-bar, .phase-1 .section-number { background: var(--orange); color: #fff; }
+.phase-2 .section-color-bar, .phase-2 .section-number { background: var(--purple); color: #fff; }
+.phase-3 .section-color-bar, .phase-3 .section-number { background: var(--red); color: #fff; }
+.phase-4 .section-color-bar, .phase-4 .section-number { background: var(--teal); color: #fff; }
+.phase-5 .section-color-bar, .phase-5 .section-number { background: var(--amber); color: #fff; }
+
+/* ========== PHASE PROGRESS BAR ========== */
+.phase-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.phase-progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.phase-progress-bar {
+  flex-grow: 1;
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.phase-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.phase-progress-pct {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 40px;
+  text-align: left;
+}
+
+/* ========== STAT CARDS ========== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--cyan);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-bottom-left-radius: 12px;
+  opacity: 0.15;
+}
+
+.stat-card:nth-child(1)::before { background: var(--cyan); }
+.stat-card:nth-child(2)::before { background: var(--orange); }
+.stat-card:nth-child(3)::before { background: var(--purple); }
+.stat-card:nth-child(4)::before { background: var(--teal); }
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-top-right-radius: 12px;
+  opacity: 0.1;
+}
+
+.stat-card:nth-child(1)::after { background: var(--cyan); }
+.stat-card:nth-child(2)::after { background: var(--orange); }
+.stat-card:nth-child(3)::after { background: var(--purple); }
+.stat-card:nth-child(4)::after { background: var(--teal); }
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.stat-card:nth-child(2) .stat-value {
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  -webkit-background-clip: text; background-clip: text;
+}
+.stat-card:nth-child(3) .stat-value {
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  -webkit-background-clip: text; background-clip: text;
+}
+.stat-card:nth-child(4) .stat-value {
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  -webkit-background-clip: text; background-clip: text;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ========== OVERALL PROGRESS ========== */
+.overall-progress {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.overall-progress-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.overall-bar-container {
+  position: relative;
+  height: 24px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.overall-bar-fill {
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  transition: width 1s ease;
+}
+
+.overall-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.overall-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.overall-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ========== FEATURE TABLE ========== */
+.feature-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.feature-table-title {
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feature-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.feature-table th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.feature-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.feature-table tr:last-child td { border-bottom: none; }
+
+.feature-table tr:hover td {
+  background: var(--bg-card-hover);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-done {
+  background: var(--badge-done-bg);
+  color: var(--badge-done-text);
+}
+
+.badge-partial {
+  background: var(--badge-partial-bg);
+  color: var(--badge-partial-text);
+}
+
+.badge-planned {
+  background: var(--badge-planned-bg);
+  color: var(--badge-planned-text);
+}
+
+.detail-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ========== TASK CARDS ========== */
+.tasks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.task-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.task-card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-1px);
+}
+
+/* Corner marks */
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-bottom-left-radius: 12px;
+}
+
+.task-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-top-right-radius: 12px;
+}
+
+.phase-0 .task-card::before, .phase-0 .task-card::after { background: rgba(0, 183, 194, 0.12); }
+.phase-1 .task-card::before, .phase-1 .task-card::after { background: rgba(255, 106, 42, 0.12); }
+.phase-2 .task-card::before, .phase-2 .task-card::after { background: rgba(124, 58, 237, 0.12); }
+.phase-3 .task-card::before, .phase-3 .task-card::after { background: rgba(220, 38, 38, 0.12); }
+.phase-4 .task-card::before, .phase-4 .task-card::after { background: rgba(13, 148, 136, 0.12); }
+.phase-5 .task-card::before, .phase-5 .task-card::after { background: rgba(217, 119, 6, 0.12); }
+
+.task-number {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.phase-0 .task-number { background: rgba(0,183,194,0.15); color: var(--cyan); }
+.phase-1 .task-number { background: rgba(255,106,42,0.15); color: var(--orange); }
+.phase-2 .task-number { background: rgba(124,58,237,0.15); color: var(--purple); }
+.phase-3 .task-number { background: rgba(220,38,38,0.15); color: var(--red); }
+.phase-4 .task-number { background: rgba(13,148,136,0.15); color: var(--teal); }
+.phase-5 .task-number { background: rgba(217,119,6,0.15); color: var(--amber); }
+
+.task-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+.task-list li {
+  position: relative;
+  padding-right: 20px;
+  padding-bottom: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.task-list li::before {
+  content: '\25C6';
+  position: absolute;
+  right: 0;
+  top: 2px;
+  font-size: 8px;
+  color: var(--cyan);
+}
+
+.phase-1 .task-list li::before { color: var(--orange); }
+.phase-2 .task-list li::before { color: var(--purple); }
+.phase-3 .task-list li::before { color: var(--red); }
+.phase-4 .task-list li::before { color: var(--teal); }
+.phase-5 .task-list li::before { color: var(--amber); }
+
+.task-files {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.task-files-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+code, .code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--cyan);
+  direction: ltr;
+  display: inline-block;
+}
+
+.phase-1 code { color: var(--orange); }
+.phase-2 code { color: var(--purple); }
+.phase-3 code { color: var(--red); }
+.phase-4 code { color: var(--teal); }
+.phase-5 code { color: var(--amber); }
+
+/* ========== INFO BOXES ========== */
+.info-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.info-box-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-box-title .icon { font-size: 18px; }
+
+.info-list {
+  list-style: none;
+  padding: 0;
+}
+
+.info-list li {
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.info-list li strong {
+  color: var(--text-primary);
+}
+
+/* ========== API TABLE ========== */
+.api-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.api-table th {
+  padding: 10px 16px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.api-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.api-table tr:last-child td { border-bottom: none; }
+
+.method-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  direction: ltr;
+}
+
+.method-post { background: rgba(22,163,74,0.15); color: var(--green); }
+.method-get { background: rgba(0,183,194,0.15); color: var(--cyan); }
+.method-put { background: rgba(217,119,6,0.15); color: var(--amber); }
+.method-delete { background: rgba(220,38,38,0.15); color: var(--red); }
+
+/* ========== DEPENDENCY ARROWS ========== */
+.phase-dependency {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  gap: 12px;
+}
+
+.dep-arrow {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--border-color), var(--cyan));
+  position: relative;
+}
+
+.dep-arrow::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: -4px;
+  border: 5px solid transparent;
+  border-right-color: var(--cyan);
+}
+
+/* ========== PRICING CARDS ========== */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.pricing-card:hover { transform: translateY(-2px); }
+
+.pricing-card.popular {
+  border-color: var(--purple);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.pricing-card.popular::before {
+  content: 'الأكثر طلباً';
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  background: var(--purple);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 99px;
+}
+
+.pricing-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.pricing-price {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 4px;
+}
+
+.pricing-period {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  text-align: right;
+}
+
+.pricing-features li {
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ========== CRITICAL FILES TABLE ========== */
+.critical-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.critical-table th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 600;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.critical-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.critical-table tr:last-child td { border-bottom: none; }
+
+/* ========== FOOTER ========== */
+.roadmap-footer {
+  margin-top: 64px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.footer-brand {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.footer-brand span { color: var(--cyan); }
+
+.footer-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.footer-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.footer-stats span {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--cyan);
+}
+
+/* ========== CRATES / TABLES BOX ========== */
+.meta-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+/* ========== WORKFLOW DIAGRAM ========== */
+.workflow-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.workflow-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.workflow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  direction: ltr;
+}
+
+.workflow-step {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.workflow-arrow {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .hero-header { padding: 40px 24px 30px; }
+  .hero-title { font-size: 1.8rem; }
+  .main-content { padding: 0 16px 60px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; }
+}
+
+/* ========== PRINT ========== */
+@media print {
+  .toc-sidebar, .theme-toggle { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .section-body { max-height: none !important; }
+  body { background: #fff; color: #000; }
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="تبديل السمة" title="تبديل الوضع الداكن/الفاتح">
+  <span id="themeIcon">&#9790;</span>
+</button>
+
+<div class="layout">
+
+<!-- ==================== SIDEBAR TOC ==================== -->
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-brand">
+    <div class="toc-brand-icon">A</div>
+    <div class="toc-brand-name">Actuators</div>
+  </div>
+
+  <div class="toc-section-label">نظرة عامة</div>
+  <a href="#overview" class="toc-link active" data-section="overview">
+    <span class="toc-dot" style="background: var(--cyan)"></span>
+    الحالة الحالية
+  </a>
+
+  <div class="toc-section-label">المراحل</div>
+  <a href="#phase-0" class="toc-link toc-phase-0" data-section="phase-0">
+    <span class="toc-dot"></span>
+    0 — تقوية الأساس
+  </a>
+  <a href="#phase-1" class="toc-link toc-phase-1" data-section="phase-1">
+    <span class="toc-dot"></span>
+    1 — Multi-Tenant
+  </a>
+  <a href="#phase-2" class="toc-link toc-phase-2" data-section="phase-2">
+    <span class="toc-dot"></span>
+    2 — المنصة والاشتراكات
+  </a>
+  <a href="#phase-3" class="toc-link toc-phase-3" data-section="phase-3">
+    <span class="toc-dot"></span>
+    3 — التكاملات السعودية
+  </a>
+  <a href="#phase-4" class="toc-link toc-phase-4" data-section="phase-4">
+    <span class="toc-dot"></span>
+    4 — مجتمع Actuators
+  </a>
+  <a href="#phase-5" class="toc-link toc-phase-5" data-section="phase-5">
+    <span class="toc-dot"></span>
+    5 — PWA + AI Agents
+  </a>
+
+  <div class="toc-section-label">مرجع</div>
+  <a href="#critical-files" class="toc-link" data-section="critical-files">
+    <span class="toc-dot" style="background: var(--text-muted)"></span>
+    الملفات الحرجة
+  </a>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main class="main-content">
+
+<!-- ==================== HERO HEADER ==================== -->
+<header class="hero-header" id="heroHeader">
+  <canvas id="hexCanvas"></canvas>
+  <div class="hero-content">
+    <h1 class="hero-title"><span>Actuators</span> — خارطة الطريق التنفيذية</h1>
+    <p class="hero-subtitle">المخطط الشامل لبناء منصة B2B SaaS متعددة المستأجرين</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="stat-num">89</span> جدول</div>
+      <div class="hero-stat"><span class="stat-num">21</span> وحدة</div>
+      <div class="hero-stat"><span class="stat-num">50+</span> API</div>
+      <div class="hero-stat"><span class="stat-num">6</span> مراحل</div>
+      <div class="hero-stat"><span class="stat-num">26</span> خدمة</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: نظرة عامة — الحالة الحالية                        -->
+<!-- ============================================================ -->
+<section class="roadmap-section" id="overview">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar phase-0"></div>
+    <span class="section-number phase-0" style="background:var(--cyan)">01</span>
+    <h2 class="section-title">نظرة عامة — الحالة الحالية</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+
+  <div class="section-body">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">89</div>
+        <div class="stat-label">جدول في SurrealDB</div>
+        <div class="stat-detail">HR, CRM, Finance, Inventory, Manufacturing...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">21</div>
+        <div class="stat-label">domain module</div>
+        <div class="stat-detail">~10,500 سطر كود Rust</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">50+</div>
+        <div class="stat-label">API endpoint</div>
+        <div class="stat-detail">REST + JSON + CSRF protection</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">36+</div>
+        <div class="stat-label">صفحة إدارية</div>
+        <div class="stat-detail">Jinja2 templates + HTMX</div>
+      </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="overall-progress">
+      <div class="overall-progress-title">التقدم الإجمالي للمنصة</div>
+      <div class="overall-bar-container">
+        <div class="overall-bar-fill">55%</div>
+      </div>
+      <div class="overall-legend">
+        <div class="overall-legend-item">
+          <div class="overall-legend-dot" style="background:var(--green)"></div>
+          مُنجز: 18 ميزة
+        </div>
+        <div class="overall-legend-item">
+          <div class="overall-legend-dot" style="background:var(--amber)"></div>
+          جزئي: 3 ميزات
+        </div>
+        <div class="overall-legend-item">
+          <div class="overall-legend-dot" style="background:var(--text-muted)"></div>
+          مخطط: 12 ميزة
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Status Table -->
+    <div class="feature-table-wrapper">
+      <div class="feature-table-title">حالة جميع الميزات</div>
+      <table class="feature-table">
+        <thead>
+          <tr>
+            <th>الميزة</th>
+            <th>الحالة</th>
+            <th>التفاصيل</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>الموارد البشرية (HR)</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">موظفين، عقود، تقييم، وثائق</td></tr>
+          <tr><td>الحضور</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">تسجيل يومي، ساعات عمل</td></tr>
+          <tr><td>الرواتب</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">مكونات الراتب، مسير رواتب</td></tr>
+          <tr><td>الإجازات</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">طلبات، أرصدة، موافقات</td></tr>
+          <tr><td>التدريب</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">برامج، تسجيل، متابعة</td></tr>
+          <tr><td>الامتثال</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">إنذارات، نهاية خدمة</td></tr>
+          <tr><td>الشهادات</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">إصدار وتتبع</td></tr>
+          <tr><td>CRM</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">جهات اتصال، فرص، عروض أسعار</td></tr>
+          <tr><td>العملاء</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">بيانات، تصنيفات</td></tr>
+          <tr><td>المالية/الفواتير</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">فواتير، مدفوعات، قيود</td></tr>
+          <tr><td>الأصول</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">ممتلكات، إهلاك</td></tr>
+          <tr><td>المخزون</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">مستودعات، حركات</td></tr>
+          <tr><td>التصنيع</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">BOM، أوامر إنتاج</td></tr>
+          <tr><td>المعدات/الآلات</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">آلات، صيانة</td></tr>
+          <tr><td>المشاريع</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">Kanban، قوائم، بطاقات</td></tr>
+          <tr><td>المتجر</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">منتجات، سلة، طلبات</td></tr>
+          <tr><td>البريد الإلكتروني</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">SMTP، قوالب، إرسال</td></tr>
+          <tr><td>وكلاء AI</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">سياسات، موافقات، تتبع</td></tr>
+          <tr><td>المصادقة JWT</td><td><span class="badge badge-done">&#10003; مُنجز</span></td><td class="detail-text">JWT، RBAC، CSRF</td></tr>
+          <tr><td>WebSocket</td><td><span class="badge badge-partial">&#9889; جزئي</span></td><td class="detail-text">بنية تحتية جاهزة، غير مفعل</td></tr>
+          <tr><td>عزل البيانات</td><td><span class="badge badge-partial">&#9889; جزئي</span></td><td class="detail-text">queries غير مفلترة بالمنظمة</td></tr>
+          <tr><td>سجل التدقيق</td><td><span class="badge badge-partial">&#9889; جزئي</span></td><td class="detail-text">موجود لكن غير مكتمل</td></tr>
+          <tr><td>Multi-Tenant</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>Platform Layer</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>الاشتراكات/الباقات</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>ZATCA</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>GOSI</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>WPS</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>SMS/WhatsApp</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>مجتمع Actuators</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>تطبيقات PWA</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>AI Legal Agent</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+          <tr><td>لوحة المستثمرين</td><td><span class="badge badge-planned">&#128203; مخطط</span></td><td class="detail-text">غير موجود</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>الحالة الحالية</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 0</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: المرحلة 0 — تقوية الأساس وعزل البيانات            -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-0" id="phase-0">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 0</span>
+    <h2 class="section-title">تقوية الأساس وعزل البيانات</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> تأمين البيانات وتحضير الكود للتعدد</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--cyan);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 0.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 0.1</span>
+        <h3 class="task-title">تصفية Queries حسب المنظمة</h3>
+        <ul class="task-list">
+          <li>تدقيق كل <code>repository.rs</code> في الـ 21 domain</li>
+          <li>إضافة organization parameter لكل دالة query</li>
+          <li>تعديل <code>CurrentUser</code> struct لتضمين <code>organization_id</code></li>
+          <li>تحديث JWT Claims بـ <code>org</code> claim</li>
+          <li>إنشاء <code>ScopedDb</code> wrapper</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">الملفات المتأثرة</div>
+          <code>src/models/mod.rs</code>
+          <code>src/middleware/auth.rs</code>
+          <code>src/db/mod.rs</code>
+          <code>all 21 domain/repository.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 0.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 0.2</span>
+        <h3 class="task-title">تحديد نطاق البيانات حسب الدور</h3>
+        <ul class="task-list">
+          <li><strong>Admin:</strong> كل بيانات المنظمة</li>
+          <li><strong>Manager:</strong> بيانات القسم</li>
+          <li><strong>Employee:</strong> بياناته فقط</li>
+          <li>إنشاء <code>DataScope</code> enum: <code>All</code>, <code>Department</code>, <code>Self</code></li>
+          <li>تطبيق على: <code>payroll</code>, <code>salary</code>, <code>leave_request</code>, <code>evaluation</code>, <code>attendance</code></li>
+        </ul>
+      </div>
+
+      <!-- Task 0.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 0.3</span>
+        <h3 class="task-title">تكملة سجل التدقيق</h3>
+        <ul class="task-list">
+          <li>إنشاء <code>AuditMiddleware</code> لاعتراض <code>POST/PUT/DELETE</code></li>
+          <li>تفعيل <code>audit_log</code> في كل الـ handlers</li>
+          <li>إضافة <code>ip_address</code> و <code>user_agent</code></li>
+          <li>تفعيل <code>prev_hash</code> chain (micro-blockchain)</li>
+        </ul>
+      </div>
+
+      <!-- Task 0.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 0.4</span>
+        <h3 class="task-title">إعادة هيكلة AppState</h3>
+        <ul class="task-list">
+          <li>استخراج DB operations إلى <code>DbOps</code> trait</li>
+          <li>إنشاء <code>TenantContext</code> struct</li>
+          <li>جعل repository functions تقبل <code>&amp;dyn DbOps</code></li>
+          <li>تحضير config لفصل platform DB عن tenant DB</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">الملفات المتأثرة</div>
+          <code>src/db/mod.rs</code>
+          <code>src/main.rs</code>
+          <code>src/web/mod.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 0.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 0.5</span>
+        <h3 class="task-title">بنية الاختبارات</h3>
+        <ul class="task-list">
+          <li>إضافة dev-dependencies: <code>axum-test</code>, <code>tower-test</code></li>
+          <li>إنشاء <code>tests/</code> directory</li>
+          <li>اختبارات auth flow</li>
+          <li>اختبارات RBAC enforcement</li>
+          <li>اختبارات organization scoping</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Test Criteria -->
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#9745;</span> معايير الاختبار</div>
+      <ul class="info-list">
+        <li>&#8226; كل query يتضمن فلتر <code>organization</code></li>
+        <li>&#8226; Employee يرى بياناته فقط في <code>payroll</code>/<code>leave</code></li>
+        <li>&#8226; كل <code>POST/PUT/DELETE</code> ينتج <code>audit_log</code> entry</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>المرحلة 0</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 1</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: المرحلة 1 — بنية تعدد المستأجرين                  -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-1" id="phase-1">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 1</span>
+    <h2 class="section-title">بنية تعدد المستأجرين (Multi-Tenant)</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> عزل كامل لكل مشترك بقاعدة بيانات مستقلة</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--orange);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 1.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.1</span>
+        <h3 class="task-title">Tenant Resolver Middleware</h3>
+        <ul class="task-list">
+          <li>ملف جديد: <code>src/middleware/tenant.rs</code></li>
+          <li>Parse subdomain: <code>company.actuators.app</code> &rarr; slug</li>
+          <li>Lookup tenant في platform DB</li>
+          <li>إنشاء <code>TenantInfo</code> struct: <code>tenant_id</code>, <code>slug</code>, <code>db_name</code>, <code>tier</code>, <code>status</code></li>
+          <li>Cache بـ TTL 5 دقائق</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">ملف جديد</div>
+          <code>src/middleware/tenant.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 1.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.2</span>
+        <h3 class="task-title">TenantConnectionPool</h3>
+        <ul class="task-list">
+          <li>ملف جديد: <code>src/db/pool.rs</code></li>
+          <li>FIFO eviction: max N connections</li>
+          <li><code>get_connection(tenant_id)</code> &rarr; <code>Arc&lt;Surreal&lt;Client&gt;&gt;</code></li>
+          <li>Idle timeout + heartbeat</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">ملف جديد</div>
+          <code>src/db/pool.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 1.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.3</span>
+        <h3 class="task-title">Database-per-Tenant Provisioning</h3>
+        <ul class="task-list">
+          <li>ملف جديد: <code>src/db/provisioner.rs</code></li>
+          <li>إنشاء DB جديد + تطبيق <code>schema.surql</code></li>
+          <li>Seed بيانات أولية (admin account, default settings)</li>
+          <li>نظام migrations (تتبع version لكل tenant)</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">ملفات جديدة</div>
+          <code>src/db/provisioner.rs</code>
+          <code>src/db/migration.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 1.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.4</span>
+        <h3 class="task-title">فصل AppState</h3>
+        <ul class="task-list">
+          <li><code>PlatformState</code>: platform DB, JWT config, pool</li>
+          <li><code>TenantState</code>: tenant DB connection, i18n, config</li>
+          <li>تحديث كل الـ 50+ handler</li>
+        </ul>
+      </div>
+
+      <!-- Task 1.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.5</span>
+        <h3 class="task-title">Service Gating</h3>
+        <ul class="task-list">
+          <li>ملف جديد: <code>src/middleware/tier_gate.rs</code></li>
+          <li>Feature flags لكل باقة</li>
+          <li><code>402 Payment Required</code> للميزات المقيدة</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">ملف جديد</div>
+          <code>src/middleware/tier_gate.rs</code>
+        </div>
+      </div>
+
+      <!-- Task 1.6 -->
+      <div class="task-card">
+        <span class="task-number">Task 1.6</span>
+        <h3 class="task-title">إعادة هيكلة Router</h3>
+        <ul class="task-list">
+          <li><code>/platform/</code> routes لإدارة المنصة</li>
+          <li>Tenant routes تحت سياق المشترك</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- New Files -->
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#128193;</span> ملفات جديدة</div>
+      <div class="meta-box">
+        <span class="meta-tag">tenant.rs</span>
+        <span class="meta-tag">tier_gate.rs</span>
+        <span class="meta-tag">pool.rs</span>
+        <span class="meta-tag">provisioner.rs</span>
+        <span class="meta-tag">migration.rs</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#128451;</span> DB جديد: Platform DB</div>
+      <div class="meta-box">
+        <span class="meta-tag">tenant</span>
+        <span class="meta-tag">tenant_domain</span>
+        <span class="meta-tag">subscription</span>
+      </div>
+    </div>
+
+    <!-- API Table -->
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#128279;</span> API جديد</div>
+      <div class="api-table-wrapper" style="margin-top:8px; margin-bottom:0;">
+        <table class="api-table">
+          <thead>
+            <tr><th>Method</th><th>Endpoint</th><th>الوصف</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="method-badge method-post">POST</span></td>
+              <td><code>/platform/tenants</code></td>
+              <td>إنشاء مشترك جديد</td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-get">GET</span></td>
+              <td><code>/platform/tenants/:id</code></td>
+              <td>تفاصيل المشترك</td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-put">PUT</span></td>
+              <td><code>/platform/tenants/:id/suspend</code></td>
+              <td>تعليق المشترك</td>
+            </tr>
+            <tr>
+              <td><span class="method-badge method-delete">DELETE</span></td>
+              <td><code>/platform/tenants/:id</code></td>
+              <td>حذف المشترك</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>المرحلة 1</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 2</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: المرحلة 2 — طبقة المنصة والاشتراكات               -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-2" id="phase-2">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 2</span>
+    <h2 class="section-title">طبقة المنصة والاشتراكات</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> إدارة اشتراكات، فوترة، لوحة مستثمرين</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--purple);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 2.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.1</span>
+        <h3 class="task-title">Platform DB Schema</h3>
+        <ul class="task-list">
+          <li>جدول <code>platform_account</code></li>
+          <li>جدول <code>tenant</code></li>
+          <li>جدول <code>tenant_domain</code></li>
+          <li>جدول <code>subscription</code></li>
+          <li>جدول <code>subscription_invoice</code></li>
+          <li>جدول <code>usage_metric</code></li>
+          <li>جدول <code>payment_method</code></li>
+        </ul>
+        <div class="meta-box" style="margin-top:12px;">
+          <span class="meta-tag">platform_account</span>
+          <span class="meta-tag">tenant</span>
+          <span class="meta-tag">tenant_domain</span>
+          <span class="meta-tag">subscription</span>
+          <span class="meta-tag">subscription_invoice</span>
+          <span class="meta-tag">usage_metric</span>
+          <span class="meta-tag">payment_method</span>
+        </div>
+      </div>
+
+      <!-- Task 2.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.2</span>
+        <h3 class="task-title">Platform Domain Module</h3>
+        <ul class="task-list">
+          <li>مجلد جديد: <code>src/domains/platform/</code></li>
+          <li><code>PlatformAccountService</code></li>
+          <li><code>TenantService</code></li>
+          <li><code>SubscriptionService</code></li>
+        </ul>
+      </div>
+
+      <!-- Task 2.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.3</span>
+        <h3 class="task-title">4 باقات اشتراك</h3>
+        <div class="pricing-grid" style="margin-top:12px;">
+          <div class="pricing-card">
+            <div class="pricing-name">Starter</div>
+            <div class="pricing-price">99</div>
+            <div class="pricing-period">ر.س / شهرياً</div>
+            <ul class="pricing-features">
+              <li>&#10003; HR + CRM</li>
+              <li>&#10003; 5 مستخدمين</li>
+              <li>&#10003; دعم بريدي</li>
+            </ul>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-name">Growth</div>
+            <div class="pricing-price">299</div>
+            <div class="pricing-period">ر.س / شهرياً</div>
+            <ul class="pricing-features">
+              <li>&#10003; + تصنيع + مخزون</li>
+              <li>&#10003; 20 مستخدم</li>
+              <li>&#10003; دعم أولوية</li>
+            </ul>
+          </div>
+          <div class="pricing-card popular">
+            <div class="pricing-name">Pro</div>
+            <div class="pricing-price">599</div>
+            <div class="pricing-period">ر.س / شهرياً</div>
+            <ul class="pricing-features">
+              <li>&#10003; + متجر + مشاريع + API</li>
+              <li>&#10003; 50 مستخدم</li>
+              <li>&#10003; دعم مباشر</li>
+            </ul>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-name">Enterprise</div>
+            <div class="pricing-price" style="font-size:20px;">مخصص</div>
+            <div class="pricing-period">تواصل معنا</div>
+            <ul class="pricing-features">
+              <li>&#10003; كل الميزات + AI</li>
+              <li>&#10003; مستخدمين غير محدود</li>
+              <li>&#10003; دعم مميز 24/7</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 2.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.4</span>
+        <h3 class="task-title">تكامل الدفع</h3>
+        <ul class="task-list">
+          <li>Stripe أو بوابة محلية سعودية</li>
+          <li>Webhook handler</li>
+          <li>تجربة 14 يوم مجاني</li>
+          <li>دعم بطاقات مدى</li>
+        </ul>
+      </div>
+
+      <!-- Task 2.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.5</span>
+        <h3 class="task-title">تتبع الاستهلاك</h3>
+        <ul class="task-list">
+          <li>عداد API calls لكل tenant</li>
+          <li>حساب التخزين</li>
+          <li>عدد المستخدمين النشطين</li>
+          <li>تنبيه عند 80% و 100%</li>
+        </ul>
+      </div>
+
+      <!-- Task 2.6 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.6</span>
+        <h3 class="task-title">لوحة المستثمرين</h3>
+        <ul class="task-list">
+          <li>MRR, ARR, عدد المشتركين</li>
+          <li>معدل الرحيل (Churn)</li>
+          <li>معدل التحويل (Trial &rarr; Paid)</li>
+          <li>ARPU, LTV</li>
+          <li>رسوم بيانية بـ <code>Chart.js</code></li>
+        </ul>
+      </div>
+
+      <!-- Task 2.7 -->
+      <div class="task-card">
+        <span class="task-number">Task 2.7</span>
+        <h3 class="task-title">لوحة إدارة المستأجرين</h3>
+        <ul class="task-list">
+          <li>قائمة المشتركين + بحث</li>
+          <li>تفاصيل المشترك + استهلاك</li>
+          <li>إجراءات: تعليق، استئناف، تغيير باقة</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>المرحلة 2</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 3</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: المرحلة 3 — التكاملات السعودية                     -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-3" id="phase-3">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 3</span>
+    <h2 class="section-title">التكاملات السعودية</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> امتثال ZATCA/GOSI/WPS + SMS/WhatsApp</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--red);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 3.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.1</span>
+        <h3 class="task-title">ZATCA Phase 2</h3>
+        <ul class="task-list">
+          <li>XML UBL 2.1 generation</li>
+          <li>Invoice hash chain (SHA-256)</li>
+          <li>QR Code (TLV encoding)</li>
+          <li>Digital signature (ECDSA P-256, X.509)</li>
+          <li>CSID onboarding</li>
+          <li>Reporting API</li>
+          <li>Credit/Debit notes</li>
+        </ul>
+        <div class="task-files">
+          <div class="task-files-label">Rust Crates</div>
+          <div class="meta-box">
+            <span class="meta-tag">quick-xml</span>
+            <span class="meta-tag">qrcode</span>
+            <span class="meta-tag">p256</span>
+            <span class="meta-tag">x509-cert</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 3.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.2</span>
+        <h3 class="task-title">GOSI</h3>
+        <ul class="task-list">
+          <li><strong>سعودي:</strong> صاحب عمل 12% + موظف 9.75% (سقف 45,000)</li>
+          <li><strong>غير سعودي:</strong> 2% مخاطر فقط</li>
+          <li>تقرير شهري GOSI</li>
+          <li>تتبع أرقام تسجيل</li>
+        </ul>
+      </div>
+
+      <!-- Task 3.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.3</span>
+        <h3 class="task-title">WPS (نظام حماية الأجور)</h3>
+        <ul class="task-list">
+          <li>ملف SIF (fixed-width)</li>
+          <li>Header + employee records + trailer</li>
+          <li>IBAN validation: <code>SA</code> + 22 رقم</li>
+          <li>تتبع الإرسال الشهري</li>
+        </ul>
+      </div>
+
+      <!-- Task 3.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.4</span>
+        <h3 class="task-title">Hire-to-Pay Workflow</h3>
+        <div class="workflow-box" style="margin-top:8px;">
+          <div class="workflow-steps">
+            <span class="workflow-step">application</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">contract</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">employee</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">salary</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">payroll</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">leave balance</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">GOSI</span>
+          </div>
+        </div>
+        <ul class="task-list" style="margin-top:12px;">
+          <li>State machine + notifications</li>
+        </ul>
+      </div>
+
+      <!-- Task 3.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.5</span>
+        <h3 class="task-title">Quote-to-Cash Workflow</h3>
+        <div class="workflow-box" style="margin-top:8px;">
+          <div class="workflow-steps">
+            <span class="workflow-step">opportunity</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">quotation</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">invoice</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">ZATCA</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">payment</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-step">journal entry</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task 3.6 -->
+      <div class="task-card">
+        <span class="task-number">Task 3.6</span>
+        <h3 class="task-title">SMS/WhatsApp</h3>
+        <ul class="task-list">
+          <li>Unifonic أو Twilio</li>
+          <li>WhatsApp Business API</li>
+          <li>قوالب متعددة اللغات</li>
+          <li>Events: leave approval, payroll, invoice</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- New Tables -->
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#128451;</span> جداول جديدة</div>
+      <div class="meta-box">
+        <span class="meta-tag">wps_submission</span>
+        <span class="meta-tag">gosi_record</span>
+        <span class="meta-tag">notification_preference</span>
+        <span class="meta-tag">sms_log</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>المرحلة 3</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 4</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: المرحلة 4 — مجتمع Actuators                       -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-4" id="phase-4">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 4</span>
+    <h2 class="section-title">مجتمع Actuators</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> منصة اجتماعية مهنية</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--teal);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 4.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 4.1</span>
+        <h3 class="task-title">Community Schema (9 جداول)</h3>
+        <div class="meta-box" style="margin-top:8px;">
+          <span class="meta-tag">community_post</span>
+          <span class="meta-tag">post_comment</span>
+          <span class="meta-tag">post_reaction</span>
+          <span class="meta-tag">community_space</span>
+          <span class="meta-tag">space_member</span>
+          <span class="meta-tag">user_follow</span>
+          <span class="meta-tag">direct_message</span>
+          <span class="meta-tag">user_profile</span>
+          <span class="meta-tag">post_bookmark</span>
+        </div>
+      </div>
+
+      <!-- Task 4.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 4.2</span>
+        <h3 class="task-title">Community Domain</h3>
+        <ul class="task-list">
+          <li>Post CRUD + rich text</li>
+          <li>Threaded comments (عمق 3)</li>
+          <li>Reactions (emoji)</li>
+          <li>Spaces management</li>
+          <li>Feed algorithm</li>
+          <li>Search</li>
+        </ul>
+      </div>
+
+      <!-- Task 4.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 4.3</span>
+        <h3 class="task-title">ملفات شخصية ومتابعة</h3>
+        <ul class="task-list">
+          <li>صفحات عامة/خاصة</li>
+          <li>Follow/unfollow + notifications</li>
+          <li>Activity feed</li>
+          <li>Badge system</li>
+          <li>Profile verification</li>
+        </ul>
+      </div>
+
+      <!-- Task 4.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 4.4</span>
+        <h3 class="task-title">رسائل مباشرة</h3>
+        <ul class="task-list">
+          <li>Send/receive + read receipts</li>
+          <li>WebSocket real-time</li>
+          <li>Message search</li>
+          <li>Block/report</li>
+        </ul>
+      </div>
+
+      <!-- Task 4.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 4.5</span>
+        <h3 class="task-title">واجهات المجتمع</h3>
+        <ul class="task-list">
+          <li><code>templates/community/</code> (feed, post, space, profile, messages)</li>
+          <li>RTL + responsive</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dependency Arrow -->
+<div class="phase-dependency">
+  <span>المرحلة 4</span>
+  <div class="dep-arrow"></div>
+  <span>المرحلة 5</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: المرحلة 5 — Mobile PWA + AI Agents                -->
+<!-- ============================================================ -->
+<section class="roadmap-section phase-5" id="phase-5">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar"></div>
+    <span class="section-number">المرحلة 5</span>
+    <h2 class="section-title">Mobile PWA + AI Agents</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+  <p class="section-goal"><strong>الهدف:</strong> تطبيقات موبايل + وكيل قانوني ذكي</p>
+
+  <div class="section-body">
+    <div class="phase-progress">
+      <span class="phase-progress-label">تقدم المرحلة</span>
+      <div class="phase-progress-bar">
+        <div class="phase-progress-fill" style="width:0%; background: var(--amber);"></div>
+      </div>
+      <span class="phase-progress-pct">0%</span>
+    </div>
+
+    <div class="tasks-grid">
+      <!-- Task 5.1 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.1</span>
+        <h3 class="task-title">PWA Infrastructure</h3>
+        <ul class="task-list">
+          <li>Service Worker</li>
+          <li><code>manifest.json</code></li>
+          <li>IndexedDB</li>
+          <li>Background Sync</li>
+          <li>Push Notifications</li>
+        </ul>
+      </div>
+
+      <!-- Task 5.2 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.2</span>
+        <h3 class="task-title">تطبيق الموظف</h3>
+        <ul class="task-list">
+          <li>حضور GPS + Geofencing</li>
+          <li>طلب إجازة + تقويم</li>
+          <li>كشف راتب PDF</li>
+          <li>إشعارات</li>
+        </ul>
+      </div>
+
+      <!-- Task 5.3 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.3</span>
+        <h3 class="task-title">تطبيق الفني</h3>
+        <ul class="task-list">
+          <li>قائمة مهام + أولويات</li>
+          <li>GPS tracking</li>
+          <li>تقرير خدمة + صور</li>
+          <li>توقيع رقمي للعميل</li>
+          <li>Offline mode</li>
+        </ul>
+      </div>
+
+      <!-- Task 5.4 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.4</span>
+        <h3 class="task-title">تطبيق المدير</h3>
+        <ul class="task-list">
+          <li>صندوق موافقات</li>
+          <li>KPI dashboard</li>
+          <li>تقويم الفريق</li>
+          <li>Quick actions (swipe approve/reject)</li>
+        </ul>
+      </div>
+
+      <!-- Task 5.5 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.5</span>
+        <h3 class="task-title">AI Legal Agent</h3>
+        <ul class="task-list">
+          <li>RAG pipeline (SurrealDB search + embeddings)</li>
+          <li>Claude API integration (<code>claude-sonnet-4</code>)</li>
+          <li>4 تخصصات: محاماة، ريادة أعمال، براءات، محاسبة</li>
+          <li>20+ قانون سعودي مفهرس (1385+ مادة)</li>
+          <li>Chat interface + sessions + feedback</li>
+        </ul>
+      </div>
+
+      <!-- Task 5.6 -->
+      <div class="task-card">
+        <span class="task-number">Task 5.6</span>
+        <h3 class="task-title">AI Governance Extension</h3>
+        <ul class="task-list">
+          <li>حدود إنفاق يومي/شهري</li>
+          <li>Content filtering</li>
+          <li>تسجيل كل التفاعلات</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- New Tables -->
+    <div class="info-box">
+      <div class="info-box-title"><span class="icon">&#128451;</span> جداول جديدة</div>
+      <div class="meta-box">
+        <span class="meta-tag">law_document</span>
+        <span class="meta-tag">ai_chat_session</span>
+        <span class="meta-tag">ai_chat_message</span>
+        <span class="meta-tag">ai_usage</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 8: ملخص الملفات الحرجة                               -->
+<!-- ============================================================ -->
+<section class="roadmap-section" id="critical-files">
+  <div class="section-header" aria-expanded="true" onclick="toggleSection(this)">
+    <div class="section-color-bar" style="background: var(--text-muted)"></div>
+    <span class="section-number" style="background: var(--text-muted); color: #fff;">مرجع</span>
+    <h2 class="section-title">ملخص الملفات الحرجة</h2>
+    <span class="section-chevron">&#9660;</span>
+  </div>
+
+  <div class="section-body">
+    <div class="feature-table-wrapper">
+      <div class="feature-table-title">أهم 5 ملفات تتأثر بالتحول</div>
+      <table class="critical-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>الملف</th>
+            <th>التغيير</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);">1</td>
+            <td><code>src/db/mod.rs</code></td>
+            <td>AppState &rarr; PlatformState + TenantState</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);">2</td>
+            <td><code>src/middleware/auth.rs</code></td>
+            <td>JWT + tenant context + org claims</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);">3</td>
+            <td><code>src/db/schema.surql</code></td>
+            <td>89 جدول &rarr; migrations + ZATCA/community/AI tables</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);">4</td>
+            <td><code>src/web/mod.rs</code></td>
+            <td>Router restructuring (platform vs tenant routes)</td>
+          </tr>
+          <tr>
+            <td style="font-family:var(--font-mono);font-weight:700;color:var(--cyan);">5</td>
+            <td><code>src/web/api/mod.rs</code></td>
+            <td>Tier gating + tenant resolution integration</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="roadmap-footer">
+  <div class="footer-brand"><span>Actuators</span> by Dr. Machine L.L.C</div>
+  <div class="footer-sub">Roadmap v1.0</div>
+  <div class="footer-stats">
+    <div><span>6</span> مراحل</div>
+    <div><span>35</span> مهمة رئيسية</div>
+    <div><span>89&rarr;130+</span> جدول</div>
+    <div><span>50&rarr;100+</span> API</div>
+  </div>
+</footer>
+
+</main>
+</div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// ========== THEME TOGGLE ==========
+(function() {
+  const toggle = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const html = document.documentElement;
+
+  // Default to dark mode
+  const saved = localStorage.getItem('actuators-roadmap-theme');
+  if (saved === 'light') {
+    html.setAttribute('data-theme', 'light');
+    icon.innerHTML = '&#9728;';
+  }
+
+  toggle.addEventListener('click', function() {
+    const isLight = html.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      html.removeAttribute('data-theme');
+      icon.innerHTML = '\u263E'; // moon
+      localStorage.setItem('actuators-roadmap-theme', 'dark');
+    } else {
+      html.setAttribute('data-theme', 'light');
+      icon.innerHTML = '\u2600'; // sun
+      localStorage.setItem('actuators-roadmap-theme', 'light');
+    }
+  });
+})();
+
+// ========== COLLAPSIBLE SECTIONS ==========
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  // skip section-goal if present
+  let targetBody = body;
+  if (body && !body.classList.contains('section-body')) {
+    targetBody = body.nextElementSibling;
+  }
+  if (!targetBody || !targetBody.classList.contains('section-body')) return;
+
+  const expanded = header.getAttribute('aria-expanded') === 'true';
+  if (expanded) {
+    targetBody.style.maxHeight = targetBody.scrollHeight + 'px';
+    requestAnimationFrame(function() {
+      targetBody.classList.add('collapsed');
+      targetBody.style.maxHeight = '0';
+    });
+    header.setAttribute('aria-expanded', 'false');
+  } else {
+    targetBody.classList.remove('collapsed');
+    targetBody.style.maxHeight = targetBody.scrollHeight + 'px';
+    header.setAttribute('aria-expanded', 'true');
+    setTimeout(function() {
+      targetBody.style.maxHeight = 'none';
+    }, 400);
+  }
+}
+
+// ========== TOC ACTIVE STATE (Intersection Observer) ==========
+(function() {
+  const sections = document.querySelectorAll('.roadmap-section');
+  const tocLinks = document.querySelectorAll('.toc-link');
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(function(link) {
+          link.classList.remove('active');
+          if (link.getAttribute('data-section') === id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(function(section) {
+    observer.observe(section);
+  });
+})();
+
+// ========== HEX CLUSTER CANVAS BACKGROUND ==========
+(function() {
+  const canvas = document.getElementById('hexCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h;
+
+  function resize() {
+    const header = document.getElementById('heroHeader');
+    w = canvas.width = header.offsetWidth;
+    h = canvas.height = header.offsetHeight;
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    const size = 30;
+    const cols = Math.ceil(w / (size * 1.75)) + 2;
+    const rows = Math.ceil(h / (size * 1.5)) + 2;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = col * size * 1.75 + (row % 2 ? size * 0.875 : 0);
+        const y = row * size * 1.5;
+        drawHex(ctx, x, y, size, row, col);
+      }
+    }
+  }
+
+  function drawHex(ctx, cx, cy, r, row, col) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 3) * i - Math.PI / 6;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+
+    // Random opacity for visual interest
+    const seed = (row * 17 + col * 31) % 100;
+    if (seed < 15) {
+      ctx.fillStyle = 'rgba(0, 183, 194, 0.06)';
+      ctx.fill();
+    } else if (seed < 20) {
+      ctx.fillStyle = 'rgba(255, 106, 42, 0.04)';
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(0, 183, 194, 0.08)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+// ========== SMOOTH SCROLL FOR TOC LINKS ==========
+document.querySelectorAll('.toc-link').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('href').substring(1);
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// ========== ANIMATE PROGRESS BARS ON SCROLL ==========
+(function() {
+  const progressBars = document.querySelectorAll('.overall-bar-fill');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.width = entry.target.textContent.trim();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  progressBars.forEach(function(bar) {
+    bar.style.width = '0%';
+    observer.observe(bar);
+  });
+})();
+</script>
+</body>
+</html>

@@ -253,7 +253,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch Project Members
-            let mut members: surrealdb::Response = state.db.query("SELECT member.name as name, role, member as member_id FROM project_member WHERE project = type::thing('project', $id)")
+            let mut members: surrealdb::Response = state.db.query("SELECT member.name as name, role, member as member_id FROM project_member WHERE project = type::thing('project', $id) AND (is_archived = false OR is_archived = NONE)")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let members: Vec<Value> = members.take(0).unwrap_or_default();

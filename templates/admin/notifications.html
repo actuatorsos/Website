@@ -2,39 +2,39 @@
 {% block admin_content %}
 <div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
 
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["auto_notifications_341"] }}</h1>
-            <p class="text-text-secondary mt-1">{{ t["auto_notifications_342"] }}</p>
+            <h1 class="text-lg sm:text-2xl md:text-3xl font-bold text-primary">{{ t["auto_notifications_341"] }}</h1>
+            <p class="text-text-secondary mt-1 text-sm">{{ t["auto_notifications_342"] }}</p>
         </div>
         <button onclick="markAllRead()"
-            class="bg-accent/20 text-secondary px-5 py-2 rounded-xl text-sm font-semibold hover:bg-accent/30 transition-colors">
+            class="bg-accent/20 text-secondary px-5 py-2 rounded-xl text-sm font-semibold hover:bg-accent/30 transition-colors w-full sm:w-auto">
             {{ t["auto_notifications_343"] }}
         </button>
     </div>
 
     <!-- Notification Filters -->
-    <div class="flex gap-2 mb-6 flex-wrap">
+    <div class="flex gap-2 mb-4 sm:mb-6 flex-wrap">
         <button onclick="filterNotif('all')" id="nf-all"
-            class="notif-filter px-4 py-2 text-sm rounded-xl bg-secondary text-white font-semibold transition-colors">{{ t["auto_leave_288"] }}</button>
+            class="notif-filter px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl bg-secondary text-white font-semibold transition-colors">{{ t["auto_leave_288"] }}</button>
         <button onclick="filterNotif('unread')" id="nf-unread"
-            class="notif-filter px-4 py-2 text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_notifications_344"] }}</button>
+            class="notif-filter px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_notifications_344"] }}</button>
         <button onclick="filterNotif('approval')" id="nf-approval"
-            class="notif-filter px-4 py-2 text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_agents_20"] }}</button>
+            class="notif-filter px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_agents_20"] }}</button>
         <button onclick="filterNotif('system')" id="nf-system"
-            class="notif-filter px-4 py-2 text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_notifications_345"] }}</button>
+            class="notif-filter px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-xl bg-background border border-border text-text-secondary font-semibold hover:bg-secondary/10 transition-colors">{{ t["auto_notifications_345"] }}</button>
     </div>
 
     <!-- Notifications List -->
-    <div id="notif-list" class="space-y-3">
-        <div class="bg-surface rounded-2xl border border-border shadow-card p-6 text-center text-text-secondary">
+    <div id="notif-list" class="space-y-2 sm:space-y-3">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-3 sm:p-6 text-center text-text-secondary">
             {{ t["loading"] }}
         </div>
     </div>
 
     <!-- Empty State -->
     <div id="notif-empty" class="hidden">
-        <div class="bg-surface rounded-2xl border border-border shadow-card p-12 text-center">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-6 sm:p-12 text-center">
             <svg class="w-16 h-16 mx-auto text-text-secondary/30 mb-4" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -83,7 +83,7 @@
         empty.classList.add('hidden');
         list.classList.remove('hidden');
         list.innerHTML = filtered.map(n => `
-        <div class="bg-surface rounded-2xl border ${n.is_read ? 'border-border' : 'border-secondary/30 shadow-md'} shadow-card p-4 flex items-start gap-4 hover:shadow-hover transition-all cursor-pointer group" onclick="readNotif('${n.id?.id || ''}')">
+        <div class="bg-surface rounded-2xl border ${n.is_read ? 'border-border' : 'border-secondary/30 shadow-md'} shadow-card p-3 sm:p-4 flex items-start gap-2 sm:gap-4 hover:shadow-hover transition-all cursor-pointer group" onclick="readNotif('${tid(n.id)}')">
             ${typeIcons[n.notification_type] || typeIcons.info}
             <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between gap-2">
@@ -111,14 +111,14 @@
     async function readNotif(id) {
         if (!id) return;
         await fetch(`/api/notifications/${id}/read`, { method: 'PUT' });
-        const notif = allNotifs.find(n => (n.id?.id || '') === id);
+        const notif = allNotifs.find(n => (tid(n.id)) === id);
         if (notif) notif.is_read = true;
         renderNotifs();
     }
 
     async function markAllRead() {
         for (const n of allNotifs.filter(n => !n.is_read)) {
-            await fetch(`/api/notifications/${n.id?.id || ''}/read`, { method: 'PUT' });
+            await fetch(`/api/notifications/${tid(n.id)}/read`, { method: 'PUT' });
             n.is_read = true;
         }
         renderNotifs();

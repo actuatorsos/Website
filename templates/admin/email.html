@@ -4,28 +4,28 @@
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["form_email"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["form_email"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["auto_email_159"] }}</p>
         </div>
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 mb-6 border-b border-border">
+    <div class="flex flex-wrap gap-1 sm:gap-2 mb-6 border-b border-border">
         <button onclick="showTab('config')" id="tab-config"
-            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_email_160"] }}</button>
+            class="etab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-secondary text-secondary transition-colors">{{ t["auto_email_160"] }}</button>
         <button onclick="showTab('templates')" id="tab-templates"
-            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_161"] }}</button>
+            class="etab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_161"] }}</button>
         <button onclick="showTab('logs')" id="tab-logs"
-            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_162"] }}</button>
+            class="etab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_162"] }}</button>
         <button onclick="showTab('compose')" id="tab-compose"
-            class="etab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_163"] }}</button>
+            class="etab px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-text-secondary hover:text-primary transition-colors">{{ t["auto_email_163"] }}</button>
     </div>
 
     <!-- Config Tab -->
     <div id="tab-content-config">
-        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-3 sm:p-4 md:p-6">
             <h3 class="text-lg font-bold text-primary mb-4">{{ t["auto_email_164"] }}</h3>
-            <form id="smtp-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="smtp-form" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                     <label class="block text-xs text-text-secondary mb-1">{{ t["auto_email_165"] }}</label>
                     <input id="smtp-host" type="text" placeholder="smtp.gmail.com"
@@ -62,11 +62,11 @@
                         {{ t["auto_email_170"] }}
                     </label>
                 </div>
-                <div class="md:col-span-2 flex gap-3">
+                <div class="md:col-span-2 flex flex-col sm:flex-row gap-3">
                     <button type="submit"
-                        class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_171"] }}</button>
+                        class="w-full sm:w-auto bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_171"] }}</button>
                     <button type="button" onclick="testSmtp()"
-                        class="bg-accent/20 text-secondary px-6 py-2.5 rounded-xl font-semibold hover:bg-accent/30 transition-colors">{{ t["auto_email_172"] }}</button>
+                        class="w-full sm:w-auto bg-accent/20 text-secondary px-6 py-2.5 rounded-xl font-semibold hover:bg-accent/30 transition-colors">{{ t["auto_email_172"] }}</button>
                 </div>
             </form>
         </div>
@@ -76,11 +76,11 @@
     <div id="tab-content-templates" class="hidden">
         <div class="flex justify-end mb-4">
             <button onclick="document.getElementById('tpl-modal').classList.remove('hidden')"
-                class="bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_173"] }}</button>
+                class="w-full sm:w-auto bg-secondary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">{{ t["auto_email_173"] }}</button>
         </div>
         <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="min-w-full">
                     <thead class="bg-background/30 border-b border-border">
                         <tr>
                             <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_174"] }}
@@ -107,7 +107,7 @@
     <div id="tab-content-logs" class="hidden">
         <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="min-w-full">
                     <thead class="bg-background/30 border-b border-border">
                         <tr>
                             <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_email_176"] }}
@@ -132,7 +132,7 @@
 
     <!-- Compose Tab -->
     <div id="tab-content-compose" class="hidden">
-        <div class="bg-surface rounded-2xl border border-border shadow-card p-6">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-3 sm:p-4 md:p-6">
             <h3 class="text-lg font-bold text-primary mb-4">{{ t["auto_email_177"] }}</h3>
             <form id="compose-form" class="space-y-4">
                 <div>
@@ -158,9 +158,9 @@
 
     <!-- Template Modal -->
     <div id="tpl-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 border border-border m-4">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-md p-3 sm:p-4 md:p-6 border border-border mx-4">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-primary">{{ t["auto_email_181"] }}</h3>
+                <h3 class="text-lg sm:text-xl font-bold text-primary">{{ t["auto_email_181"] }}</h3>
                 <button onclick="document.getElementById('tpl-modal').classList.add('hidden')"
                     class="text-text-secondary hover:text-primary">✕</button>
             </div>
@@ -181,6 +181,7 @@
 </div>
 
 <script>
+    const et = { settings_saved: '{{ t["email_settings_saved"] }}', sent_success: '{{ t["email_sent_success"] }}', active: '{{ t["email_template_active"] }}', inactive: '{{ t["email_template_inactive"] }}' };
     function showTab(name) {
         document.querySelectorAll('[id^="tab-content-"]').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.etab').forEach(btn => { btn.classList.remove('border-secondary', 'text-secondary'); btn.classList.add('border-transparent', 'text-text-secondary'); });
@@ -200,7 +201,7 @@
         <td class="px-6 py-4 text-sm font-mono font-bold">${r.code || '—'}</td>
         <td class="px-6 py-4 text-sm">${r.name || '—'}</td>
         <td class="px-6 py-4 text-sm">${r.subject || '—'}</td>
-        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-700'}">${r.is_active ? 'مفعل' : 'معطل'}</span></td>
+        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-700'}">${r.is_active ? et.active : et.inactive}</span></td>
     </tr>`).join('');
     }
 
@@ -232,7 +233,7 @@
                 use_tls: document.getElementById('smtp-tls').checked
             })
         });
-        showToast('تم حفظ الإعدادات', 'success');
+        showToast(et.settings_saved, 'success');
     });
 
     document.getElementById('compose-form').addEventListener('submit', async function (e) {
@@ -242,7 +243,7 @@
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ recipients, subject: document.getElementById('compose-subject').value, body: document.getElementById('compose-body').value })
         });
-        showToast('تم الإرسال', 'success'); this.reset();
+        showToast(et.sent_success, 'success'); this.reset();
     });
 
     document.getElementById('tpl-form').addEventListener('submit', async function (e) {

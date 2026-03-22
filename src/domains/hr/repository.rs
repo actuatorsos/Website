@@ -4,7 +4,7 @@
 
 use super::models::{
     Attendance, CheckInRequest, CreateEmployeeRequest, CreateTraineeRequest, Employee,
-    EmployeeStatus, PersonType, Trainee, TraineeStatus,
+    PersonType, Trainee, TraineeStatus,
 };
 use crate::db::{AppState, DbError};
 
@@ -28,7 +28,7 @@ pub async fn create_employee(
             role: req.role,
             national_id: req.national_id,
             hire_date: req.hire_date,
-            status: EmployeeStatus::Active,
+            status: "active".to_string(),
             nationality: req.nationality,
             religion: req.religion,
             marital_status: req.marital_status,
@@ -60,12 +60,22 @@ pub async fn create_employee(
     Ok(created)
 }
 
-pub async fn get_all_employees(state: &AppState) -> Result<Vec<Employee>, DbError> {
-    let employees: Vec<Employee> = state.db
-        .query("SELECT * FROM employee WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?
-        .take(0)?;
-    Ok(employees)
+pub async fn get_all_employees(state: &AppState, org_id: Option<&str>) -> Result<Vec<Employee>, DbError> {
+    let base = if let Some(org) = org_id {
+        let employees: Vec<Employee> = state.db
+            .query("SELECT * FROM employee WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take(0)?;
+        employees
+    } else {
+        let employees: Vec<Employee> = state.db
+            .query("SELECT * FROM employee WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?
+            .take(0)?;
+        employees
+    };
+    Ok(base)
 }
 
 pub async fn get_employee(state: &AppState, id: &str) -> Result<Employee, DbError> {
@@ -175,27 +185,50 @@ pub async fn check_out(state: &AppState, id: &str) -> Result<Attendance, DbError
     attendance.ok_or(DbError::NotFound)
 }
 
-pub async fn get_today_attendance(state: &AppState) -> Result<Vec<Attendance>, DbError> {
+pub async fn get_today_attendance(state: &AppState, scope_account_id: Option<&str>) -> Result<Vec<Attendance>, DbError> {
     let today = chrono::Utc::now().format("%Y-%m-%d").to_string();
-    let result: Vec<Attendance> = state
-        .db
-        .query("SELECT * FROM attendance WHERE date = $date ORDER BY check_in DESC")
-        .bind(("date", today))
-        .await?
-        .take(0)?;
+    let result: Vec<Attendance> = match scope_account_id {
+        Some(uid) => {
+            state.db
+                .query("SELECT * FROM attendance WHERE date = $date AND (is_archived = false OR is_archived = NONE) AND person_id IN (SELECT VALUE id FROM employee WHERE account = type::thing('account', $uid)) ORDER BY check_in DESC")
+                .bind(("date", today))
+                .bind(("uid", uid.to_string()))
+                .await?
+                .take(0)?
+        }
+        None => {
+            state.db
+                .query("SELECT * FROM attendance WHERE date = $date AND (is_archived = false OR is_archived = NONE) ORDER BY check_in DESC")
+                .bind(("date", today))
+                .await?
+                .take(0)?
+        }
+    };
     Ok(result)
 }
 
 pub async fn get_attendance_by_date(
     state: &AppState,
     date: &str,
+    scope_account_id: Option<&str>,
 ) -> Result<Vec<Attendance>, DbError> {
-    let result: Vec<Attendance> = state
-        .db
-        .query("SELECT * FROM attendance WHERE date = $date ORDER BY check_in DESC")
-        .bind(("date", date.to_string()))
-        .await?
-        .take(0)?;
+    let result: Vec<Attendance> = match scope_account_id {
+        Some(uid) => {
+            state.db
+                .query("SELECT * FROM attendance WHERE date = $date AND (is_archived = false OR is_archived = NONE) AND person_id IN (SELECT VALUE id FROM employee WHERE account = type::thing('account', $uid)) ORDER BY check_in DESC")
+                .bind(("date", date.to_string()))
+                .bind(("uid", uid.to_string()))
+                .await?
+                .take(0)?
+        }
+        None => {
+            state.db
+                .query("SELECT * FROM attendance WHERE date = $date AND (is_archived = false OR is_archived = NONE) ORDER BY check_in DESC")
+                .bind(("date", date.to_string()))
+                .await?
+                .take(0)?
+        }
+    };
     Ok(result)
 }
 

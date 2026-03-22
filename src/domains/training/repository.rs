@@ -48,10 +48,17 @@ pub async fn create_training_program(
     prog.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_training_programs(state: &AppState) -> Result<Vec<TrainingProgram>, DbError> {
-    let programs: Vec<TrainingProgram> = state.db
-        .query("SELECT * FROM training_program WHERE is_archived = false OR is_archived = NONE ORDER BY start_date DESC")
-        .await?.take(0)?;
+pub async fn get_all_training_programs(state: &AppState, org_id: Option<&str>) -> Result<Vec<TrainingProgram>, DbError> {
+    let programs: Vec<TrainingProgram> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM training_program WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY start_date DESC")
+            .bind(("org", org.to_string()))
+            .await?.take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM training_program WHERE is_archived = false OR is_archived = NONE ORDER BY start_date DESC")
+            .await?.take(0)?
+    };
     Ok(programs)
 }
 
@@ -101,10 +108,17 @@ pub async fn complete_enrollment(
     enr.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_enrollments(state: &AppState) -> Result<Vec<TrainingEnrollment>, DbError> {
-    let enrs: Vec<TrainingEnrollment> = state.db
-        .query("SELECT * FROM training_enrollment WHERE is_archived = false OR is_archived = NONE ORDER BY enrolled_at DESC")
-        .await?.take(0)?;
+pub async fn get_all_enrollments(state: &AppState, org_id: Option<&str>) -> Result<Vec<TrainingEnrollment>, DbError> {
+    let enrs: Vec<TrainingEnrollment> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM training_enrollment WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY enrolled_at DESC")
+            .bind(("org", org.to_string()))
+            .await?.take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM training_enrollment WHERE is_archived = false OR is_archived = NONE ORDER BY enrolled_at DESC")
+            .await?.take(0)?
+    };
     Ok(enrs)
 }
 

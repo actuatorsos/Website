@@ -25,6 +25,7 @@ pub struct EmployeesTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -38,6 +39,7 @@ pub struct TraineesTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -51,6 +53,7 @@ pub struct AttendanceTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -74,6 +77,7 @@ pub async fn employees_page(
         active_page: "employees".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 
@@ -105,6 +109,7 @@ pub async fn trainees_page(
         active_page: "trainees".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 
@@ -136,6 +141,7 @@ pub async fn attendance_page(
         active_page: "attendance".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 

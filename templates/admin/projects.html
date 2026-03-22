@@ -11,7 +11,7 @@
         <div class="flex items-center gap-3">
             <div class="relative">
                 <input type="text" id="projectSearch" placeholder="Search projects..."
-                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-64 transition-all">
+                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-full sm:w-64 transition-all">
                 <svg class="w-5 h-5 text-text-secondary absolute left-3 top-2.5" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -93,7 +93,7 @@
             </div>
 
             <form hx-post="/api/projects" hx-target="#projects-tbody" hx-swap="afterbegin"
-                hx-on::after-request="closeModal('addProjectModal'); this.reset();" class="px-6 py-6">
+                hx-on::after-request="closeModal('addProjectModal'); this.reset();" class="px-4 sm:px-6 py-4 sm:py-6">
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>

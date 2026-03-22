@@ -2,8 +2,9 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::{AccountRole, CurrentUser};
 use axum::{
-    Router,
+    Extension, Router,
     extract::{Path, Query, State},
     response::Json,
     routing::{get, post, put},
@@ -12,10 +13,15 @@ use std::collections::HashMap;
 
 async fn list_leaves(
     State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     Query(params): Query<HashMap<String, String>>,
 ) -> Result<Json<Vec<LeaveRequest>>, DbError> {
     let status = params.get("status").map(|s| s.as_str());
-    Ok(Json(repo::get_all_leave_requests(&s, status).await?))
+    let scope_id = match user.role {
+        AccountRole::Admin | AccountRole::Manager => None,
+        _ => Some(user.id.as_str()),
+    };
+    Ok(Json(repo::get_all_leave_requests(&s, status, scope_id, user.organization_id.as_deref()).await?))
 }
 async fn create_leave(
     State(s): State<AppState>,
@@ -34,14 +40,40 @@ async fn approve_leave(
     Path(id): Path<String>,
     Json(req): Json<ApproveLeaveRequest>,
 ) -> Result<Json<LeaveRequest>, DbError> {
-    Ok(Json(repo::approve_leave(&s, &id, req).await?))
+    let leave = repo::approve_leave(&s, &id, req).await?;
+
+    // Broadcast to WebSocket clients
+    let _ = s.notification_tx.send(serde_json::json!({
+        "type": "notification",
+        "action": "leave_approved",
+        "data": {
+            "id": &id,
+            "employee": leave.employee.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+            "leave_type": &leave.leave_type
+        }
+    }).to_string());
+
+    Ok(Json(leave))
 }
 async fn reject_leave(
     State(s): State<AppState>,
     Path(id): Path<String>,
     Json(req): Json<RejectLeaveRequest>,
 ) -> Result<Json<LeaveRequest>, DbError> {
-    Ok(Json(repo::reject_leave(&s, &id, req).await?))
+    let leave = repo::reject_leave(&s, &id, req).await?;
+
+    // Broadcast to WebSocket clients
+    let _ = s.notification_tx.send(serde_json::json!({
+        "type": "notification",
+        "action": "leave_rejected",
+        "data": {
+            "id": &id,
+            "employee": leave.employee.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+            "leave_type": &leave.leave_type
+        }
+    }).to_string());
+
+    Ok(Json(leave))
 }
 async fn leave_balance(
     State(s): State<AppState>,

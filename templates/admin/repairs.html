@@ -1,16 +1,16 @@
 {% extends "admin/base_admin.html" %}
 
 {% block admin_content %}
-<div class="max-w-7xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
+<div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["repairs_title"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["repairs_title"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["repairs_subtitle"] }}</p>
         </div>
     </div>
 
     <!-- Add Repair Form -->
-    <div class="bg-surface rounded-lg shadow-card p-8 mb-8 border border-border">
+    <div class="bg-surface rounded-lg shadow-card p-3 sm:p-4 md:p-8 mb-8 border border-border">
         <h2 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
             <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -20,7 +20,7 @@
         </h2>
 
         <form hx-post="/api/repairs" hx-target="#repairs-table tbody" hx-swap="afterbegin"
-            hx-on::after-request="this.reset()" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            hx-on::after-request="this.reset()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
                 <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_machine_id"] }}</label>
                 <input type="text" name="machine_id" required
@@ -56,12 +56,12 @@
 
     <!-- Repairs Table -->
     <div class="bg-surface rounded-lg shadow-card overflow-hidden border border-border">
-        <div class="p-6 border-b border-border bg-gray-50/50">
-            <h2 class="text-xl font-bold text-primary">{{ t["repairs_list"] }}</h2>
+        <div class="p-3 sm:p-4 md:p-6 border-b border-border bg-gray-50/50">
+            <h2 class="text-base sm:text-xl font-bold text-primary">{{ t["repairs_list"] }}</h2>
         </div>
 
         <div class="overflow-x-auto">
-            <table id="repairs-table" class="w-full">
+            <table id="repairs-table" class="min-w-full">
                 <thead class="bg-gray-50/50">
                     <tr>
                         <th class="px-6 py-4 text-start text-sm font-bold text-text-secondary">{{ t["table_machine"] }}

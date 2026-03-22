@@ -2,15 +2,19 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::CurrentUser;
 use axum::{
     Router,
-    extract::{Path, State},
+    extract::{Extension, Path, State},
     response::Json,
     routing::{get, post, put},
 };
 
-async fn list_programs(State(s): State<AppState>) -> Result<Json<Vec<TrainingProgram>>, DbError> {
-    Ok(Json(repo::get_all_training_programs(&s).await?))
+async fn list_programs(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Result<Json<Vec<TrainingProgram>>, DbError> {
+    Ok(Json(repo::get_all_training_programs(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_program(
     State(s): State<AppState>,
@@ -33,8 +37,9 @@ async fn complete_enrollment(
 }
 async fn list_all_enrollments(
     State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
 ) -> Result<Json<Vec<TrainingEnrollment>>, DbError> {
-    Ok(Json(repo::get_all_enrollments(&s).await?))
+    Ok(Json(repo::get_all_enrollments(&s, user.organization_id.as_deref()).await?))
 }
 async fn employee_enrollments(
     State(s): State<AppState>,

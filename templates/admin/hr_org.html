@@ -5,7 +5,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["auto_hr_org_213"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["auto_hr_org_213"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["auto_hr_org_214"] }}</p>
         </div>
     </div>
@@ -24,9 +24,9 @@
 
     <!-- Departments Tab -->
     <div id="tab-content-departments">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
             <!-- Add Department Form -->
-            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card">
+            <div class="bg-surface rounded-2xl p-3 sm:p-4 md:p-6 border border-border shadow-card">
                 <h2 class="text-lg font-bold text-primary mb-4">{{ t["auto_hr_org_217"] }}</h2>
                 <form id="dept-form" class="space-y-4">
                     <div>
@@ -49,11 +49,11 @@
 
             <!-- Departments List -->
             <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
-                <div class="p-6 border-b border-border bg-background/50">
+                <div class="p-3 sm:p-4 md:p-6 border-b border-border bg-background/50">
                     <h2 class="text-lg font-bold text-primary">{{ t["auto_hr_org_222"] }}</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="min-w-full">
                         <thead class="bg-background/30 border-b border-border">
                             <tr>
                                 <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["auto_hr_org_223"] }}</th>
@@ -78,9 +78,9 @@
 
     <!-- Positions Tab -->
     <div id="tab-content-positions" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
             <!-- Add Position Form -->
-            <div class="bg-surface rounded-2xl p-6 border border-border shadow-card h-fit">
+            <div class="bg-surface rounded-2xl p-3 sm:p-4 md:p-6 border border-border shadow-card h-fit">
                 <h2 class="text-lg font-bold text-primary mb-6">{{ t["auto_hr_org_226"] }}</h2>
                 <form id="pos-form" class="space-y-4">
                     <div>
@@ -109,11 +109,11 @@
 
             <!-- Positions List -->
             <div class="lg:col-span-2 bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
-                <div class="p-6 border-b border-border bg-background/50">
+                <div class="p-3 sm:p-4 md:p-6 border-b border-border bg-background/50">
                     <h2 class="text-lg font-bold text-primary">{{ t["auto_hr_org_231"] }}</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full">
+                    <table class="min-w-full">
                         <thead class="bg-background/30 border-b border-border">
                             <tr>
                                 <th class="px-6 py-3 text-start text-xs font-semibold text-text-secondary uppercase">
@@ -140,6 +140,11 @@
 </div>
 
 <script>
+    function getCookie(name) {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+    }
+
     function showTab(name) {
         document.querySelectorAll('[id^="tab-content-"]').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -154,30 +159,30 @@
 
     async function loadDepartments() {
         try {
-            const res = await fetch('/api/hr-org/departments');
+            const res = await fetch('/api/hr-org/departments', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
             const data = await res.json();
             const tbody = document.getElementById('depts-table');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["auto_hr_org_233"] }}</td></tr>'; return; }
             tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
           <td class="px-6 py-4 font-bold text-primary">${r.name || '—'}</td>
-          <td class="px-6 py-4 text-sm">${r.manager || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.manager_name || '—'}</td>
           <td class="px-6 py-4 text-sm">${r.employee_count || 0}</td>
-          <td class="px-6 py-4 text-end"><button onclick="deleteDept('${r.id?.id || ''}')" class="text-text-secondary hover:text-red-500">✕</button></td>
+          <td class="px-6 py-4 text-end"><button onclick="deleteDept('${tid(r.id)}')" class="text-text-secondary hover:text-red-500 p-1 rounded hover:bg-red-50">✕</button></td>
         </tr>`).join('');
         } catch (e) { console.error(e); }
     }
 
     async function loadPositions() {
         try {
-            const res = await fetch('/api/hr-org/positions');
+            const res = await fetch('/api/hr-org/positions', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
             const data = await res.json();
             const tbody = document.getElementById('positions-table');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary italic">{{ t["auto_hr_org_234"] }}</td></tr>'; return; }
             tbody.innerHTML = data.map(r => `<tr class="hover:bg-background/50 transition-colors">
           <td class="px-6 py-4 font-bold text-primary">${r.title || '—'}</td>
-          <td class="px-6 py-4 text-sm">${r.department || '—'}</td>
+          <td class="px-6 py-4 text-sm">${r.department_name || '—'}</td>
           <td class="px-6 py-4 text-sm">${r.grade || '—'}</td>
-          <td class="px-6 py-4 text-end"><button onclick="deletePos('${r.id?.id || ''}')" class="text-text-secondary hover:text-red-500">✕</button></td>
+          <td class="px-6 py-4 text-end"><button onclick="deletePos('${tid(r.id)}')" class="text-text-secondary hover:text-red-500 p-1 rounded hover:bg-red-50">✕</button></td>
         </tr>`).join('');
         } catch (e) { console.error(e); }
     }
@@ -186,7 +191,7 @@
         e.preventDefault();
         try {
             const res = await fetch('/api/hr-org/positions', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
                 body: JSON.stringify({
                     code: 'POS-' + Math.floor(Math.random() * 1000),
                     title: document.getElementById('p-title').value,
@@ -212,7 +217,7 @@
         e.preventDefault();
         try {
             const res = await fetch('/api/hr-org/departments', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
                 body: JSON.stringify({
                     code: document.getElementById('d-code').value,
                     name: document.getElementById('d-name').value
@@ -233,7 +238,7 @@
     async function deleteDept(id) {
         confirmAction('هل أنت متأكد من الحذف؟', async function() {
             try {
-                const res = await fetch('/api/hr-org/departments/' + id, { method: 'DELETE' });
+                const res = await fetch('/api/hr-org/departments/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
                 if (res.ok) {
                     showToast('تم الحذف بنجاح', 'success');
                     loadDepartments();
@@ -251,7 +256,7 @@
     async function deletePos(id) {
         confirmAction('هل أنت متأكد من الحذف؟', async function() {
             try {
-                const res = await fetch('/api/hr-org/positions/' + id, { method: 'DELETE' });
+                const res = await fetch('/api/hr-org/positions/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
                 if (res.ok) {
                     showToast('تم الحذف بنجاح', 'success');
                     loadPositions();
@@ -267,7 +272,7 @@
 
     async function loadDepartmentOptions() {
         try {
-            const res = await fetch('/api/hr-org/departments/options');
+            const res = await fetch('/api/hr-org/departments/options', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
             const html = await res.text();
             const select = document.getElementById('p-dept');
             select.innerHTML = '<option value="">{{ t["auto_attr_hr_org_238"] }}</option>' + html;

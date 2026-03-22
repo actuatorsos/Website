@@ -2,10 +2,11 @@
 //!
 //! JSON endpoints for KPI visualization with ApexCharts.
 
-use axum::{Json, extract::State};
+use axum::{Extension, Json, extract::State};
 use serde::Serialize;
 
 use crate::db::AppState;
+use crate::models::CurrentUser;
 
 /// Generic chart data structure for ApexCharts.
 #[derive(Serialize)]
@@ -37,16 +38,26 @@ pub struct TimeSeriesData {
 /// GET /api/charts/assets-by-status
 ///
 /// Returns asset count grouped by status for pie/donut chart.
-pub async fn assets_by_status(State(state): State<AppState>) -> Json<ChartData> {
+pub async fn assets_by_status(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<ChartData> {
     #[derive(serde::Deserialize)]
     struct StatusCount {
         status: String,
         count: i64,
     }
 
+    let query = if user.organization_id.is_some() {
+        "SELECT status, count() as count FROM asset WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) GROUP BY status"
+    } else {
+        "SELECT status, count() as count FROM asset WHERE is_archived = false OR is_archived = NONE GROUP BY status"
+    };
+
     let counts: Vec<StatusCount> = state
         .db
-        .query("SELECT status, count() as count FROM asset GROUP BY status")
+        .query(query)
+        .bind(("org", user.organization_id.clone().unwrap_or_default()))
         .await
         .ok()
         .and_then(|mut r| r.take(0).ok())
@@ -61,26 +72,43 @@ pub async fn assets_by_status(State(state): State<AppState>) -> Json<ChartData> 
 /// GET /api/charts/repairs-by-month
 ///
 /// Returns repair operations count per month for the last 6 months.
-pub async fn repairs_by_month(State(state): State<AppState>) -> Json<ChartData> {
+pub async fn repairs_by_month(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<ChartData> {
     #[derive(serde::Deserialize)]
     struct MonthCount {
         month: String,
         count: i64,
     }
 
-    let counts: Vec<MonthCount> = state
-        .db
-        .query(
-            r#"
-            SELECT 
+    let query = if user.organization_id.is_some() {
+        r#"
+            SELECT
                 time::format(start_time, '%Y-%m') as month,
-                count() as count 
-            FROM repair_operation 
+                count() as count
+            FROM repair_operation
+            WHERE start_time > time::now() - 6mo
+            AND organization = type::record($org)
+            GROUP BY month
+            ORDER BY month ASC
+        "#
+    } else {
+        r#"
+            SELECT
+                time::format(start_time, '%Y-%m') as month,
+                count() as count
+            FROM repair_operation
             WHERE start_time > time::now() - 6mo
             GROUP BY month
             ORDER BY month ASC
-        "#,
-        )
+        "#
+    };
+
+    let counts: Vec<MonthCount> = state
+        .db
+        .query(query)
+        .bind(("org", user.organization_id.unwrap_or_default()))
         .await
         .ok()
         .and_then(|mut r| r.take(0).ok())
@@ -95,28 +123,47 @@ pub async fn repairs_by_month(State(state): State<AppState>) -> Json<ChartData> 
 /// GET /api/charts/employee-workload
 ///
 /// Returns repair count per employee for bar chart.
-pub async fn employee_workload(State(state): State<AppState>) -> Json<ChartData> {
+pub async fn employee_workload(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<ChartData> {
     #[derive(serde::Deserialize)]
     struct EmployeeWorkload {
         name: String,
         count: i64,
     }
 
-    let workloads: Vec<EmployeeWorkload> = state
-        .db
-        .query(
-            r#"
-            SELECT 
+    let query = if user.organization_id.is_some() {
+        r#"
+            SELECT
                 employee.name as name,
-                count() as count 
+                count() as count
+            FROM repair_operation
+            WHERE status != 'Completed'
+            AND organization = type::record($org)
+            GROUP BY employee_id
+            FETCH employee
+            ORDER BY count DESC
+            LIMIT 10
+        "#
+    } else {
+        r#"
+            SELECT
+                employee.name as name,
+                count() as count
             FROM repair_operation
             WHERE status != 'Completed'
             GROUP BY employee_id
             FETCH employee
             ORDER BY count DESC
             LIMIT 10
-        "#,
-        )
+        "#
+    };
+
+    let workloads: Vec<EmployeeWorkload> = state
+        .db
+        .query(query)
+        .bind(("org", user.organization_id.unwrap_or_default()))
         .await
         .ok()
         .and_then(|mut r| r.take(0).ok())
@@ -131,25 +178,41 @@ pub async fn employee_workload(State(state): State<AppState>) -> Json<ChartData>
 /// GET /api/charts/asset-value-by-category
 ///
 /// Returns total asset value grouped by category.
-pub async fn asset_value_by_category(State(state): State<AppState>) -> Json<ChartData> {
+pub async fn asset_value_by_category(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<ChartData> {
     #[derive(serde::Deserialize)]
     struct CategoryValue {
         category: String,
         total: i64,
     }
 
-    let values: Vec<CategoryValue> = state
-        .db
-        .query(
-            r#"
-            SELECT 
+    let query = if user.organization_id.is_some() {
+        r#"
+            SELECT
                 category,
-                math::sum(value) as total 
-            FROM asset 
+                math::sum(value) as total
+            FROM asset
+            WHERE organization = type::record($org)
             GROUP BY category
             ORDER BY total DESC
-        "#,
-        )
+        "#
+    } else {
+        r#"
+            SELECT
+                category,
+                math::sum(value) as total
+            FROM asset
+            GROUP BY category
+            ORDER BY total DESC
+        "#
+    };
+
+    let values: Vec<CategoryValue> = state
+        .db
+        .query(query)
+        .bind(("org", user.organization_id.unwrap_or_default()))
         .await
         .ok()
         .and_then(|mut r| r.take(0).ok())

@@ -39,12 +39,12 @@ pub fn build_router(state: AppState) -> Router {
     let (asset_tx, _) = tokio::sync::broadcast::channel(100);
     let (repair_tx, _) = tokio::sync::broadcast::channel(100);
     let (device_tx, _) = tokio::sync::broadcast::channel(100);
-    let (notification_tx, _) = tokio::sync::broadcast::channel(100);
+    // Share the notification channel from AppState so handlers can broadcast to WS clients
     let live_update_state = crate::ws::live_updates::LiveUpdateState {
         asset_tx,
         repair_tx,
         device_tx,
-        notification_tx,
+        notification_tx: state.notification_tx.clone(),
     };
 
     let ws_router = Router::new()

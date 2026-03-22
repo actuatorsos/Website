@@ -1,14 +1,14 @@
 {% extends "admin/base_admin.html" %}
 
 {% block admin_content %}
-<div class="max-w-7xl mx-auto animate-fade-in">
+<div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-0 animate-fade-in">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-text-primary">{{ t["nav_organizations"] }}</h1>
+            <h1 class="text-lg sm:text-2xl md:text-3xl font-bold text-text-primary">{{ t["nav_organizations"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["cmd_organizations_desc"] }}</p>
         </div>
         <button onclick="openModal('addOrgModal')"
-            class="flex items-center gap-2 bg-accent hover:bg-accent-focus text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
+            class="w-full sm:w-auto flex items-center justify-center gap-2 bg-accent hover:bg-accent-focus text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -18,7 +18,7 @@
 
     <div class="bg-surface rounded-2xl shadow-card overflow-hidden border border-border">
         <div class="overflow-x-auto">
-            <table class="w-full text-start border-collapse">
+            <table class="min-w-full text-start border-collapse">
                 <thead>
                     <tr class="bg-background/30 border-b border-border">
                         <th class="px-6 py-4 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">{{ t["org_col_name"] }}</th>
@@ -45,7 +45,7 @@
         <div class="relative transform overflow-hidden rounded-2xl bg-surface text-start shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-border scale-95 opacity-0 duration-300"
             id="addOrgModalContent">
 
-            <div class="px-6 py-4 border-b border-border flex justify-between items-center bg-background/50">
+            <div class="px-3 sm:px-4 md:px-6 py-4 border-b border-border flex justify-between items-center bg-background/50">
                 <h3 class="text-xl font-bold text-text-primary">{{ t["add_organization"] }}</h3>
                 <button type="button" onclick="closeModal('addOrgModal')"
                     class="text-text-secondary hover:text-red-500 transition-colors rounded-lg p-1 hover:bg-red-500/10">
@@ -55,7 +55,7 @@
                 </button>
             </div>
 
-            <div class="px-6 py-6">
+            <div class="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
                 <form id="addOrgForm" onsubmit="addOrg(event)" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["org_col_name"] }}</label>

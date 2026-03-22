@@ -6,6 +6,7 @@ pub mod machinery;
 
 // ── New Domains ─────────────────────────────────────────────────
 pub mod agent;
+pub mod ai_legal;
 pub mod catalog;
 pub mod crm;
 pub mod documents;
@@ -18,6 +19,10 @@ pub mod manufacturing;
 pub mod payroll_adv;
 pub mod projects_adv;
 pub mod store;
+pub mod field_service;
 pub mod training;
 pub mod videos;
+pub mod client_portal;
+pub mod iot;
+pub mod courses;
 

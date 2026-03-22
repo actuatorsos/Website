@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب تسجيل منظمة — Actuators</title>
+    <title>{{ t["page_title_org_register"] }}</title>
     <meta name="description" content="Actuators — Organization Registration Request">
     <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
     <meta name="theme-color" content="#0B1A2A">
@@ -16,7 +16,7 @@
 
     <style>
         /* ── Actuators Brand System ── */
-        :root {
+        :root, :root[data-theme="dark"] {
             --bg-primary: #0B1A2A;
             --bg-surface: rgba(11, 26, 42, 0.8);
             --text-primary: #FFFFFF;
@@ -30,14 +30,28 @@
             --font-mono: 'JetBrains Mono', monospace;
         }
 
+        :root[data-theme="light"] {
+            --bg-primary: #F0F4F8;
+            --bg-surface: rgba(255, 255, 255, 0.9);
+            --text-primary: #0B1A2A;
+            --text-muted: rgba(11, 26, 42, 0.55);
+            --structure-cyan: #00919A;
+            --structure-cyan-muted: rgba(0, 145, 154, 0.2);
+            --activation-orange: #E55A1B;
+        }
+
+        .hidden { display: none !important; }
+
         *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        [dir="rtl"] body { font-family: var(--font-primary-ar); }
+        [dir="ltr"] body { font-family: var(--font-primary-en); }
+
         body {
-            font-family: var(--font-primary-ar);
             background-color: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
@@ -100,6 +114,21 @@
             font-size: 13px;
             color: var(--text-muted);
         }
+        .auth-logo-wrap {
+            position: relative; width: 80px; height: 80px; margin: 0 auto 16px;
+            filter: drop-shadow(0 0 12px rgba(0,183,194,0.35)) drop-shadow(0 0 40px rgba(0,183,194,0.1));
+            transition: filter 0.4s ease;
+        }
+        .auth-logo-wrap .al-default, .auth-logo-wrap .al-hover { position: absolute; inset: 0; transition: opacity 0.4s cubic-bezier(1,0,0,1); }
+        .auth-logo-wrap .al-hover { opacity: 0; }
+        .logo-section:hover .auth-logo-wrap .al-default { opacity: 0; }
+        .logo-section:hover .auth-logo-wrap .al-hover { opacity: 1; }
+        .logo-section:hover .auth-logo-wrap { filter: drop-shadow(0 0 16px rgba(255,106,42,0.4)) drop-shadow(0 0 50px rgba(255,106,42,0.12)); }
+        .auth-wordmark-wrap { position: relative; width: 260px; height: 50px; margin: 0 auto 8px; }
+        .auth-wordmark-wrap .aw-default, .auth-wordmark-wrap .aw-hover { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.4s cubic-bezier(1,0,0,1); }
+        .auth-wordmark-wrap .aw-hover { opacity: 0; }
+        .logo-section:hover .auth-wordmark-wrap .aw-default { opacity: 0; }
+        .logo-section:hover .auth-wordmark-wrap .aw-hover { opacity: 1; }
 
         /* ── Card ── */
         .register-card {
@@ -325,28 +354,6 @@
             color: var(--structure-cyan);
         }
 
-        /* ── Home Button ── */
-        .home-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 20px;
-            padding: 8px 16px;
-            border: 1px solid var(--structure-cyan-muted);
-            background: transparent;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 11px;
-            text-decoration: none;
-            letter-spacing: 0.1em;
-            transition: all 0.15s linear;
-        }
-
-        .home-link:hover {
-            border-color: var(--structure-cyan);
-            color: var(--structure-cyan);
-        }
-
         /* ── Sequential Assembly Animation ── */
         .assemble {
             opacity: 0;
@@ -385,27 +392,35 @@
         .corner-marks::before {
             top: 0;
             inset-inline-start: 0;
-            border-width: 1px 0 0 1px;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-start-width: 1px;
         }
 
         .corner-marks::after {
             bottom: 0;
             inset-inline-end: 0;
-            border-width: 0 1px 1px 0;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-end-width: 1px;
         }
 
         .corner-marks-alt::before {
             top: 0;
             inset-inline-end: 0;
             inset-inline-start: auto;
-            border-width: 1px 1px 0 0;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-end-width: 1px;
         }
 
         .corner-marks-alt::after {
             bottom: 0;
             inset-inline-start: 0;
             inset-inline-end: auto;
-            border-width: 0 0 1px 1px;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-start-width: 1px;
         }
 
         @media (max-width: 540px) {
@@ -418,16 +433,55 @@
 </head>
 
 <body>
+    <!-- Unified Controls: Language + Theme -->
+    <div style="position:fixed;top:16px;inset-inline-end:16px;z-index:10;display:flex;align-items:center;gap:0;border:1px solid var(--structure-cyan-muted);background:var(--bg-surface);">
+        <a href="?lang={% if lang == "ar" %}en{% else %}ar{% endif %}"
+           style="display:flex;align-items:center;gap:6px;padding:6px 12px;color:var(--text-muted);font-family:var(--font-mono);font-size:11px;text-decoration:none;letter-spacing:0.1em;transition:all 0.15s linear;border-inline-end:1px solid var(--structure-cyan-muted);"
+           onmouseover="this.style.color='var(--structure-cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+            {% if lang == "ar" %}EN{% else %}عربي{% endif %}
+        </a>
+        <button onclick="toggleThemeAuth()" style="display:flex;align-items:center;padding:6px 10px;background:none;border:none;color:var(--text-muted);cursor:pointer;transition:all 0.15s linear;"
+                onmouseover="this.style.color='var(--structure-cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+            <svg id="auth-sun" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg id="auth-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+    </div>
+    <script>
+    function toggleThemeAuth(){
+        const html=document.documentElement;
+        const isDark=html.getAttribute('data-theme')==='dark';
+        html.setAttribute('data-theme',isDark?'light':'dark');
+        localStorage.setItem('theme',isDark?'light':'dark');
+        updateThemeIcons();
+    }
+    function updateThemeIcons(){
+        const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+        const sun=document.getElementById('auth-sun');
+        const moon=document.getElementById('auth-moon');
+        if(sun&&moon){sun.classList.toggle('hidden',isDark);moon.classList.toggle('hidden',!isDark);}
+    }
+    (function(){
+        const t=localStorage.getItem('theme')||'dark';
+        document.documentElement.setAttribute('data-theme',t);
+        setTimeout(updateThemeIcons,0);
+    })();
+    </script>
+
     <div class="register-container">
         <!-- Logo -->
         <div class="logo-section assemble assemble-1">
-            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
-                <use href="/static/icons.svg#icon-logo"></use>
-            </svg>
-            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
-                <use href="/static/icons.svg#icon-actuator-logo"></use>
-            </svg>
-            <div class="brand-sub">Organization Registration Request</div>
+            <a href="/?lang={{ lang }}" style="text-decoration:none;display:inline-flex;flex-direction:column;align-items:center;">
+                <div class="auth-logo-wrap">
+                    <svg class="al-default" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><g id="ald"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/></g></defs><g transform="translate(60,60)"><use href="#ald" x="34.641" y="0" color="#00B7C2"/><use href="#ald" x="-34.641" y="0" color="#00B7C2"/><use href="#ald" x="17.3205" y="-30" color="#00B7C2"/><use href="#ald" x="-17.3205" y="-30" color="#00B7C2"/><use href="#ald" x="17.3205" y="30" color="#00B7C2"/><use href="#ald" x="-17.3205" y="30" color="#00B7C2"/><use href="#ald" x="0" y="0" color="#FF6A2A"/></g></svg>
+                    <svg class="al-hover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><g id="alr"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/></g></defs><g transform="translate(60,60)"><use href="#alr" x="34.641" y="0" color="#FF6A2A"/><use href="#alr" x="-34.641" y="0" color="#FF6A2A"/><use href="#alr" x="17.3205" y="-30" color="#FF6A2A"/><use href="#alr" x="-17.3205" y="-30" color="#FF6A2A"/><use href="#alr" x="17.3205" y="30" color="#FF6A2A"/><use href="#alr" x="-17.3205" y="30" color="#FF6A2A"/><use href="#alr" x="0" y="0" color="#00B7C2"/></g></svg>
+                </div>
+                <div class="auth-wordmark-wrap">
+                    <svg class="aw-default" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145"><line x1="40" y1="120" x2="960" y2="120" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#FF6A2A" stroke-width="2" opacity="0.3" fill="none"/><text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#00B7C2" letter-spacing="7" text-anchor="middle">ACTUATORS</text></svg>
+                    <svg class="aw-hover" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145"><line x1="40" y1="120" x2="960" y2="120" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#00B7C2" stroke-width="2" opacity="0.3" fill="none"/><text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#FF6A2A" letter-spacing="7" text-anchor="middle">ACTUATORS</text></svg>
+                </div>
+            </a>
+            <div class="brand-sub">{{ t["org_reg_subtitle"] }}</div>
         </div>
 
         <!-- Registration Card -->
@@ -435,39 +489,45 @@
             <div class="corner-marks"></div>
             <div class="corner-marks corner-marks-alt"></div>
 
-            <h2>طلب تسجيل منظمة</h2>
-            <p class="subtitle">Organization Registration Request</p>
+            <h2>{{ t["org_reg_title"] }}</h2>
+            <p class="subtitle">{{ t["org_reg_subtitle"] }}</p>
 
             <!-- Messages -->
             <div id="msg-box" class="msg-box"></div>
 
-            <form id="org-register-form">
+            <form id="org-register-form"
+                  data-sending="{{ t["org_reg_sending"] }}"
+                  data-sent="{{ t["org_reg_sent"] }}"
+                  data-success="{{ t["org_reg_success_msg"] }}"
+                  data-error="{{ t["org_reg_error_msg"] }}"
+                  data-connection-error="{{ t["org_reg_connection_error"] }}"
+                  data-submit="{{ t["org_reg_submit"] }}">
                 <!-- Organization Name -->
                 <div class="form-group">
-                    <label class="form-label">اسم المنظمة <span class="required">*</span></label>
+                    <label class="form-label">{{ t["org_reg_org_name"] }} <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                         <input type="text" id="org-name" name="name" required
-                            placeholder="مثال: شركة التقنية المتقدمة" class="form-input">
+                            placeholder="{{ t["org_reg_org_name_ph"] }}" class="form-input">
                     </div>
                 </div>
 
                 <!-- Organization Type -->
                 <div class="form-group">
-                    <label class="form-label">نوع المنظمة <span class="required">*</span></label>
+                    <label class="form-label">{{ t["org_reg_org_type"] }} <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
                         </svg>
                         <select id="org-type" name="org_type" required class="form-select form-input">
-                            <option value="startup">شركة ناشئة — Startup</option>
-                            <option value="volunteer_team">فريق تطوعي — Volunteer Team</option>
-                            <option value="ngo">منظمة غير ربحية — NGO</option>
-                            <option value="company">شركة — Company</option>
+                            <option value="startup">{{ t["org_reg_type_startup"] }}</option>
+                            <option value="volunteer_team">{{ t["org_reg_type_volunteer"] }}</option>
+                            <option value="ngo">{{ t["org_reg_type_ngo"] }}</option>
+                            <option value="company">{{ t["org_reg_type_company"] }}</option>
                         </select>
                     </div>
                 </div>
@@ -475,7 +535,7 @@
                 <div class="form-row">
                     <!-- Contact Email -->
                     <div class="form-group">
-                        <label class="form-label">البريد الإلكتروني <span class="required">*</span></label>
+                        <label class="form-label">{{ t["org_reg_email"] }} <span class="required">*</span></label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -488,7 +548,7 @@
 
                     <!-- Contact Phone -->
                     <div class="form-group">
-                        <label class="form-label">رقم الهاتف</label>
+                        <label class="form-label">{{ t["org_reg_phone"] }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -503,7 +563,7 @@
                 <div class="form-row">
                     <!-- City -->
                     <div class="form-group">
-                        <label class="form-label">المدينة / الموقع</label>
+                        <label class="form-label">{{ t["org_reg_country"] }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -512,13 +572,13 @@
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
                             <input type="text" id="city" name="city"
-                                placeholder="الرياض" class="form-input">
+                                placeholder="{{ t["org_reg_country_ph"] }}" class="form-input">
                         </div>
                     </div>
 
                     <!-- Website -->
                     <div class="form-group">
-                        <label class="form-label">الموقع الإلكتروني</label>
+                        <label class="form-label">{{ t["org_reg_website"] }}</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -532,7 +592,7 @@
 
                 <!-- Team Size -->
                 <div class="form-group">
-                    <label class="form-label">عدد أعضاء الفريق</label>
+                    <label class="form-label">{{ t["org_reg_team_size"] }}</label>
                     <div class="input-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -545,9 +605,9 @@
 
                 <!-- Description -->
                 <div class="form-group">
-                    <label class="form-label">نبذة مختصرة عن المنظمة</label>
+                    <label class="form-label">{{ t["org_reg_description"] }}</label>
                     <textarea id="description" name="description" rows="3"
-                        placeholder="اكتب نبذة مختصرة عن نشاط المنظمة وأهدافها..."
+                        placeholder="{{ t["org_reg_description_ph"] }}"
                         class="form-textarea no-icon"></textarea>
                 </div>
 
@@ -555,33 +615,21 @@
 
                 <!-- Submit -->
                 <button type="submit" id="submit-btn" class="btn-submit">
-                    <span id="btn-text">إرسال طلب التسجيل</span>
+                    <span id="btn-text">{{ t["org_reg_submit"] }}</span>
                     <div id="btn-spinner" class="spinner"></div>
                 </button>
 
                 <!-- Links -->
                 <div class="register-links">
+                    <span>{{ t["org_reg_have_account"] }}</span>
                     <a href="/admin/login?lang={{ lang }}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-inline-end:4px;">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                         </svg>
-                        تسجيل الدخول
-                    </a>
-                    <a href="/?lang={{ lang }}">
-                        الصفحة الرئيسية
+                        {{ t["org_reg_login_link"] }}
                     </a>
                 </div>
             </form>
-        </div>
-
-        <!-- Home Button -->
-        <div style="text-align:center;" class="assemble assemble-3">
-            <a href="/?lang={{ lang }}" class="home-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
-                </svg>
-                الصفحة الرئيسية
-            </a>
         </div>
 
         <!-- Footer -->
@@ -594,13 +642,14 @@
         document.getElementById('org-register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const form = document.getElementById('org-register-form');
             const btn = document.getElementById('submit-btn');
             const btnText = document.getElementById('btn-text');
             const spinner = document.getElementById('btn-spinner');
             const msgBox = document.getElementById('msg-box');
 
             btn.disabled = true;
-            btnText.textContent = 'جاري الإرسال...';
+            btnText.textContent = form.dataset.sending;
             spinner.classList.add('visible');
             msgBox.classList.remove('visible', 'error', 'success');
 
@@ -626,21 +675,21 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    msgBox.textContent = data.message || 'تم إرسال طلب التسجيل بنجاح';
+                    msgBox.textContent = data.message || form.dataset.success;
                     msgBox.classList.add('visible', 'success');
-                    btnText.textContent = 'تم الإرسال';
+                    btnText.textContent = form.dataset.sent;
                     spinner.classList.remove('visible');
-                    document.getElementById('org-register-form').reset();
+                    form.reset();
                 } else {
-                    throw new Error(data.error || 'فشل في إرسال الطلب');
+                    throw new Error(data.error || form.dataset.error);
                 }
             } catch (err) {
-                msgBox.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                msgBox.textContent = err.message || form.dataset.connectionError;
                 msgBox.classList.add('visible', 'error', 'shake');
                 setTimeout(() => msgBox.classList.remove('shake'), 400);
 
                 btn.disabled = false;
-                btnText.textContent = 'إرسال طلب التسجيل';
+                btnText.textContent = form.dataset.submit;
                 spinner.classList.remove('visible');
             }
         });

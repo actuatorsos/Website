@@ -48,7 +48,9 @@ pub struct DashboardTemplate {
     pub stats: DashboardStats,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
+    pub user_name: String,
 }
 
 /// Template for the organizations management page
@@ -61,6 +63,7 @@ pub struct OrganizationsTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -74,6 +77,7 @@ pub struct EventsTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -87,6 +91,7 @@ pub struct AssetsTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -97,11 +102,23 @@ pub struct ProfileTemplate {
     pub lang: String,
     pub dir: String,
     pub t: HashMap<String, String>,
+    pub user_email: String,
+    pub user_role: String,
+    pub account: crate::models::Account,
+}
+
+/// Template for the settings page
+#[derive(Template)]
+#[template(path = "admin/settings.html")]
+pub struct SettingsTemplate {
+    pub lang: String,
+    pub dir: String,
+    pub t: HashMap<String, String>,
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
-    pub account: crate::models::Account,
 }
 
 /// Template for the accounts management page
@@ -114,6 +131,7 @@ pub struct AccountsTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
     pub accounts: Vec<crate::models::Account>,
 }
@@ -194,7 +212,10 @@ pub struct VerifyEmailTemplate {
 pub struct AuthInfo {
     pub email: String,
     pub role: String,
+    pub user_type: String,
     pub avatar: Option<String>,
+    pub full_name: Option<String>,
+    pub organization: Option<surrealdb::sql::Thing>,
 }
 
 /// Check JWT cookie and return user info, or redirect to login page
@@ -212,16 +233,19 @@ pub async fn check_jwt_auth(
 
     match decode_token(&token, jwt_secret) {
         Ok(claims) => {
-            // Fetch user account to get avatar
-            let avatar = match state.get_account_by_email(&claims.email).await {
-                Ok(acc) => acc.avatar,
-                Err(_) => None,
+            // Fetch user account to get avatar, user_type, full_name, organization
+            let (avatar, user_type, full_name, organization) = match state.get_account_by_email(&claims.email).await {
+                Ok(acc) => (acc.avatar, acc.user_type, acc.full_name, acc.organization),
+                Err(_) => (None, "member".to_string(), None, None),
             };
 
             Ok(AuthInfo {
                 email: claims.email,
                 role: claims.role,
+                user_type,
                 avatar,
+                full_name,
+                organization,
             })
         }
         Err(_) => {
@@ -398,6 +422,7 @@ async fn dashboard(
         projects: state.get_cached_count("project", 60).await as usize,
     };
 
+    let display_name = auth.full_name.clone().unwrap_or_else(|| auth.email.clone());
     let template = DashboardTemplate {
         lang: lang.as_str().to_string(),
         dir: lang.dir().to_string(),
@@ -406,7 +431,9 @@ async fn dashboard(
         stats,
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
+        user_name: display_name,
     };
 
     Html(
@@ -437,6 +464,7 @@ async fn organizations_page(
         active_page: "organizations".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 
@@ -468,6 +496,7 @@ async fn events_page(
         active_page: "events".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 
@@ -499,6 +528,7 @@ async fn assets_page(
         active_page: "assets".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 
@@ -527,7 +557,18 @@ async fn accounts_page(
 
     let lang = resolve_language(&cookies, params.lang);
     let t = state.i18n.get_dictionary(lang.as_str());
-    let accounts = state.get_all_accounts().await.unwrap_or_default();
+    // Filter accounts by organization — admin only sees their org
+    let accounts = if let Some(ref org_thing) = auth.organization {
+        let org_str = format!("{}:{}", org_thing.tb, org_thing.id);
+        let result: Result<Vec<crate::models::Account>, _> = state.db
+            .query("SELECT * FROM account WHERE organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org_str))
+            .await
+            .and_then(|mut r| r.take(0));
+        result.unwrap_or_default()
+    } else {
+        state.get_all_accounts().await.unwrap_or_default()
+    };
 
     let template = AccountsTemplate {
         lang: lang.as_str().to_string(),
@@ -536,6 +577,7 @@ async fn accounts_page(
         active_page: "accounts".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
         accounts,
     };
@@ -589,10 +631,8 @@ async fn profile_page(
         lang: lang.as_str().to_string(),
         dir: lang.dir().to_string(),
         t,
-        active_page: String::new(), // Not active on sidebar
         user_email: auth.email,
         user_role: auth.role,
-        user_avatar: auth.avatar,
         account,
     };
 
@@ -665,6 +705,7 @@ pub struct HrOrgTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -678,6 +719,7 @@ pub struct LeaveTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -691,6 +733,7 @@ pub struct PayrollTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -704,6 +747,49 @@ pub struct ComplianceTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
+    pub user_avatar: Option<String>,
+}
+
+/// Field Service page — تذاكر الخدمة الميدانية
+#[derive(Template)]
+#[template(path = "admin/field_service.html")]
+pub struct FieldServiceTemplate {
+    pub lang: String,
+    pub dir: String,
+    pub t: HashMap<String, String>,
+    pub active_page: String,
+    pub user_email: String,
+    pub user_role: String,
+    pub user_type: String,
+    pub user_avatar: Option<String>,
+}
+
+/// IoT Devices page — أجهزة إنترنت الأشياء
+#[derive(Template)]
+#[template(path = "admin/iot.html")]
+pub struct IoTTemplate {
+    pub lang: String,
+    pub dir: String,
+    pub t: HashMap<String, String>,
+    pub active_page: String,
+    pub user_email: String,
+    pub user_role: String,
+    pub user_type: String,
+    pub user_avatar: Option<String>,
+}
+
+/// Courses & Learning Paths page
+#[derive(Template)]
+#[template(path = "admin/courses.html")]
+pub struct CoursesTemplate {
+    pub lang: String,
+    pub dir: String,
+    pub t: HashMap<String, String>,
+    pub active_page: String,
+    pub user_email: String,
+    pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -717,6 +803,7 @@ pub struct TrainingTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -730,6 +817,7 @@ pub struct CrmTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -743,6 +831,7 @@ pub struct CatalogTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -756,6 +845,7 @@ pub struct InventoryTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -769,6 +859,7 @@ pub struct ManufacturingTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -782,6 +873,7 @@ pub struct ClientsTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -795,6 +887,7 @@ pub struct ProjectsBoardTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -808,6 +901,7 @@ pub struct EmailPageTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -821,6 +915,7 @@ pub struct AgentsPageTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -834,6 +929,21 @@ pub struct StorePageTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
+    pub user_avatar: Option<String>,
+}
+
+/// Client Portal page — بوابة العميل
+#[derive(Template)]
+#[template(path = "admin/client_portal.html")]
+pub struct ClientPortalTemplate {
+    pub lang: String,
+    pub dir: String,
+    pub t: HashMap<String, String>,
+    pub active_page: String,
+    pub user_email: String,
+    pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -847,6 +957,7 @@ pub struct VideosTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
     pub videos: Vec<crate::domains::videos::models::VideoView>,
 }
@@ -861,6 +972,7 @@ pub struct NotificationsPageTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -874,6 +986,7 @@ pub struct DocumentViewTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
     pub entity_type: String,
     pub entity_id: String,
@@ -900,6 +1013,7 @@ pub async fn document_view_page(
         active_page: entity_type.clone(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
         entity_type,
         entity_id,
@@ -937,6 +1051,7 @@ macro_rules! simple_admin_page {
                 active_page: $active.to_string(),
                 user_email: auth.email,
                 user_role: auth.role,
+                user_type: auth.user_type,
                 user_avatar: auth.avatar,
             };
             Html(
@@ -953,12 +1068,16 @@ simple_admin_page!(hr_org_page, HrOrgTemplate, "hr_org");
 simple_admin_page!(leave_page, LeaveTemplate, "leave");
 simple_admin_page!(payroll_page, PayrollTemplate, "payroll");
 simple_admin_page!(compliance_page, ComplianceTemplate, "compliance");
+simple_admin_page!(field_service_page, FieldServiceTemplate, "field_service");
 simple_admin_page!(training_page, TrainingTemplate, "training");
+simple_admin_page!(courses_page, CoursesTemplate, "courses");
+simple_admin_page!(iot_page, IoTTemplate, "iot");
 simple_admin_page!(clients_page, ClientsTemplate, "clients");
 simple_admin_page!(crm_page, CrmTemplate, "crm");
 simple_admin_page!(catalog_page, CatalogTemplate, "catalog");
 simple_admin_page!(inventory_page, InventoryTemplate, "inventory");
 simple_admin_page!(manufacturing_page, ManufacturingTemplate, "manufacturing");
+simple_admin_page!(client_portal_page, ClientPortalTemplate, "client_portal");
 simple_admin_page!(projects_board_page, ProjectsBoardTemplate, "projects_board");
 simple_admin_page!(email_mgmt_page, EmailPageTemplate, "email");
 simple_admin_page!(agents_mgmt_page, AgentsPageTemplate, "agents");
@@ -997,6 +1116,7 @@ pub async fn videos_page(
         active_page: "videos".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
         videos,
     };
@@ -1032,6 +1152,7 @@ pub struct AuditLogTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
     pub entries: Vec<AuditLogEntry>,
 }
@@ -1091,8 +1212,51 @@ async fn audit_log_page(
         active_page: "audit_log".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
         entries,
+    };
+
+    Html(
+        template
+            .render()
+            .unwrap_or_else(|e| format!("Error: {}", e)),
+    )
+    .into_response()
+}
+
+// ============================================================================
+// Settings Page
+// ============================================================================
+
+/// Admin settings page — admin-only access
+async fn settings_page(
+    State(state): State<AppState>,
+    cookies: Cookies,
+    Query(params): Query<LangParam>,
+) -> Response {
+    let auth = match check_jwt_auth(&cookies, &state.jwt_secret, &state).await {
+        Ok(info) => info,
+        Err(redirect) => return redirect,
+    };
+
+    // Only admin can access settings
+    if auth.role != "admin" {
+        return Redirect::to("/admin").into_response();
+    }
+
+    let lang = resolve_language(&cookies, params.lang);
+    let t = state.i18n.get_dictionary(lang.as_str());
+
+    let template = SettingsTemplate {
+        lang: lang.as_str().to_string(),
+        dir: lang.dir().to_string(),
+        t,
+        active_page: "settings".to_string(),
+        user_email: auth.email,
+        user_role: auth.role,
+        user_type: auth.user_type,
+        user_avatar: auth.avatar,
     };
 
     Html(
@@ -1125,10 +1289,14 @@ pub fn routes() -> Router<AppState> {
         .route("/payroll", get(payroll_page))
         .route("/compliance", get(compliance_page))
         .route("/training", get(training_page))
+        .route("/courses", get(courses_page))
         .route("/clients", get(clients_page))
         .route("/crm", get(crm_page))
         .route("/catalog", get(catalog_page))
         .route("/inventory", get(inventory_page))
+        .route("/field-service", get(field_service_page))
+        .route("/iot", get(iot_page))
+        .route("/client-portal", get(client_portal_page))
         .route("/manufacturing", get(manufacturing_page))
         .route("/projects-board", get(projects_board_page))
         .route("/email", get(email_mgmt_page))
@@ -1137,15 +1305,24 @@ pub fn routes() -> Router<AppState> {
         .route("/notifications", get(notifications_page))
         .route("/videos", get(videos_page))
         .route("/audit-log", get(audit_log_page))
+        .route("/settings", get(settings_page))
 }
 
-/// Organization registration request page (public — no auth)
+/// Organization registration request page (requires auth — links org to user)
 async fn org_register_page(
     State(state): State<AppState>,
     cookies: Cookies,
     Query(params): Query<LangParam>,
 ) -> Response {
     let lang = resolve_language(&cookies, params.lang);
+    // Require authentication — redirect to login if not authenticated
+    match check_jwt_auth(&cookies, &state.jwt_secret, &state).await {
+        Ok(_auth) => {},
+        Err(_) => {
+            let login_url = format!("/admin/login?lang={}&redirect=/org-register", lang.as_str());
+            return Redirect::to(&login_url).into_response();
+        }
+    };
     let t = state.i18n.get_dictionary(lang.as_str());
     let template = OrgRegisterTemplate {
         lang: lang.as_str().to_string(),

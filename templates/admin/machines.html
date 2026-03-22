@@ -4,14 +4,14 @@
 <div class="max-w-7xl mx-auto animate-fade-in relative">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-primary">{{ t["machines_title"] }}</h1>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["machines_title"] }}</h1>
             <p class="text-text-secondary mt-1">{{ t["machines_subtitle"] }}</p>
         </div>
 
         <div class="flex items-center gap-3">
             <div class="relative">
                 <input type="text" id="machineSearch" placeholder="Search machines..."
-                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-64 transition-all">
+                    class="pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-sm focus:ring-2 focus:ring-secondary outline-none w-full sm:w-64 transition-all">
                 <svg class="w-5 h-5 text-text-secondary absolute left-3 top-2.5" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -98,7 +98,7 @@
             </div>
 
             <form hx-post="/api/machines" hx-target="#machines-tbody" hx-swap="afterbegin"
-                hx-on::after-request="closeModal('addMachineModal'); this.reset();" class="px-6 py-6">
+                hx-on::after-request="closeModal('addMachineModal'); this.reset();" class="px-4 sm:px-6 py-4 sm:py-6">
 
                 <div class="grid md:grid-cols-2 gap-6">
                     <div>
@@ -176,7 +176,7 @@
                 return;
             }
             select.innerHTML = '<option value="">{{ t["form_customer_id"] }}...</option>' +
-                data.map(c => `<option value="${c.id?.id || c.id}">${c.name || '—'}</option>`).join('');
+                data.map(c => `<option value="${tid(c.id)}">${c.name || '—'}</option>`).join('');
         } catch (e) { console.error(e); }
     }
     loadClients();

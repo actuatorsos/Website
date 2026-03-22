@@ -30,7 +30,7 @@
                 <tbody id="events-table" class="divide-y divide-border">
                     <tr>
                         <td colspan="4" class="px-6 py-8 text-center text-text-secondary">
-                            {% if lang == "ar" %}لا توجد فعاليات حالياً{% else %}No events yet{% endif %}
+                            {{ t["events_no_events"] }}
                         </td>
                     </tr>
                 </tbody>
@@ -78,7 +78,7 @@
                             <option value="other">{% if lang == "ar" %}أخرى{% else %}Other{% endif %}</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["form_start_date"] }}</label>
                             <input type="datetime-local" id="eventStart" required
@@ -155,7 +155,7 @@
             const tbody = document.getElementById('events-table');
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{% if lang == "ar" %}لا توجد فعاليات حالياً{% else %}No events yet{% endif %}</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-text-secondary">{{ t["events_no_events"] }}</td></tr>';
                 return;
             }
 

@@ -10,11 +10,12 @@ use surrealdb::sql::Thing;
 pub struct Warning {
     #[serde(default)]
     pub id: Option<Thing>,
+    #[serde(default)]
     pub employee: Option<Thing>,
     #[serde(default)]
     pub issued_by: Option<Thing>,
     #[serde(default)]
-    pub warning_type: Option<String>, // verbal, written_1, written_2, final, termination
+    pub warning_type: Option<String>,
     #[serde(default)]
     pub violation: Option<String>,
     #[serde(default)]
@@ -24,13 +25,23 @@ pub struct Warning {
     #[serde(default)]
     pub suspension_days: Option<i64>,
     #[serde(default)]
-    pub is_acknowledged: Option<bool>,
+    pub deduction_days: Option<i64>,
     #[serde(default)]
-    pub acknowledged_at: Option<String>,
+    pub date: Option<serde_json::Value>,
+    #[serde(default)]
+    pub expiry_date: Option<serde_json::Value>,
+    #[serde(default)]
+    pub employee_ack: Option<bool>,
+    #[serde(default)]
+    pub ack_date: Option<serde_json::Value>,
+    #[serde(default)]
+    pub notes: Option<String>,
+    #[serde(default)]
+    pub attachments: Option<Vec<String>>,
     #[serde(default)]
     pub is_archived: Option<bool>,
     #[serde(default)]
-    pub created_at: Option<String>,
+    pub created_at: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,46 +71,52 @@ pub struct EndOfService {
     #[serde(default)]
     pub employee: Option<Thing>,
     #[serde(default)]
-    pub termination_date: Option<String>,
+    pub termination_type: Option<String>,
     #[serde(default)]
-    pub termination_type: Option<String>, // resignation, termination, retirement, contract_end
+    pub hire_date: Option<serde_json::Value>,
+    #[serde(default)]
+    pub end_date: Option<serde_json::Value>,
     #[serde(default)]
     pub total_years: Option<f64>,
     #[serde(default)]
-    pub total_months: Option<i64>,
+    pub last_salary: Option<f64>,
     #[serde(default)]
-    pub last_basic_salary: Option<f64>,
+    pub half_month_years: Option<f64>,
     #[serde(default)]
-    pub first_five_years_amount: Option<f64>,
-    #[serde(default)]
-    pub remaining_years_amount: Option<f64>,
+    pub full_month_years: Option<f64>,
     #[serde(default)]
     pub gross_amount: Option<f64>,
     #[serde(default)]
-    pub annual_leave_encashment: Option<f64>,
-    #[serde(default)]
-    pub other_deductions: Option<f64>,
+    pub deductions: Option<f64>,
     #[serde(default)]
     pub net_amount: Option<f64>,
     #[serde(default)]
+    pub leave_balance_payout: Option<f64>,
+    #[serde(default)]
     pub total_payout: Option<f64>,
     #[serde(default)]
-    pub calculation_notes: Option<String>,
+    pub notes: Option<String>,
     #[serde(default)]
-    pub status: Option<String>, // draft, finalized, paid
+    pub status: Option<String>,
     #[serde(default)]
-    pub created_at: Option<String>,
+    pub approved_by: Option<Thing>,
+    #[serde(default)]
+    pub payment_date: Option<serde_json::Value>,
+    #[serde(default)]
+    pub is_archived: Option<bool>,
+    #[serde(default)]
+    pub created_at: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CalculateEosRequest {
     pub employee_id: String,
-    pub termination_date: String,
+    pub end_date: String,
     pub termination_type: String,
     #[serde(default)]
     pub annual_leave_days_remaining: Option<i64>,
     #[serde(default)]
-    pub other_deductions: Option<f64>,
+    pub deductions: Option<f64>,
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -112,7 +129,7 @@ pub struct OvertimeRequest {
     #[serde(default)]
     pub employee: Option<Thing>,
     #[serde(default)]
-    pub date: Option<String>,
+    pub date: Option<serde_json::Value>,
     #[serde(default)]
     pub hours: Option<f64>,
     #[serde(default)]
@@ -122,13 +139,15 @@ pub struct OvertimeRequest {
     #[serde(default)]
     pub calculated_amount: Option<f64>,
     #[serde(default)]
-    pub status: Option<String>, // pending, approved, rejected
+    pub status: Option<String>,
     #[serde(default)]
     pub approved_by: Option<Thing>,
     #[serde(default)]
+    pub notes: Option<String>,
+    #[serde(default)]
     pub is_archived: Option<bool>,
     #[serde(default)]
-    pub created_at: Option<String>,
+    pub created_at: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

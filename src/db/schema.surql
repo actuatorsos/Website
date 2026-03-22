@@ -33,6 +33,7 @@ DEFINE FIELD user_type     ON account TYPE string
     ASSERT $value IN ["platform_admin", "startup_owner", "team_leader", "member", "trainee", "volunteer"]
     DEFAULT "member";
 DEFINE FIELD organization  ON account TYPE option<record<organization>>;
+DEFINE FIELD avatar        ON account TYPE option<string>;
 
 DEFINE TABLE auth_token SCHEMAFULL
     PERMISSIONS FOR select, create, update, delete NONE;
@@ -1327,6 +1328,8 @@ DEFINE EVENT on_leave_approved ON leave_request
 -- ██  الجزء ١١: الحذف المنطقي (Soft Delete — is_archived)    ██
 -- ████████████████████████████████████████████████████████████████
 
+DEFINE FIELD is_archived ON employee        TYPE bool DEFAULT false;
+DEFINE FIELD is_archived ON attendance      TYPE bool DEFAULT false;
 DEFINE FIELD is_archived ON leave_request   TYPE bool DEFAULT false;
 DEFINE FIELD is_archived ON evaluation      TYPE bool DEFAULT false;
 DEFINE FIELD is_archived ON trainee         TYPE bool DEFAULT false;
@@ -2490,3 +2493,340 @@ DEFINE FIELD created_at      ON educational_video TYPE datetime DEFAULT time::no
 
 DEFINE INDEX idx_video_title   ON educational_video FIELDS title;
 DEFINE INDEX idx_video_created ON educational_video FIELDS created_at;
+
+-- ============================================================================
+-- المستشار القانوني السوري — AI Legal Agent
+-- Syrian Legal Assistant — RAG + Claude API
+-- ============================================================================
+
+-- ██  الوثائق القانونية (Legal Documents)  ██
+
+DEFINE TABLE legal_document SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role = "admin";
+
+DEFINE FIELD name_ar          ON legal_document TYPE string;
+DEFINE FIELD name_en          ON legal_document TYPE option<string>;
+DEFINE FIELD number           ON legal_document TYPE string;
+DEFINE FIELD year             ON legal_document TYPE int;
+DEFINE FIELD doc_type         ON legal_document TYPE string
+    ASSERT $value IN ["constitution", "decree", "law", "regulation", "circular", "treaty", "amendment"];
+DEFINE FIELD category         ON legal_document TYPE string
+    ASSERT $value IN ["civil", "penal", "commercial", "personal_status", "labor", "procedure_civil", "procedure_criminal", "real_estate", "military", "tax", "accounting", "intellectual_property", "patents", "trademarks", "copyright", "investment", "customs", "insurance", "consumer_protection", "constitutional", "arbitration", "nationality", "corporate"];
+DEFINE FIELD specialty        ON legal_document TYPE array DEFAULT [];
+DEFINE FIELD status           ON legal_document TYPE string
+    ASSERT $value IN ["active", "amended", "repealed", "suspended"]
+    DEFAULT "active";
+DEFINE FIELD replaces         ON legal_document TYPE option<record<legal_document>>;
+DEFINE FIELD replaced_by      ON legal_document TYPE option<record<legal_document>>;
+DEFINE FIELD source_url       ON legal_document TYPE option<string>;
+DEFINE FIELD issuing_authority ON legal_document TYPE option<string>;
+DEFINE FIELD effective_date   ON legal_document TYPE option<datetime>;
+DEFINE FIELD summary_ar       ON legal_document TYPE option<string>;
+DEFINE FIELD total_articles   ON legal_document TYPE option<int>;
+DEFINE FIELD created_at       ON legal_document TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at       ON legal_document TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_legal_doc_category  ON legal_document FIELDS category;
+DEFINE INDEX idx_legal_doc_number    ON legal_document FIELDS number, year UNIQUE;
+DEFINE INDEX idx_legal_doc_status    ON legal_document FIELDS status;
+DEFINE INDEX idx_legal_doc_specialty ON legal_document FIELDS specialty;
+
+-- ██  المواد القانونية (Legal Articles)  ██
+
+DEFINE TABLE legal_article SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role = "admin";
+
+DEFINE FIELD document         ON legal_article TYPE record<legal_document>;
+DEFINE FIELD article_number   ON legal_article TYPE int;
+DEFINE FIELD text_ar          ON legal_article TYPE string;
+DEFINE FIELD text_en          ON legal_article TYPE option<string>;
+DEFINE FIELD chapter          ON legal_article TYPE option<string>;
+DEFINE FIELD section          ON legal_article TYPE option<string>;
+DEFINE FIELD book             ON legal_article TYPE option<string>;
+DEFINE FIELD title            ON legal_article TYPE option<string>;
+DEFINE FIELD keywords         ON legal_article TYPE array DEFAULT [];
+DEFINE FIELD is_amended       ON legal_article TYPE bool DEFAULT false;
+DEFINE FIELD amendment_notes  ON legal_article TYPE option<string>;
+DEFINE FIELD amendment_law    ON legal_article TYPE option<string>;
+DEFINE FIELD related_articles ON legal_article TYPE array DEFAULT [];
+DEFINE FIELD embedding        ON legal_article TYPE option<array>;
+DEFINE FIELD created_at       ON legal_article TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_article_doc      ON legal_article FIELDS document;
+DEFINE INDEX idx_article_number   ON legal_article FIELDS document, article_number UNIQUE;
+DEFINE INDEX idx_article_keywords ON legal_article FIELDS keywords;
+
+-- ██  جلسات المحادثة القانونية (Chat Sessions)  ██
+
+DEFINE TABLE legal_chat_session SCHEMAFULL
+    PERMISSIONS
+        FOR select WHERE user = $auth.id OR $auth.role = "admin"
+        FOR create WHERE $auth.id != NONE
+        FOR update, delete WHERE user = $auth.id OR $auth.role = "admin";
+
+DEFINE FIELD user             ON legal_chat_session TYPE record<account>;
+DEFINE FIELD title            ON legal_chat_session TYPE option<string>;
+DEFINE FIELD specialty        ON legal_chat_session TYPE string
+    ASSERT $value IN ["litigation", "entrepreneurship", "patents", "legal_accounting", "general"]
+    DEFAULT "general";
+DEFINE FIELD status           ON legal_chat_session TYPE string
+    ASSERT $value IN ["active", "archived", "flagged"]
+    DEFAULT "active";
+DEFINE FIELD message_count    ON legal_chat_session TYPE int DEFAULT 0;
+DEFINE FIELD last_message_at  ON legal_chat_session TYPE option<datetime>;
+DEFINE FIELD metadata         ON legal_chat_session TYPE object DEFAULT {};
+DEFINE FIELD created_at       ON legal_chat_session TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_chat_user      ON legal_chat_session FIELDS user;
+DEFINE INDEX idx_chat_specialty ON legal_chat_session FIELDS specialty;
+
+-- ██  رسائل المحادثة (Chat Messages)  ██
+
+DEFINE TABLE legal_chat_message SCHEMAFULL
+    PERMISSIONS
+        FOR select WHERE session.user = $auth.id OR $auth.role = "admin"
+        FOR create WHERE $auth.id != NONE
+        FOR delete WHERE $auth.role = "admin";
+
+DEFINE FIELD session          ON legal_chat_message TYPE record<legal_chat_session>;
+DEFINE FIELD role             ON legal_chat_message TYPE string
+    ASSERT $value IN ["user", "assistant", "system"];
+DEFINE FIELD content          ON legal_chat_message TYPE string;
+DEFINE FIELD citations        ON legal_chat_message TYPE array DEFAULT [];
+DEFINE FIELD confidence       ON legal_chat_message TYPE option<float>;
+DEFINE FIELD specialty_used   ON legal_chat_message TYPE option<string>;
+DEFINE FIELD tokens_used      ON legal_chat_message TYPE option<int>;
+DEFINE FIELD response_ms      ON legal_chat_message TYPE option<int>;
+DEFINE FIELD feedback         ON legal_chat_message TYPE option<string>
+    ASSERT $value IN [NONE, "helpful", "not_helpful", "incorrect"];
+DEFINE FIELD created_at       ON legal_chat_message TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_msg_session ON legal_chat_message FIELDS session;
+
+-- ██  الإجراءات القانونية (Legal Procedures)  ██
+
+DEFINE TABLE legal_procedure SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role = "admin";
+
+DEFINE FIELD name_ar          ON legal_procedure TYPE string;
+DEFINE FIELD category         ON legal_procedure TYPE string
+    ASSERT $value IN ["court_filing", "company_registration", "patent_filing", "trademark_filing", "tax_declaration", "labor_complaint", "real_estate_transfer", "arbitration", "appeal", "enforcement"];
+DEFINE FIELD specialty        ON legal_procedure TYPE string;
+DEFINE FIELD steps            ON legal_procedure TYPE array DEFAULT [];
+DEFINE FIELD required_docs    ON legal_procedure TYPE array DEFAULT [];
+DEFINE FIELD fees             ON legal_procedure TYPE option<object>;
+DEFINE FIELD timeline         ON legal_procedure TYPE option<string>;
+DEFINE FIELD authority        ON legal_procedure TYPE option<string>;
+DEFINE FIELD legal_basis      ON legal_procedure TYPE option<string>;
+DEFINE FIELD notes            ON legal_procedure TYPE option<string>;
+DEFINE FIELD created_at       ON legal_procedure TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_procedure_cat  ON legal_procedure FIELDS category;
+DEFINE INDEX idx_procedure_spec ON legal_procedure FIELDS specialty;
+
+-- ██  جداول الضرائب (Tax Tables)  ██
+
+DEFINE TABLE legal_tax_table SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role = "admin";
+
+DEFINE FIELD name_ar          ON legal_tax_table TYPE string;
+DEFINE FIELD tax_type         ON legal_tax_table TYPE string
+    ASSERT $value IN ["income_individual", "income_corporate", "income_professional", "real_estate_sales", "consumption", "customs", "stamp", "social_insurance"];
+DEFINE FIELD brackets         ON legal_tax_table TYPE array DEFAULT [];
+DEFINE FIELD effective_date   ON legal_tax_table TYPE option<datetime>;
+DEFINE FIELD legal_basis      ON legal_tax_table TYPE option<string>;
+DEFINE FIELD notes            ON legal_tax_table TYPE option<string>;
+DEFINE FIELD is_current       ON legal_tax_table TYPE bool DEFAULT true;
+DEFINE FIELD created_at       ON legal_tax_table TYPE datetime DEFAULT time::now();
+
+-- ██  أنواع الشركات (Company Types)  ██
+
+DEFINE TABLE legal_company_type SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role = "admin";
+
+DEFINE FIELD name_ar          ON legal_company_type TYPE string;
+DEFINE FIELD name_en          ON legal_company_type TYPE option<string>;
+DEFINE FIELD code             ON legal_company_type TYPE string;
+DEFINE FIELD description      ON legal_company_type TYPE option<string>;
+DEFINE FIELD min_capital      ON legal_company_type TYPE option<float>;
+DEFINE FIELD min_partners     ON legal_company_type TYPE option<int>;
+DEFINE FIELD max_partners     ON legal_company_type TYPE option<int>;
+DEFINE FIELD liability_type   ON legal_company_type TYPE string
+    ASSERT $value IN ["unlimited", "limited", "mixed"];
+DEFINE FIELD legal_basis      ON legal_company_type TYPE option<string>;
+DEFINE FIELD registration_steps ON legal_company_type TYPE array DEFAULT [];
+DEFINE FIELD required_docs    ON legal_company_type TYPE array DEFAULT [];
+DEFINE FIELD governance       ON legal_company_type TYPE option<object>;
+DEFINE FIELD created_at       ON legal_company_type TYPE datetime DEFAULT time::now();
+
+DEFINE INDEX idx_company_code ON legal_company_type FIELDS code UNIQUE;
+
+-- ██  سجل البحث القانوني (Search Analytics)  ██
+
+DEFINE TABLE legal_search_log SCHEMAFULL
+    PERMISSIONS
+        FOR select WHERE $auth.role = "admin"
+        FOR create FULL;
+
+DEFINE FIELD user             ON legal_search_log TYPE option<record<account>>;
+DEFINE FIELD query            ON legal_search_log TYPE string;
+DEFINE FIELD specialty        ON legal_search_log TYPE option<string>;
+DEFINE FIELD results_count    ON legal_search_log TYPE int DEFAULT 0;
+DEFINE FIELD articles_found   ON legal_search_log TYPE array DEFAULT [];
+DEFINE FIELD created_at       ON legal_search_log TYPE datetime DEFAULT time::now();
+
+-- ████████████████████████████████████████████████████████████████
+-- ██  الجزء ١٦: الخدمة الميدانية (Field Service)              ██
+-- ████████████████████████████████████████████████████████████████
+
+-- service_ticket — تذاكر الخدمة الميدانية
+DEFINE TABLE service_ticket SCHEMAFULL
+    PERMISSIONS
+        FOR select WHERE $auth.role IN ["admin", "manager", "employee"]
+        FOR create, update WHERE $auth.role IN ["admin", "manager"]
+        FOR delete WHERE false;
+
+DEFINE FIELD title            ON service_ticket TYPE string;
+DEFINE FIELD description      ON service_ticket TYPE option<string>;
+DEFINE FIELD client           ON service_ticket TYPE option<record<client>>;
+DEFINE FIELD assigned_to      ON service_ticket TYPE option<record<employee>>;
+DEFINE FIELD priority         ON service_ticket TYPE string DEFAULT "medium"
+    ASSERT $value IN ["low", "medium", "high", "urgent"];
+DEFINE FIELD status           ON service_ticket TYPE string DEFAULT "open"
+    ASSERT $value IN ["open", "assigned", "in_progress", "completed", "closed"];
+DEFINE FIELD scheduled_date   ON service_ticket TYPE option<datetime>;
+DEFINE FIELD completed_date   ON service_ticket TYPE option<datetime>;
+DEFINE FIELD location         ON service_ticket TYPE option<string>;
+DEFINE FIELD notes            ON service_ticket TYPE option<string>;
+DEFINE FIELD created_at       ON service_ticket TYPE datetime DEFAULT time::now();
+DEFINE FIELD is_archived      ON service_ticket TYPE bool DEFAULT false;
+
+DEFINE INDEX idx_st_client    ON service_ticket FIELDS client;
+DEFINE INDEX idx_st_assigned  ON service_ticket FIELDS assigned_to;
+DEFINE INDEX idx_st_status    ON service_ticket FIELDS status;
+
+-- ████████████████████████████████████████████████████████████████
+-- ██  بوابة العميل — تذاكر الدعم (Client Portal / Support)    ██
+-- ████████████████████████████████████████████████████████████████
+
+-- Client Portal / Support Tickets
+DEFINE TABLE support_ticket SCHEMAFULL;
+DEFINE FIELD subject ON support_ticket TYPE string;
+DEFINE FIELD description ON support_ticket TYPE option<string>;
+DEFINE FIELD client ON support_ticket TYPE option<record<client>>;
+DEFINE FIELD submitted_by ON support_ticket TYPE option<string>;
+DEFINE FIELD category ON support_ticket TYPE string DEFAULT "general" ASSERT $value IN ["general", "technical", "billing", "complaint", "feature_request"];
+DEFINE FIELD priority ON support_ticket TYPE string DEFAULT "medium" ASSERT $value IN ["low", "medium", "high", "critical"];
+DEFINE FIELD status ON support_ticket TYPE string DEFAULT "new" ASSERT $value IN ["new", "open", "in_progress", "waiting_client", "resolved", "closed"];
+DEFINE FIELD assigned_to ON support_ticket TYPE option<record<employee>>;
+DEFINE FIELD resolution ON support_ticket TYPE option<string>;
+DEFINE FIELD rating ON support_ticket TYPE option<int>;
+DEFINE FIELD created_at ON support_ticket TYPE datetime DEFAULT time::now();
+DEFINE FIELD updated_at ON support_ticket TYPE option<datetime>;
+DEFINE FIELD closed_at ON support_ticket TYPE option<datetime>;
+DEFINE FIELD is_archived ON support_ticket TYPE bool DEFAULT false;
+DEFINE INDEX idx_support_ticket_status ON support_ticket FIELDS status;
+DEFINE INDEX idx_support_ticket_client ON support_ticket FIELDS client;
+
+DEFINE TABLE ticket_reply SCHEMAFULL;
+DEFINE FIELD ticket ON ticket_reply TYPE record<support_ticket>;
+DEFINE FIELD author ON ticket_reply TYPE option<string>;
+DEFINE FIELD author_role ON ticket_reply TYPE string DEFAULT "client" ASSERT $value IN ["client", "agent", "system"];
+DEFINE FIELD message ON ticket_reply TYPE string;
+DEFINE FIELD created_at ON ticket_reply TYPE datetime DEFAULT time::now();
+DEFINE FIELD is_archived ON ticket_reply TYPE bool DEFAULT false;
+
+-- ████████████████████████████████████████████████████████████████
+-- ██  الجزء ٢٥: إنترنت الأشياء (IoT Devices & Sensor Data)   ██
+-- ████████████████████████████████████████████████████████████████
+
+DEFINE TABLE iot_device SCHEMAFULL;
+DEFINE FIELD name          ON iot_device TYPE string;
+DEFINE FIELD device_type   ON iot_device TYPE string DEFAULT "sensor"
+    ASSERT $value IN ["sensor", "actuator", "gateway", "controller"];
+DEFINE FIELD serial_number ON iot_device TYPE option<string>;
+DEFINE FIELD location      ON iot_device TYPE option<string>;
+DEFINE FIELD status        ON iot_device TYPE string DEFAULT "active"
+    ASSERT $value IN ["active", "inactive", "maintenance", "offline"];
+DEFINE FIELD api_key       ON iot_device TYPE option<string>;
+DEFINE FIELD last_seen     ON iot_device TYPE option<datetime>;
+DEFINE FIELD machine       ON iot_device TYPE option<record<machine>>;
+DEFINE FIELD metadata      ON iot_device TYPE option<string>;
+DEFINE FIELD created_at    ON iot_device TYPE datetime DEFAULT time::now();
+DEFINE FIELD is_archived   ON iot_device TYPE bool DEFAULT false;
+DEFINE INDEX idx_iot_device_serial ON iot_device FIELDS serial_number UNIQUE;
+DEFINE INDEX idx_iot_device_status ON iot_device FIELDS status;
+
+DEFINE TABLE sensor_reading SCHEMAFULL;
+DEFINE FIELD device    ON sensor_reading TYPE record<iot_device>;
+DEFINE FIELD metric    ON sensor_reading TYPE string;
+DEFINE FIELD value     ON sensor_reading TYPE float;
+DEFINE FIELD unit      ON sensor_reading TYPE option<string>;
+DEFINE FIELD timestamp ON sensor_reading TYPE datetime DEFAULT time::now();
+
+-- ████████████████████████████████████████████████████████████████
+-- ██  الجزء ٢٦: الكورسات والمسارات التعليمية (Courses)         ██
+-- ████████████████████████████████████████████████████████████████
+
+DEFINE TABLE course SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update WHERE $auth.role IN ["admin", "manager"]
+        FOR delete WHERE $auth.role = "admin";
+
+DEFINE FIELD title           ON course TYPE string;
+DEFINE FIELD description     ON course TYPE option<string>;
+DEFINE FIELD thumbnail       ON course TYPE option<string>;
+DEFINE FIELD instructor_name ON course TYPE option<string>;
+DEFINE FIELD category        ON course TYPE string DEFAULT "other";
+DEFINE FIELD level           ON course TYPE string DEFAULT "beginner";
+DEFINE FIELD price           ON course TYPE float DEFAULT 0;
+DEFINE FIELD currency        ON course TYPE string DEFAULT "USD";
+DEFINE FIELD is_published    ON course TYPE bool DEFAULT false;
+DEFINE FIELD is_archived     ON course TYPE bool DEFAULT false;
+DEFINE FIELD total_lessons   ON course TYPE int DEFAULT 0;
+DEFINE FIELD organization    ON course TYPE option<record<organization>>;
+DEFINE FIELD created_by      ON course TYPE option<record<account>>;
+DEFINE FIELD created_at      ON course TYPE datetime DEFAULT time::now();
+
+DEFINE TABLE course_lesson SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create, update, delete WHERE $auth.role IN ["admin", "manager"];
+
+DEFINE FIELD course        ON course_lesson TYPE record<course>;
+DEFINE FIELD title         ON course_lesson TYPE string;
+DEFINE FIELD description   ON course_lesson TYPE option<string>;
+DEFINE FIELD lesson_order  ON course_lesson TYPE int DEFAULT 0;
+DEFINE FIELD video         ON course_lesson TYPE option<record<educational_video>>;
+DEFINE FIELD video_url     ON course_lesson TYPE option<string>;
+DEFINE FIELD duration_mins ON course_lesson TYPE option<int>;
+DEFINE FIELD attachments   ON course_lesson FLEXIBLE TYPE array DEFAULT [];
+DEFINE FIELD is_archived   ON course_lesson TYPE bool DEFAULT false;
+DEFINE FIELD created_at    ON course_lesson TYPE datetime DEFAULT time::now();
+
+DEFINE TABLE course_enrollment SCHEMAFULL
+    PERMISSIONS
+        FOR select FULL
+        FOR create FULL
+        FOR update WHERE account = $auth.id OR $auth.role IN ["admin", "manager"]
+        FOR delete WHERE $auth.role = "admin";
+
+DEFINE FIELD account      ON course_enrollment TYPE record<account>;
+DEFINE FIELD course       ON course_enrollment TYPE record<course>;
+DEFINE FIELD progress     ON course_enrollment TYPE float DEFAULT 0;
+DEFINE FIELD status       ON course_enrollment TYPE string DEFAULT "enrolled";
+DEFINE FIELD enrolled_at  ON course_enrollment TYPE datetime DEFAULT time::now();
+DEFINE FIELD completed_at ON course_enrollment TYPE option<datetime>;
+DEFINE FIELD created_at   ON course_enrollment TYPE datetime DEFAULT time::now();
+DEFINE INDEX idx_cenroll_unique ON course_enrollment FIELDS account, course UNIQUE;

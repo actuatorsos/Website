@@ -19,6 +19,9 @@ pub struct Department {
     pub is_active: Option<bool>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
+    // Enriched
+    pub manager_name: Option<String>,
+    pub employee_count: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,6 +55,8 @@ pub struct Position {
     pub is_active: Option<bool>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
+    // Enriched
+    pub department_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,0 +1,402 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="max-w-4xl mx-auto px-3 sm:px-4 md:px-0 animate-fade-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-lg sm:text-2xl md:text-3xl font-bold text-[var(--text-primary)]">{{ t["settings_title"] }}</h1>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-0 border-b border-[var(--structure-cyan-muted)] mb-6 overflow-x-auto">
+        <button onclick="switchSettingsTab('general')" id="tab-general"
+            class="settings-tab px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-colors duration-100 whitespace-nowrap active">
+            {{ t["settings_general"] }}
+        </button>
+        <button onclick="switchSettingsTab('security')" id="tab-security"
+            class="settings-tab px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-colors duration-100 whitespace-nowrap">
+            {{ t["settings_security"] }}
+        </button>
+        <button onclick="switchSettingsTab('notifications')" id="tab-notifications"
+            class="settings-tab px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-colors duration-100 whitespace-nowrap">
+            {{ t["settings_notifications"] }}
+        </button>
+        <button onclick="switchSettingsTab('backup')" id="tab-backup"
+            class="settings-tab px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-colors duration-100 whitespace-nowrap">
+            {{ t["settings_backup"] }}
+        </button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="settings-toast" class="hidden fixed top-6 end-6 z-50 px-4 py-3 border text-xs font-mono uppercase tracking-wider transition-all duration-200"></div>
+
+    <!-- ══ Tab 1: General ══ -->
+    <div id="panel-general" class="settings-panel">
+        <div class="bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] p-6 space-y-6">
+            <!-- Organization Name (read-only) -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_org_name"] }}</label>
+                <input type="text" value="{{ user_email }}" readonly
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-muted)] cursor-not-allowed">
+            </div>
+
+            <!-- Platform Version (read-only) -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_version"] }}</label>
+                <input type="text" value="v1.0.0-beta" readonly
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-muted)] cursor-not-allowed">
+            </div>
+
+            <!-- Language -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_language"] }}</label>
+                <select id="settings-language"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+                    <option value="en" {% if lang == "en" %}selected{% endif %}>English</option>
+                    <option value="ar" {% if lang == "ar" %}selected{% endif %}>العربية</option>
+                </select>
+            </div>
+
+            <!-- Theme -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_theme"] }}</label>
+                <select id="settings-theme"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </div>
+
+            <!-- Timezone -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_timezone"] }}</label>
+                <select id="settings-timezone"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+                    <option value="Asia/Damascus">Asia/Damascus (UTC+3)</option>
+                    <option value="Asia/Riyadh">Asia/Riyadh (UTC+3)</option>
+                    <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
+                    <option value="Asia/Istanbul">Asia/Istanbul (UTC+3)</option>
+                    <option value="Europe/London">Europe/London (UTC+0)</option>
+                    <option value="Europe/Berlin">Europe/Berlin (UTC+1)</option>
+                    <option value="America/New_York">America/New_York (UTC-5)</option>
+                    <option value="America/Los_Angeles">America/Los_Angeles (UTC-8)</option>
+                    <option value="UTC">UTC</option>
+                </select>
+            </div>
+
+            <button onclick="saveSettings('general')"
+                class="px-4 py-2 bg-[var(--structure-cyan)] hover:bg-[var(--structure-cyan)]/80 text-[var(--bg-primary)] text-xs font-mono font-bold uppercase tracking-wider transition-colors duration-100">
+                {{ t["settings_save"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ Tab 2: Security ══ -->
+    <div id="panel-security" class="settings-panel hidden">
+        <div class="bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] p-6 space-y-6">
+            <h3 class="text-sm font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider">{{ t["settings_password_policy"] }}</h3>
+
+            <!-- Min Length -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{{ t["settings_min_length"] }}</label>
+                <input type="number" id="settings-min-length" min="6" max="32" value="8"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+            </div>
+
+            <!-- Require Uppercase -->
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_require_uppercase"] }}</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="settings-require-uppercase" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] peer-checked:bg-[var(--structure-cyan)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+                </label>
+            </div>
+
+            <!-- Require Numbers -->
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_require_numbers"] }}</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="settings-require-numbers" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] peer-checked:bg-[var(--structure-cyan)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+                </label>
+            </div>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-4"></div>
+
+            <!-- Session Timeout -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{{ t["settings_session_timeout"] }}</label>
+                <input type="number" id="settings-session-timeout" min="5" max="1440" value="30"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+            </div>
+
+            <!-- Max Login Attempts -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{{ t["settings_login_attempts"] }}</label>
+                <input type="number" id="settings-login-attempts" min="3" max="20" value="5"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+            </div>
+
+            <!-- 2FA Toggle -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_2fa"] }}</label>
+                    <span class="ms-2 px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--activation-orange)]/20 text-[var(--activation-orange)] border border-[var(--activation-orange)]/30">{{ t["settings_planned"] }}</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-not-allowed opacity-50">
+                    <input type="checkbox" class="sr-only peer" disabled>
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all"></div>
+                </label>
+            </div>
+
+            <button onclick="saveSettings('security')"
+                class="px-4 py-2 bg-[var(--structure-cyan)] hover:bg-[var(--structure-cyan)]/80 text-[var(--bg-primary)] text-xs font-mono font-bold uppercase tracking-wider transition-colors duration-100">
+                {{ t["settings_save"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ Tab 3: Notifications ══ -->
+    <div id="panel-notifications" class="settings-panel hidden">
+        <div class="bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] p-6 space-y-6">
+            <!-- Email Notifications -->
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_email_notif"] }}</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="settings-email-notif" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] peer-checked:bg-[var(--structure-cyan)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+                </label>
+            </div>
+
+            <!-- Browser Notifications -->
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_browser_notif"] }}</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="settings-browser-notif" class="sr-only peer">
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] peer-checked:bg-[var(--structure-cyan)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+                </label>
+            </div>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-4"></div>
+
+            <!-- Notification Frequency -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">{{ t["settings_notif_freq"] }}</label>
+                <select id="settings-notif-freq"
+                    class="w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] text-sm text-[var(--text-primary)] focus:border-[var(--structure-cyan)] focus:outline-none">
+                    <option value="realtime">{{ t["settings_realtime"] }}</option>
+                    <option value="daily">{{ t["settings_daily"] }}</option>
+                    <option value="weekly">{{ t["settings_weekly"] }}</option>
+                </select>
+            </div>
+
+            <button onclick="saveSettings('notifications')"
+                class="px-4 py-2 bg-[var(--structure-cyan)] hover:bg-[var(--structure-cyan)]/80 text-[var(--bg-primary)] text-xs font-mono font-bold uppercase tracking-wider transition-colors duration-100">
+                {{ t["settings_save"] }}
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ Tab 4: Backup ══ -->
+    <div id="panel-backup" class="settings-panel hidden">
+        <div class="bg-[var(--bg-surface)] border border-[var(--structure-cyan-muted)] p-6 space-y-6">
+            <!-- Last Backup -->
+            <div>
+                <label class="block text-xs font-mono font-bold text-[var(--structure-cyan)] uppercase tracking-wider mb-2">{{ t["settings_last_backup"] }}</label>
+                <p id="last-backup-time" class="text-sm text-[var(--text-primary)] font-mono">{{ t["settings_never"] }}</p>
+            </div>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-4"></div>
+
+            <!-- Manual Backup -->
+            <div>
+                <button onclick="createBackup()" id="backup-btn"
+                    class="flex items-center gap-2 px-4 py-2 bg-[var(--activation-orange)] hover:bg-[var(--activation-orange)]/80 text-white text-xs font-mono font-bold uppercase tracking-wider transition-colors duration-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {{ t["settings_manual_backup"] }}
+                </button>
+                <div id="backup-status" class="mt-2 text-xs font-mono hidden"></div>
+            </div>
+
+            <div class="border-t border-[var(--structure-cyan-muted)] my-4"></div>
+
+            <!-- Auto Backup -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <label class="text-xs font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t["settings_auto_backup"] }}</label>
+                    <span class="ms-2 px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--activation-orange)]/20 text-[var(--activation-orange)] border border-[var(--activation-orange)]/30">{{ t["settings_planned"] }}</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-not-allowed opacity-50">
+                    <input type="checkbox" class="sr-only peer" disabled>
+                    <div class="w-9 h-5 bg-[var(--bg-primary)] border border-[var(--structure-cyan-muted)] after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-[var(--text-primary)] after:w-4 after:h-4 after:transition-all"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .settings-tab {
+        color: var(--text-muted);
+        border-color: transparent;
+    }
+    .settings-tab:hover {
+        color: var(--structure-cyan);
+    }
+    .settings-tab.active {
+        color: var(--structure-cyan);
+        border-color: var(--structure-cyan);
+    }
+</style>
+
+<script>
+(function() {
+    const STORAGE_KEY = 'actuators_settings';
+
+    // ── Load settings from localStorage ──
+    function loadSettings() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        } catch { return {}; }
+    }
+
+    function persistSettings(section, data) {
+        const all = loadSettings();
+        all[section] = { ...all[section], ...data };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    }
+
+    // ── Populate fields on load ──
+    const saved = loadSettings();
+
+    // General
+    if (saved.general) {
+        if (saved.general.timezone) document.getElementById('settings-timezone').value = saved.general.timezone;
+        if (saved.general.theme) document.getElementById('settings-theme').value = saved.general.theme;
+    }
+    // Set theme select to current theme
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    document.getElementById('settings-theme').value = currentTheme;
+
+    // Security
+    if (saved.security) {
+        if (saved.security.minLength) document.getElementById('settings-min-length').value = saved.security.minLength;
+        if (saved.security.sessionTimeout) document.getElementById('settings-session-timeout').value = saved.security.sessionTimeout;
+        if (saved.security.loginAttempts) document.getElementById('settings-login-attempts').value = saved.security.loginAttempts;
+        if (saved.security.requireUppercase !== undefined) document.getElementById('settings-require-uppercase').checked = saved.security.requireUppercase;
+        if (saved.security.requireNumbers !== undefined) document.getElementById('settings-require-numbers').checked = saved.security.requireNumbers;
+    }
+
+    // Notifications
+    if (saved.notifications) {
+        if (saved.notifications.emailNotif !== undefined) document.getElementById('settings-email-notif').checked = saved.notifications.emailNotif;
+        if (saved.notifications.browserNotif !== undefined) document.getElementById('settings-browser-notif').checked = saved.notifications.browserNotif;
+        if (saved.notifications.notifFreq) document.getElementById('settings-notif-freq').value = saved.notifications.notifFreq;
+    }
+
+    // Backup
+    if (saved.backup && saved.backup.lastBackup) {
+        document.getElementById('last-backup-time').textContent = saved.backup.lastBackup;
+    }
+
+    // ── Tab switching ──
+    window.switchSettingsTab = function(tab) {
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('panel-' + tab).classList.remove('hidden');
+    };
+
+    // ── Toast ──
+    function showToast(msg, isError) {
+        const toast = document.getElementById('settings-toast');
+        toast.textContent = msg;
+        toast.className = 'fixed top-6 end-6 z-50 px-4 py-3 border text-xs font-mono uppercase tracking-wider transition-all duration-200';
+        if (isError) {
+            toast.classList.add('bg-red-900/80', 'border-red-500', 'text-red-200');
+        } else {
+            toast.classList.add('bg-[var(--bg-surface)]', 'border-[var(--structure-cyan)]', 'text-[var(--structure-cyan)]');
+        }
+        setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+    }
+
+    // ── Save settings ──
+    window.saveSettings = function(section) {
+        if (section === 'general') {
+            const lang = document.getElementById('settings-language').value;
+            const theme = document.getElementById('settings-theme').value;
+            const tz = document.getElementById('settings-timezone').value;
+            persistSettings('general', { language: lang, theme: theme, timezone: tz });
+
+            // Apply theme
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            // Redirect if language changed
+            const currentLang = '{{ lang }}';
+            if (lang !== currentLang) {
+                window.location.href = '/admin/settings?lang=' + lang;
+                return;
+            }
+        } else if (section === 'security') {
+            persistSettings('security', {
+                minLength: parseInt(document.getElementById('settings-min-length').value),
+                requireUppercase: document.getElementById('settings-require-uppercase').checked,
+                requireNumbers: document.getElementById('settings-require-numbers').checked,
+                sessionTimeout: parseInt(document.getElementById('settings-session-timeout').value),
+                loginAttempts: parseInt(document.getElementById('settings-login-attempts').value),
+            });
+        } else if (section === 'notifications') {
+            persistSettings('notifications', {
+                emailNotif: document.getElementById('settings-email-notif').checked,
+                browserNotif: document.getElementById('settings-browser-notif').checked,
+                notifFreq: document.getElementById('settings-notif-freq').value,
+            });
+        }
+        showToast('{{ t["settings_saved"] }}', false);
+    };
+
+    // ── Backup ──
+    window.createBackup = async function() {
+        const btn = document.getElementById('backup-btn');
+        const status = document.getElementById('backup-status');
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+        status.classList.remove('hidden');
+        status.textContent = '...';
+        status.className = 'mt-2 text-xs font-mono text-[var(--text-muted)]';
+
+        try {
+            const resp = await fetch('/api/backup/export', { method: 'GET', credentials: 'same-origin' });
+            if (resp.ok) {
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'actuators-backup-' + new Date().toISOString().slice(0,10) + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                const now = new Date().toLocaleString();
+                document.getElementById('last-backup-time').textContent = now;
+                persistSettings('backup', { lastBackup: now });
+
+                status.textContent = '{{ t["settings_backup_success"] }}';
+                status.className = 'mt-2 text-xs font-mono text-[var(--structure-cyan)]';
+            } else {
+                status.textContent = '{{ t["settings_backup_error"] }}';
+                status.className = 'mt-2 text-xs font-mono text-[var(--activation-orange)]';
+            }
+        } catch (e) {
+            status.textContent = '{{ t["settings_backup_error"] }}';
+            status.className = 'mt-2 text-xs font-mono text-[var(--activation-orange)]';
+        }
+
+        btn.disabled = false;
+        btn.classList.remove('opacity-50');
+    };
+})();
+</script>
+{% endblock %}

@@ -9,55 +9,11 @@ use surrealdb::sql::Thing;
 // Employee Models
 // ============================================================================
 
-/// Employee role enum
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum EmployeeRole {
-    /// Technician
-    Technician, // فني
-    /// Manager
-    Manager, // مدير
-    /// Accountant
-    Accountant, // محاسب
-    /// Driver
-    Driver, // سائق
-    /// Admin
-    Admin, // إداري
-}
-
-impl std::fmt::Display for EmployeeRole {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            EmployeeRole::Technician => write!(f, "فني"),
-            EmployeeRole::Manager => write!(f, "مدير"),
-            EmployeeRole::Accountant => write!(f, "محاسب"),
-            EmployeeRole::Driver => write!(f, "سائق"),
-            EmployeeRole::Admin => write!(f, "إداري"),
-        }
-    }
-}
-
-/// Employee status enum
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum EmployeeStatus {
-    /// Active employee
-    Active, // نشط
-    /// On Leave
-    OnLeave, // إجازة
-    /// Resigned
-    Resigned, // مستقيل
-}
-
-impl std::fmt::Display for EmployeeStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            EmployeeStatus::Active => write!(f, "نشط"),
-            EmployeeStatus::OnLeave => write!(f, "إجازة"),
-            EmployeeStatus::Resigned => write!(f, "مستقيل"),
-        }
-    }
-}
+// Employee role and status are now plain strings to support
+// any custom roles/statuses across different organizations.
+// Common roles: technician, manager, accountant, driver, admin, engineer,
+// volunteer, intern, designer, developer, sales, support, hr, coordinator, other
+// Common statuses: active, on_leave, resigned, suspended, terminated
 
 /// Employee model
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,14 +28,15 @@ pub struct Employee {
     pub phone: String,
     /// Email address
     pub email: Option<String>,
-    /// Job role
-    pub role: EmployeeRole,
+    /// Job role (string — supports custom roles per org)
+    pub role: String,
     /// National ID number
     pub national_id: Option<String>,
     /// Hire date
     pub hire_date: String,
-    /// Employment status
-    pub status: EmployeeStatus,
+    /// Employment status (string — active, on_leave, resigned, suspended, terminated)
+    #[serde(default = "default_status")]
+    pub status: String,
 
     // --- Extended HR fields ---
     pub nationality: Option<String>,
@@ -109,13 +66,17 @@ pub struct Employee {
     pub employment_type: Option<String>,
 }
 
+fn default_status() -> String { "active".to_string() }
+
 impl Employee {
     /// Get CSS class for status badge
     pub fn status_class(&self) -> &str {
-        match self.status {
-            EmployeeStatus::Active => "bg-green-100 text-green-800",
-            EmployeeStatus::OnLeave => "bg-yellow-100 text-yellow-800",
-            EmployeeStatus::Resigned => "bg-red-100 text-red-800",
+        match self.status.as_str() {
+            "active" => "bg-green-100 text-green-800",
+            "on_leave" => "bg-yellow-100 text-yellow-800",
+            "resigned" | "terminated" => "bg-red-100 text-red-800",
+            "suspended" => "bg-orange-100 text-orange-800",
+            _ => "bg-gray-100 text-gray-800",
         }
     }
 }
@@ -131,7 +92,7 @@ pub struct CreateEmployeeRequest {
     /// Email
     pub email: Option<String>,
     /// Role
-    pub role: EmployeeRole,
+    pub role: String,
     /// National ID
     pub national_id: Option<String>,
     /// Hire date

@@ -14,7 +14,7 @@
         <h2 class="text-lg font-bold text-text-primary mb-4">{{ t["certificates_new"] }}</h2>
         <form hx-post="/api/certificates" hx-target="#certificates-body" hx-swap="afterbegin"
             hx-on::after-request="this.reset()">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_trainee_name"] }}</label>
                     <input type="text" name="trainee_name" required
@@ -34,7 +34,7 @@
                         placeholder="40">
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-text-primary mb-2">{{ t["form_start_date"] }}</label>
                     <input type="date" name="start_date" required
@@ -65,25 +65,25 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-border">
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider hidden sm:table-cell">
                             {{ t["col_credential_id"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
                             {{ t["col_trainee"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider hidden md:table-cell">
                             {{ t["col_course"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider hidden lg:table-cell">
                             {{ t["col_hours"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider hidden lg:table-cell">
                             {{ t["col_period"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
                             {{ t["col_status"] }}</th>
-                        <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <th class="px-3 sm:px-6 py-2 sm:py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider hidden sm:table-cell">
                             {{ t["col_actions"] }}</th>
                     </tr>
                 </thead>
                 <tbody id="certificates-body" hx-get="/api/certificates" hx-trigger="load" hx-swap="innerHTML">
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-text-secondary">
+                        <td colspan="7" class="px-3 sm:px-6 py-8 sm:py-12 text-center text-text-secondary">
                             <div class="animate-pulse">{{ t["loading"] }}</div>
                         </td>
                     </tr>

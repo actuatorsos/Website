@@ -582,7 +582,7 @@ pub async fn remove_project_member(
     state
         .db
         .query(
-            "DELETE project_member WHERE \
+            "UPDATE project_member SET is_archived = true WHERE \
              project = type::thing('project', $pid) AND \
              member = type::thing('account', $mid)",
         )

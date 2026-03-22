@@ -102,7 +102,7 @@ pub async fn get_interactions_by_client(
 ) -> Result<Vec<Interaction>, DbError> {
     let id = client_id.to_string();
     let interactions: Vec<Interaction> = state.db
-        .query("SELECT * FROM interaction WHERE client = type::thing('client', $id) ORDER BY created_at DESC")
+        .query("SELECT * FROM interaction WHERE client = type::thing('client', $id) AND (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC")
         .bind(("id", id))
         .await?.take(0)?;
     Ok(interactions)
@@ -149,10 +149,17 @@ pub async fn create_opportunity(
     opp.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_opportunities(state: &AppState) -> Result<Vec<Opportunity>, DbError> {
-    let opps: Vec<Opportunity> = state.db
-        .query("SELECT * FROM opportunity WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
-        .await?.take(0)?;
+pub async fn get_all_opportunities(state: &AppState, org_id: Option<&str>) -> Result<Vec<Opportunity>, DbError> {
+    let opps: Vec<Opportunity> = if let Some(org) = org_id {
+        state.db
+            .query("SELECT * FROM opportunity WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?.take(0)?
+    } else {
+        state.db
+            .query("SELECT * FROM opportunity WHERE is_archived = false OR is_archived = NONE ORDER BY created_at DESC")
+            .await?.take(0)?
+    };
     Ok(opps)
 }
 
@@ -257,12 +264,21 @@ pub async fn create_quotation(
     quot.ok_or(DbError::NotFound)
 }
 
-pub async fn get_all_quotations(state: &AppState) -> Result<Vec<Quotation>, DbError> {
-    let quots: Vec<Quotation> = state
-        .db
-        .query("SELECT * FROM quotation ORDER BY created_at DESC")
-        .await?
-        .take(0)?;
+pub async fn get_all_quotations(state: &AppState, org_id: Option<&str>) -> Result<Vec<Quotation>, DbError> {
+    let quots: Vec<Quotation> = if let Some(org) = org_id {
+        state
+            .db
+            .query("SELECT * FROM quotation WHERE (is_archived = false OR is_archived = NONE) AND organization = type::record($org) ORDER BY created_at DESC")
+            .bind(("org", org.to_string()))
+            .await?
+            .take(0)?
+    } else {
+        state
+            .db
+            .query("SELECT * FROM quotation WHERE (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC")
+            .await?
+            .take(0)?
+    };
     Ok(quots)
 }
 

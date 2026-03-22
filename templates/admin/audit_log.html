@@ -1,51 +1,51 @@
 {% extends "admin/base_admin.html" %}
 
 {% block admin_content %}
-<div class="max-w-7xl mx-auto">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-0">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-text-primary">Audit Log / سجل التدقيق</h1>
-            <p class="text-text-secondary mt-1">Track all system changes and user actions</p>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-text-primary">{{ t["audit_log_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["audit_log_subtitle"] }}</p>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="bg-surface rounded-xl shadow-card border border-border p-4 mb-6">
-        <form id="audit-filters" class="flex flex-wrap items-end gap-4"
+    <div class="bg-surface rounded-xl shadow-card border border-border p-3 sm:p-4 mb-6">
+        <form id="audit-filters" class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3 sm:gap-4"
             hx-get="/api/audit-log" hx-target="#audit-log-body" hx-trigger="submit" hx-swap="innerHTML">
             <!-- Date Range -->
             <div class="flex flex-col gap-1">
-                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">From</label>
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">{{ t["audit_log_from"] }}</label>
                 <input type="date" name="from_date"
                     class="input input-bordered input-sm bg-background border-border text-text-primary">
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">To</label>
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">{{ t["audit_log_to"] }}</label>
                 <input type="date" name="to_date"
                     class="input input-bordered input-sm bg-background border-border text-text-primary">
             </div>
             <!-- Action Type Filter -->
             <div class="flex flex-col gap-1">
-                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Action</label>
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">{{ t["audit_log_action_filter"] }}</label>
                 <select name="action_filter"
                     class="select select-bordered select-sm bg-background border-border text-text-primary">
-                    <option value="">All Actions</option>
-                    <option value="create">Create</option>
-                    <option value="update">Update</option>
-                    <option value="delete">Delete</option>
-                    <option value="login">Login</option>
-                    <option value="archive">Archive</option>
+                    <option value="">{{ t["audit_log_all_actions"] }}</option>
+                    <option value="create">{{ t["audit_log_create"] }}</option>
+                    <option value="update">{{ t["audit_log_update"] }}</option>
+                    <option value="delete">{{ t["audit_log_delete"] }}</option>
+                    <option value="login">{{ t["audit_log_login"] }}</option>
+                    <option value="archive">{{ t["audit_log_archive"] }}</option>
                 </select>
             </div>
             <!-- Search -->
             <div class="flex flex-col gap-1">
-                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">Search</label>
-                <input type="text" name="search" placeholder="Search..."
+                <label class="text-xs font-bold text-text-secondary uppercase tracking-wider">{{ t["audit_log_search"] }}</label>
+                <input type="text" name="search" placeholder="{{ t["audit_log_search_placeholder"] }}"
                     class="input input-bordered input-sm bg-background border-border text-text-primary">
             </div>
             <button type="submit"
-                class="btn btn-sm bg-accent hover:bg-accent-focus text-primary font-bold">
-                Filter
+                class="btn btn-sm w-full sm:w-auto bg-accent hover:bg-accent-focus text-primary font-bold">
+                {{ t["audit_log_filter_btn"] }}
             </button>
         </form>
     </div>
@@ -53,19 +53,19 @@
     <!-- Audit Log Table -->
     <div class="bg-surface rounded-xl shadow-card border border-border overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="min-w-full">
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-border">
                         <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
-                            Timestamp</th>
+                            {{ t["audit_log_col_timestamp"] }}</th>
                         <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
-                            Actor</th>
+                            {{ t["audit_log_col_actor"] }}</th>
                         <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
-                            Action</th>
+                            {{ t["audit_log_col_action"] }}</th>
                         <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
-                            Table</th>
+                            {{ t["audit_log_col_table"] }}</th>
                         <th class="px-6 py-4 text-start text-xs font-bold text-text-secondary uppercase tracking-wider">
-                            Record ID</th>
+                            {{ t["audit_log_col_record"] }}</th>
                     </tr>
                 </thead>
                 <tbody id="audit-log-body" class="divide-y divide-border">
@@ -95,7 +95,7 @@
                     {% if entries.is_empty() %}
                     <tr>
                         <td colspan="5" class="px-6 py-12 text-center text-text-secondary">
-                            No audit log entries found.
+                            {{ t["audit_log_empty"] }}
                         </td>
                     </tr>
                     {% endif %}

@@ -2,8 +2,9 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::{AccountRole, CurrentUser};
 use axum::{
-    Router,
+    Extension, Router,
     extract::{Path, State},
     response::Json,
     routing::{get, post, put},
@@ -30,9 +31,14 @@ async fn generate_payroll(
 }
 async fn get_payroll_month(
     State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     Path(month): Path<String>,
 ) -> Result<Json<Vec<PayrollRecord>>, DbError> {
-    Ok(Json(repo::get_payroll_by_month(&s, &month).await?))
+    let scope_id = match user.role {
+        AccountRole::Admin | AccountRole::Manager => None,
+        _ => Some(user.id.as_str()),
+    };
+    Ok(Json(repo::get_payroll_by_month(&s, &month, scope_id).await?))
 }
 async fn approve_payroll(
     State(s): State<AppState>,

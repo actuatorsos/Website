@@ -2,15 +2,19 @@ use super::models::*;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
+use crate::models::CurrentUser;
 use axum::{
-    Router,
+    Extension, Router,
     extract::{Path, State},
     response::Json,
     routing::{get, post, put},
 };
 
-async fn list_boms(State(s): State<AppState>) -> Result<Json<Vec<Bom>>, DbError> {
-    Ok(Json(repo::get_all_boms(&s).await?))
+async fn list_boms(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Result<Json<Vec<Bom>>, DbError> {
+    Ok(Json(repo::get_all_boms(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_bom(
     State(s): State<AppState>,
@@ -33,8 +37,11 @@ async fn get_bom_lines(
 ) -> Result<Json<Vec<BomLine>>, DbError> {
     Ok(Json(repo::get_bom_lines(&s, &id).await?))
 }
-async fn list_orders(State(s): State<AppState>) -> Result<Json<Vec<ProductionOrder>>, DbError> {
-    Ok(Json(repo::get_all_production_orders(&s).await?))
+async fn list_orders(
+    State(s): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Result<Json<Vec<ProductionOrder>>, DbError> {
+    Ok(Json(repo::get_all_production_orders(&s, user.organization_id.as_deref()).await?))
 }
 async fn create_order(
     State(s): State<AppState>,

@@ -31,6 +31,18 @@ pub struct IndexTemplate {
     pub t: HashMap<String, String>,
 }
 
+/// Template for the learning platform page
+#[derive(Template)]
+#[template(path = "learning.html")]
+pub struct LearningTemplate {
+    /// Current language code
+    pub lang: String,
+    /// Text direction (ltr/rtl)
+    pub dir: String,
+    /// Translations
+    pub t: HashMap<String, String>,
+}
+
 
 // ============================================================================
 // Helpers
@@ -114,6 +126,25 @@ async fn services(
     }
 }
 
+async fn learning_page(
+    State(state): State<AppState>,
+    cookies: Cookies,
+    Query(params): Query<LangParam>,
+) -> impl IntoResponse {
+    let lang = resolve_language(&cookies, params.lang);
+    let t = state.i18n.get_dictionary(lang.as_str());
+    let template = LearningTemplate {
+        lang: lang.as_str().to_string(),
+        dir: lang.dir().to_string(),
+        t,
+    };
+    Html(
+        template
+            .render()
+            .unwrap_or_else(|e| format!("Error: {}", e)),
+    )
+}
+
 // ============================================================================
 // Routes
 // ============================================================================
@@ -124,4 +155,5 @@ pub fn routes() -> Router<AppState> {
         .route("/", get(index))
         .route("/about", get(about))
         .route("/services", get(services))
+        .route("/learning", get(learning_page))
 }

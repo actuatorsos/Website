@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء حساب — Actuators</title>
-    <meta name="description" content="Actuators — إنشاء حساب جديد">
+    <title>{{ t["page_title_register"] }}</title>
+    <meta name="description" content="Actuators — {{ t["register_subtitle"] }}">
     <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
     <meta name="theme-color" content="#0B1A2A">
 
@@ -16,7 +16,7 @@
 
     <style>
         /* ── Actuators Brand System ── */
-        :root {
+        :root, :root[data-theme="dark"] {
             --bg-primary: #0B1A2A;
             --bg-surface: rgba(11, 26, 42, 0.8);
             --text-primary: #FFFFFF;
@@ -29,14 +29,33 @@
             --font-mono: 'JetBrains Mono', monospace;
         }
 
+        :root[data-theme="light"] {
+            --bg-primary: #F0F4F8;
+            --bg-surface: rgba(255, 255, 255, 0.9);
+            --text-primary: #0B1A2A;
+            --text-muted: rgba(11, 26, 42, 0.55);
+            --structure-cyan: #00919A;
+            --structure-cyan-muted: rgba(0, 145, 154, 0.2);
+            --activation-orange: #E55A1B;
+        }
+
+        .hidden { display: none !important; }
+
         *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
+        [dir="rtl"] body {
             font-family: var(--font-primary-ar);
+        }
+
+        [dir="ltr"] body {
+            font-family: var(--font-primary-en);
+        }
+
+        body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
@@ -44,7 +63,8 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* ── Isometric Grid Background ── */
@@ -88,16 +108,26 @@
             margin-bottom: 32px;
         }
 
-        .logo-section svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 16px;
-        }
-
         .brand-sub {
             font-size: 13px;
             color: var(--text-muted);
         }
+
+        .auth-logo-wrap {
+            position: relative; width: 80px; height: 80px; margin: 0 auto 16px;
+            filter: drop-shadow(0 0 12px rgba(0,183,194,0.35)) drop-shadow(0 0 40px rgba(0,183,194,0.1));
+            transition: filter 0.4s ease;
+        }
+        .auth-logo-wrap .al-default, .auth-logo-wrap .al-hover { position: absolute; inset: 0; transition: opacity 0.4s cubic-bezier(1,0,0,1); }
+        .auth-logo-wrap .al-hover { opacity: 0; }
+        .logo-section:hover .auth-logo-wrap .al-default { opacity: 0; }
+        .logo-section:hover .auth-logo-wrap .al-hover { opacity: 1; }
+        .logo-section:hover .auth-logo-wrap { filter: drop-shadow(0 0 16px rgba(255,106,42,0.4)) drop-shadow(0 0 50px rgba(255,106,42,0.12)); }
+        .auth-wordmark-wrap { position: relative; width: 260px; height: 50px; margin: 0 auto 8px; }
+        .auth-wordmark-wrap .aw-default, .auth-wordmark-wrap .aw-hover { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.4s cubic-bezier(1,0,0,1); }
+        .auth-wordmark-wrap .aw-hover { opacity: 0; }
+        .logo-section:hover .auth-wordmark-wrap .aw-default { opacity: 0; }
+        .logo-section:hover .auth-wordmark-wrap .aw-hover { opacity: 1; }
 
         /* ── Login Card ── */
         .login-card {
@@ -151,18 +181,56 @@
             border: 1px solid var(--structure-cyan-muted);
             border-radius: 2px;
             color: var(--text-primary);
-            font-family: var(--font-primary-ar);
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s linear;
+        }
+
+        [dir="rtl"] .form-input {
+            font-family: var(--font-primary-ar);
+        }
+
+        [dir="ltr"] .form-input {
+            font-family: var(--font-primary-en);
         }
 
         .form-input::placeholder {
             color: rgba(255, 255, 255, 0.25);
         }
 
+        :root[data-theme="light"] .form-input {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        :root[data-theme="light"] .form-input::placeholder {
+            color: rgba(11, 26, 42, 0.3);
+        }
+
         .form-input:focus {
             border-color: var(--structure-cyan);
+        }
+
+        /* ── Select Styling ── */
+        select.form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 12px) center;
+            padding-inline-end: 36px;
+        }
+
+        :root[data-theme="light"] select.form-input {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(11,26,42,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+        }
+
+        [dir="rtl"] select.form-input {
+            background-position: 12px center;
+        }
+
+        select.form-input option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .password-wrapper {
@@ -243,7 +311,6 @@
             padding: 12px;
             background: var(--activation-orange);
             color: var(--bg-primary);
-            font-family: var(--font-primary-ar);
             font-size: 15px;
             font-weight: 700;
             border: none;
@@ -254,6 +321,14 @@
             justify-content: center;
             gap: 8px;
             transition: opacity 0.2s linear;
+        }
+
+        [dir="rtl"] .btn-submit {
+            font-family: var(--font-primary-ar);
+        }
+
+        [dir="ltr"] .btn-submit {
+            font-family: var(--font-primary-en);
         }
 
         .btn-submit:hover {
@@ -314,7 +389,14 @@
             color: var(--text-muted);
             text-decoration: none;
             transition: color 0.15s linear;
+        }
+
+        [dir="rtl"] .login-links a {
             font-family: var(--font-primary-ar);
+        }
+
+        [dir="ltr"] .login-links a {
+            font-family: var(--font-primary-en);
         }
 
         .login-links a:hover {
@@ -381,42 +463,89 @@
         .corner-marks::before {
             top: 0;
             inset-inline-start: 0;
-            border-width: 1px 0 0 1px;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-start-width: 1px;
         }
 
         .corner-marks::after {
             bottom: 0;
             inset-inline-end: 0;
-            border-width: 0 1px 1px 0;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-end-width: 1px;
         }
 
         .corner-marks-alt::before {
             top: 0;
             inset-inline-end: 0;
             inset-inline-start: auto;
-            border-width: 1px 1px 0 0;
+            border-width: 0;
+            border-block-start-width: 1px;
+            border-inline-end-width: 1px;
         }
 
         .corner-marks-alt::after {
             bottom: 0;
             inset-inline-start: 0;
             inset-inline-end: auto;
-            border-width: 0 0 1px 1px;
+            border-width: 0;
+            border-block-end-width: 1px;
+            border-inline-start-width: 1px;
         }
     </style>
 </head>
 
 <body>
+    <!-- Unified Controls: Language + Theme -->
+    <div style="position:fixed;top:16px;inset-inline-end:16px;z-index:10;display:flex;align-items:center;gap:0;border:1px solid var(--structure-cyan-muted);background:var(--bg-surface);">
+        <a href="?lang={% if lang == "ar" %}en{% else %}ar{% endif %}"
+           style="display:flex;align-items:center;gap:6px;padding:6px 12px;color:var(--text-muted);font-family:var(--font-mono);font-size:11px;text-decoration:none;letter-spacing:0.1em;transition:all 0.15s linear;border-inline-end:1px solid var(--structure-cyan-muted);"
+           onmouseover="this.style.color='var(--structure-cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+            {% if lang == "ar" %}EN{% else %}عربي{% endif %}
+        </a>
+        <button onclick="toggleThemeAuth()" style="display:flex;align-items:center;padding:6px 10px;background:none;border:none;color:var(--text-muted);cursor:pointer;transition:all 0.15s linear;"
+                onmouseover="this.style.color='var(--structure-cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+            <svg id="auth-sun" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg id="auth-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+    </div>
+    <script>
+    function toggleThemeAuth(){
+        const html=document.documentElement;
+        const isDark=html.getAttribute('data-theme')==='dark';
+        html.setAttribute('data-theme',isDark?'light':'dark');
+        localStorage.setItem('theme',isDark?'light':'dark');
+        updateThemeIcons();
+    }
+    function updateThemeIcons(){
+        const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+        const sun=document.getElementById('auth-sun');
+        const moon=document.getElementById('auth-moon');
+        if(sun&&moon){sun.classList.toggle('hidden',isDark);moon.classList.toggle('hidden',!isDark);}
+    }
+    (function(){
+        const t=localStorage.getItem('theme')||'dark';
+        document.documentElement.setAttribute('data-theme',t);
+        setTimeout(updateThemeIcons,0);
+    })();
+    </script>
+
     <div class="login-container">
         <!-- Logo -->
         <div class="logo-section assemble assemble-1">
-            <svg style="width:80px;height:80px;margin-bottom:12px;" viewBox="0 0 120 120">
-                <use href="/static/icons.svg#icon-logo"></use>
-            </svg>
-            <svg style="width:260px;height:50px;margin-bottom:8px;" viewBox="0 0 1000 400">
-                <use href="/static/icons.svg#icon-actuator-logo"></use>
-            </svg>
-            <div class="brand-sub">{{ t["auto_login_308"] }}</div>
+            <a href="/?lang={{ lang }}" style="text-decoration:none;display:inline-flex;flex-direction:column;align-items:center;">
+                <div class="auth-logo-wrap">
+                    <svg class="al-default" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><g id="ald"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/></g></defs><g transform="translate(60,60)"><use href="#ald" x="34.641" y="0" color="#00B7C2"/><use href="#ald" x="-34.641" y="0" color="#00B7C2"/><use href="#ald" x="17.3205" y="-30" color="#00B7C2"/><use href="#ald" x="-17.3205" y="-30" color="#00B7C2"/><use href="#ald" x="17.3205" y="30" color="#00B7C2"/><use href="#ald" x="-17.3205" y="30" color="#00B7C2"/><use href="#ald" x="0" y="0" color="#FF6A2A"/></g></svg>
+                    <svg class="al-hover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="80" height="80"><defs><g id="alr"><polygon points="0,-20 17.3205,-10 17.3205,10 0,20 -17.3205,10 -17.3205,-10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="0" y1="0" x2="0" y2="20" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="-17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="0" x2="17.3205" y2="-10" stroke="currentColor" stroke-width="1.5"/></g></defs><g transform="translate(60,60)"><use href="#alr" x="34.641" y="0" color="#FF6A2A"/><use href="#alr" x="-34.641" y="0" color="#FF6A2A"/><use href="#alr" x="17.3205" y="-30" color="#FF6A2A"/><use href="#alr" x="-17.3205" y="-30" color="#FF6A2A"/><use href="#alr" x="17.3205" y="30" color="#FF6A2A"/><use href="#alr" x="-17.3205" y="30" color="#FF6A2A"/><use href="#alr" x="0" y="0" color="#00B7C2"/></g></svg>
+                </div>
+                <div class="auth-wordmark-wrap">
+                    <svg class="aw-default" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145"><line x1="40" y1="120" x2="960" y2="120" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#FF6A2A" stroke-width="2" opacity="0.5"/><path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#FF6A2A" stroke-width="2" opacity="0.3" fill="none"/><text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#00B7C2" letter-spacing="7" text-anchor="middle">ACTUATORS</text></svg>
+                    <svg class="aw-hover" xmlns="http://www.w3.org/2000/svg" viewBox="40 100 920 145"><line x1="40" y1="120" x2="960" y2="120" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="180" x2="960" y2="180" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><line x1="40" y1="230" x2="960" y2="230" stroke="#00B7C2" stroke-width="2" opacity="0.5"/><path d="M 60 70 v240 M 150 90 v50 M 260 230 v50 M 340 90 v160 M 480 230 v50 M 640 100 v30 M 750 230 v50 M 880 100 v160 M 940 70 v240" stroke="#00B7C2" stroke-width="2" opacity="0.3" fill="none"/><text x="500" y="230" font-family="Inter, sans-serif" font-size="140" font-weight="600" fill="#FF6A2A" letter-spacing="7" text-anchor="middle">ACTUATORS</text></svg>
+                </div>
+            </a>
+            <div class="brand-sub">{{ t["register_subtitle"] }}</div>
         </div>
 
         <!-- Register Card -->
@@ -424,7 +553,7 @@
             <div class="corner-marks"></div>
             <div class="corner-marks corner-marks-alt"></div>
 
-            <h2>إنشاء حساب جديد</h2>
+            <h2>{{ t["register_title"] }}</h2>
 
             <!-- Error -->
             <div id="register-error" class="error-msg"></div>
@@ -442,55 +571,61 @@
                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                         <input type="email" id="email" name="email" required autocomplete="email"
-                            placeholder="user@actuators.com" class="form-input">
+                            placeholder="{{ t["placeholder_email"] }}" class="form-input">
                     </div>
                 </div>
 
                 <!-- Full Name -->
-                <div class="input-group">
-                    <label for="full_name">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <div class="form-group">
+                    <label class="form-label">{{ t["field_full_name"] }}</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
                             <circle cx="12" cy="7" r="4"/>
                         </svg>
-                        الاسم الكامل
-                    </label>
-                    <input type="text" id="full_name" name="full_name" placeholder="أدخل اسمك الكامل" required>
+                        <input type="text" id="full_name" name="full_name"
+                            placeholder="{{ t["placeholder_full_name"] }}" required class="form-input">
+                    </div>
                 </div>
 
                 <!-- Phone -->
-                <div class="input-group">
-                    <label for="phone">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                <div class="form-group">
+                    <label class="form-label">{{ t["field_phone"] }}</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
                         </svg>
-                        رقم الهاتف
-                    </label>
-                    <input type="tel" id="phone" name="phone" placeholder="+963 XXX XXX XXX">
+                        <input type="tel" id="phone" name="phone"
+                            placeholder="{{ t["placeholder_phone"] }}" class="form-input">
+                    </div>
                 </div>
 
                 <!-- User Type -->
-                <div class="input-group">
-                    <label for="user_type">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <div class="form-group">
+                    <label class="form-label">{{ t["field_user_type"] }}</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                             <circle cx="9" cy="7" r="4"/>
-                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                         </svg>
-                        نوع الحساب
-                    </label>
-                    <select id="user_type" name="user_type" style="background:#0B1A2A;color:#E0E0E0;border:1px solid rgba(0,183,194,0.2);padding:12px 16px;font-size:14px;width:100%;font-family:monospace;">
-                        <option value="member">عضو / مستخدم عادي</option>
-                        <option value="startup_owner">صاحب شركة ناشئة</option>
-                        <option value="team_leader">قائد فريق تطوعي</option>
-                        <option value="trainee">متدرب</option>
-                        <option value="volunteer">متطوع</option>
-                    </select>
+                        <select id="user_type" name="user_type" class="form-input">
+                            <option value="member">{{ t["type_member"] }}</option>
+                            <option value="startup_owner">{{ t["type_startup_owner"] }}</option>
+                            <option value="team_leader">{{ t["type_team_leader"] }}</option>
+                            <option value="trainee">{{ t["type_trainee"] }}</option>
+                            <option value="volunteer">{{ t["type_volunteer"] }}</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Password -->
                 <div class="form-group">
-                    <label class="form-label">كلمة المرور</label>
+                    <label class="form-label">{{ t["field_password"] }}</label>
                     <div class="input-wrapper password-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -515,7 +650,7 @@
 
                 <!-- Confirm Password -->
                 <div class="form-group">
-                    <label class="form-label">تأكيد كلمة المرور</label>
+                    <label class="form-label">{{ t["field_confirm_password"] }}</label>
                     <div class="input-wrapper password-wrapper">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -542,14 +677,14 @@
 
                 <!-- Submit -->
                 <button type="submit" id="register-btn" class="btn-submit">
-                    <span id="btn-text">إنشاء حساب</span>
+                    <span id="btn-text">{{ t["register_btn"] }}</span>
                     <div id="btn-spinner" class="spinner"></div>
                 </button>
 
                 <!-- Login Link -->
                 <div class="login-links">
                     <a href="/admin/login?lang={{ lang }}">
-                        لديك حساب؟ تسجيل الدخول
+                        {{ t["has_account"] }} {{ t["nav_login"] }}
                     </a>
                 </div>
             </form>
@@ -561,13 +696,13 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="square" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/>
                 </svg>
-                الصفحة الرئيسية
+                {{ t["go_home"] }}
             </a>
         </div>
 
         <!-- Footer -->
         <div class="login-footer assemble assemble-3">
-            &copy; 2026 Actuators L.L.C
+            {{ t["footer_rights"] }}
         </div>
     </div>
 
@@ -601,9 +736,21 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
+            // Translation strings injected from server
+            const t = {
+                err_password_min: '{{ t["err_password_min"] }}',
+                err_password_match: '{{ t["err_password_match"] }}',
+                register_loading: '{{ t["register_loading"] }}',
+                register_success: '{{ t["register_success"] }}',
+                register_created: '{{ t["register_created"] }}',
+                register_failed: '{{ t["register_failed"] }}',
+                register_btn: '{{ t["register_btn"] }}',
+                server_error: '{{ t["server_error"] }}'
+            };
+
             // Client-side validation
             if (password.length < 8) {
-                errorDiv.textContent = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+                errorDiv.textContent = t.err_password_min;
                 errorDiv.classList.add('visible');
                 errorDiv.classList.add('shake');
                 setTimeout(() => errorDiv.classList.remove('shake'), 400);
@@ -611,7 +758,7 @@
             }
 
             if (password !== confirmPassword) {
-                errorDiv.textContent = 'كلمات المرور غير متطابقة';
+                errorDiv.textContent = t.err_password_match;
                 errorDiv.classList.add('visible');
                 errorDiv.classList.add('shake');
                 setTimeout(() => errorDiv.classList.remove('shake'), 400);
@@ -619,7 +766,7 @@
             }
 
             btn.disabled = true;
-            btnText.textContent = 'جاري الإنشاء...';
+            btnText.textContent = t.register_loading;
             spinner.classList.add('visible');
             errorDiv.classList.remove('visible');
             successDiv.classList.remove('visible');
@@ -640,25 +787,25 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    successDiv.textContent = 'تم إنشاء حسابك بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب';
+                    successDiv.textContent = t.register_success;
                     successDiv.classList.add('visible');
-                    btnText.textContent = 'تم الإنشاء';
+                    btnText.textContent = t.register_created;
                     spinner.classList.remove('visible');
 
                     setTimeout(() => {
                         window.location.href = '/admin/login?lang={{ lang }}';
                     }, 3000);
                 } else {
-                    throw new Error(data.error || 'فشل إنشاء الحساب');
+                    throw new Error(data.error || t.register_failed);
                 }
             } catch (err) {
-                errorDiv.textContent = err.message || 'خطأ في الاتصال بالخادم';
+                errorDiv.textContent = err.message || t.server_error;
                 errorDiv.classList.add('visible');
                 errorDiv.classList.add('shake');
                 setTimeout(() => errorDiv.classList.remove('shake'), 400);
 
                 btn.disabled = false;
-                btnText.textContent = 'إنشاء حساب';
+                btnText.textContent = t.register_btn;
                 spinner.classList.remove('visible');
             }
         });

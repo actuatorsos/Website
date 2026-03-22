@@ -1,0 +1,555 @@
+{% extends "admin/base_admin.html" %}
+{% block admin_content %}
+<div class="max-w-7xl mx-auto animate-fade-in" dir="{{ dir }}">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-primary">{{ t["cp_title"] }}</h1>
+            <p class="text-text-secondary mt-1">{{ t["cp_tickets"] }}</p>
+        </div>
+        <button onclick="document.getElementById('ticket-modal').classList.remove('hidden')"
+            class="bg-secondary text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            {{ t["cp_new_ticket"] }}
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-primary" id="stat-new">0</p>
+                    <p class="text-xs text-text-secondary">{{ t["cp_new"] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-primary" id="stat-open">0</p>
+                    <p class="text-xs text-text-secondary">{{ t["cp_open"] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-primary" id="stat-progress">0</p>
+                    <p class="text-xs text-text-secondary">{{ t["cp_in_progress"] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-primary" id="stat-resolved">0</p>
+                    <p class="text-xs text-text-secondary">{{ t["cp_resolved"] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6">
+        <button id="tab-all" onclick="switchTab('all')"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-white transition-colors">
+            {{ t["cp_all_tickets"] }}
+        </button>
+        <button id="tab-my" onclick="switchTab('my')"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface text-text-secondary border border-border hover:bg-background transition-colors">
+            {{ t["cp_my_assigned"] }}
+        </button>
+        <button id="tab-status" onclick="switchTab('status')"
+            class="px-4 py-2 rounded-lg text-sm font-medium bg-surface text-text-secondary border border-border hover:bg-background transition-colors">
+            {{ t["cp_by_status"] }}
+        </button>
+    </div>
+
+    <!-- Status filter (shown when By Status tab is active) -->
+    <div id="status-filter" class="hidden mb-4">
+        <select id="status-filter-select" onchange="filterByStatus()"
+            class="px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent">
+            <option value="new">{{ t["cp_new"] }}</option>
+            <option value="open">{{ t["cp_open"] }}</option>
+            <option value="in_progress">{{ t["cp_in_progress"] }}</option>
+            <option value="waiting_client">{{ t["cp_waiting"] }}</option>
+            <option value="resolved">{{ t["cp_resolved"] }}</option>
+            <option value="closed">{{ t["cp_closed"] }}</option>
+        </select>
+    </div>
+
+    <!-- Tickets List View -->
+    <div id="tickets-list-view">
+        <div class="bg-surface rounded-2xl border border-border shadow-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-background/30 border-b border-border">
+                        <tr>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["cp_subject"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden sm:table-cell">{{ t["cp_client"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden md:table-cell">{{ t["cp_category"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["cp_priority"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["cp_status"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden lg:table-cell">{{ t["cp_created"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase hidden lg:table-cell">{{ t["cp_assigned_to"] }}</th>
+                            <th class="px-3 sm:px-6 py-2 sm:py-3 text-start text-xs font-semibold text-text-secondary uppercase">{{ t["actions"] }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tickets-table" class="divide-y divide-border">
+                        <tr>
+                            <td colspan="8" class="px-3 sm:px-6 py-8 text-center text-text-secondary">{{ t["loading"] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Detail View (hidden by default) -->
+    <div id="ticket-detail-view" class="hidden">
+        <button onclick="closeDetail()" class="mb-4 text-sm text-secondary hover:underline flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            {{ t["cp_all_tickets"] }}
+        </button>
+
+        <!-- Ticket Info Header -->
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6 mb-4">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-primary" id="detail-subject"></h2>
+                    <p class="text-text-secondary text-sm mt-1" id="detail-description"></p>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span id="detail-category" class="px-2 py-1 rounded-full text-xs font-medium"></span>
+                        <span id="detail-priority" class="px-2 py-1 rounded-full text-xs font-medium"></span>
+                        <span id="detail-status" class="px-2 py-1 rounded-full text-xs font-medium"></span>
+                    </div>
+                    <p class="text-xs text-text-secondary mt-2" id="detail-meta"></p>
+                </div>
+                <!-- Status Action Buttons -->
+                <div class="flex flex-wrap gap-2" id="detail-actions">
+                    <button onclick="quickAction('assign')" class="text-xs bg-purple-500/10 text-purple-600 px-3 py-1.5 rounded-lg hover:bg-purple-500/20 transition-colors">{{ t["cp_assign_me"] }}</button>
+                    <button onclick="quickAction('start')" class="text-xs bg-yellow-500/10 text-yellow-600 px-3 py-1.5 rounded-lg hover:bg-yellow-500/20 transition-colors">{{ t["cp_start"] }}</button>
+                    <button onclick="quickAction('wait')" class="text-xs bg-orange-500/10 text-orange-600 px-3 py-1.5 rounded-lg hover:bg-orange-500/20 transition-colors">{{ t["cp_wait_client"] }}</button>
+                    <button onclick="quickAction('resolve')" class="text-xs bg-green-500/10 text-green-600 px-3 py-1.5 rounded-lg hover:bg-green-500/20 transition-colors">{{ t["cp_resolve"] }}</button>
+                    <button onclick="openCloseModal()" class="text-xs bg-gray-500/10 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-500/20 transition-colors">{{ t["cp_close_ticket"] }}</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reply Thread -->
+        <div class="bg-surface rounded-2xl border border-border shadow-card p-4 sm:p-6 mb-4">
+            <h3 class="text-sm font-bold text-primary mb-4">{{ t["cp_replies"] }}</h3>
+            <div id="replies-container" class="space-y-4 max-h-96 overflow-y-auto mb-4">
+                <p class="text-text-secondary text-sm text-center py-4">{{ t["loading"] }}</p>
+            </div>
+
+            <!-- Add Reply -->
+            <form id="reply-form" onsubmit="sendReply(event)" class="flex gap-2">
+                <textarea name="message" rows="2" required placeholder="{{ t["cp_type_reply"] }}"
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent text-sm resize-none"></textarea>
+                <button type="submit"
+                    class="bg-secondary text-white px-4 py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors self-end text-sm">
+                    {{ t["cp_send_reply"] }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Ticket Modal -->
+    <div id="ticket-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-lg p-4 sm:p-6 border border-border m-2 sm:m-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-primary">{{ t["cp_new_ticket"] }}</h3>
+                <button onclick="document.getElementById('ticket-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="ticket-form" class="space-y-4" onsubmit="createTicket(event)">
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_subject"] }} *</label>
+                    <input type="text" name="subject" required
+                        class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_description"] }}</label>
+                    <textarea name="description" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent"></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_client"] }}</label>
+                        <select name="client_id" id="client-select"
+                            class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_category"] }}</label>
+                        <select name="category"
+                            class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent">
+                            <option value="general">{{ t["cp_general"] }}</option>
+                            <option value="technical">{{ t["cp_technical"] }}</option>
+                            <option value="billing">{{ t["cp_billing"] }}</option>
+                            <option value="complaint">{{ t["cp_complaint"] }}</option>
+                            <option value="feature_request">{{ t["cp_feature"] }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_priority"] }}</label>
+                    <select name="priority"
+                        class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent">
+                        <option value="low">{{ t["cp_low"] }}</option>
+                        <option value="medium" selected>{{ t["cp_medium"] }}</option>
+                        <option value="high">{{ t["cp_high"] }}</option>
+                        <option value="critical">{{ t["cp_critical"] }}</option>
+                    </select>
+                </div>
+                <button type="submit"
+                    class="w-full bg-secondary text-white py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">
+                    {{ t["cp_new_ticket"] }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Close Ticket Modal -->
+    <div id="close-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-4 sm:p-6 border border-border m-2 sm:m-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-primary">{{ t["cp_close_ticket"] }}</h3>
+                <button onclick="document.getElementById('close-modal').classList.add('hidden')"
+                    class="text-text-secondary hover:text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="close-form" class="space-y-4" onsubmit="closeTicket(event)">
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_resolution"] }}</label>
+                    <textarea name="resolution" rows="3"
+                        class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-1">{{ t["cp_rating"] }}</label>
+                    <select name="rating"
+                        class="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-primary focus:ring-2 focus:ring-secondary focus:border-transparent">
+                        <option value="">--</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <button type="submit"
+                    class="w-full bg-secondary text-white py-2.5 rounded-xl font-semibold hover:bg-secondary/90 transition-colors">
+                    {{ t["cp_close_ticket"] }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = '/api/client-portal';
+let allTickets = [];
+let currentTab = 'all';
+let currentTicketId = null;
+
+function categoryBadge(c) {
+    const colors = { general: 'bg-gray-100 text-gray-700', technical: 'bg-blue-100 text-blue-700', billing: 'bg-green-100 text-green-700', complaint: 'bg-red-100 text-red-700', feature_request: 'bg-purple-100 text-purple-700' };
+    const labels = { general: '{{ t["cp_general"] }}', technical: '{{ t["cp_technical"] }}', billing: '{{ t["cp_billing"] }}', complaint: '{{ t["cp_complaint"] }}', feature_request: '{{ t["cp_feature"] }}' };
+    return `<span class="px-2 py-1 rounded-full text-xs font-medium ${colors[c] || colors.general}">${labels[c] || c}</span>`;
+}
+
+function priorityBadge(p) {
+    const colors = { low: 'bg-gray-100 text-gray-700', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', critical: 'bg-red-100 text-red-700' };
+    const labels = { low: '{{ t["cp_low"] }}', medium: '{{ t["cp_medium"] }}', high: '{{ t["cp_high"] }}', critical: '{{ t["cp_critical"] }}' };
+    return `<span class="px-2 py-1 rounded-full text-xs font-medium ${colors[p] || colors.medium}">${labels[p] || p}</span>`;
+}
+
+function statusBadge(s) {
+    const colors = { new: 'bg-blue-100 text-blue-700', open: 'bg-indigo-100 text-indigo-700', in_progress: 'bg-yellow-100 text-yellow-700', waiting_client: 'bg-orange-100 text-orange-700', resolved: 'bg-green-100 text-green-700', closed: 'bg-gray-100 text-gray-700' };
+    const labels = { new: '{{ t["cp_new"] }}', open: '{{ t["cp_open"] }}', in_progress: '{{ t["cp_in_progress"] }}', waiting_client: '{{ t["cp_waiting"] }}', resolved: '{{ t["cp_resolved"] }}', closed: '{{ t["cp_closed"] }}' };
+    return `<span class="px-2 py-1 rounded-full text-xs font-medium ${colors[s] || colors.new}">${labels[s] || s}</span>`;
+}
+
+function extractId(thing) {
+    if (!thing) return '';
+    if (typeof thing === 'string') return thing;
+    if (thing.id) {
+        if (typeof thing.id === 'object' && thing.id.String) return thing.id.String;
+        return thing.id;
+    }
+    return thing.tb ? thing.tb + ':' + thing.id : String(thing);
+}
+
+function formatDate(d) {
+    if (!d) return '-';
+    try { return new Date(d).toLocaleDateString(); } catch { return d; }
+}
+
+function renderTickets(tickets) {
+    const tbody = document.getElementById('tickets-table');
+    if (!tickets.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="px-3 sm:px-6 py-8 text-center text-text-secondary">{{ t["cp_no_tickets"] }}</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = tickets.map(t => `
+        <tr class="hover:bg-background/50 transition-colors cursor-pointer" onclick="openDetail('${extractId(t.id)}')">
+            <td class="px-3 sm:px-6 py-3 text-sm font-medium text-primary">${t.subject}</td>
+            <td class="px-3 sm:px-6 py-3 text-sm text-text-secondary hidden sm:table-cell">${extractId(t.client) || '-'}</td>
+            <td class="px-3 sm:px-6 py-3 hidden md:table-cell">${categoryBadge(t.category || 'general')}</td>
+            <td class="px-3 sm:px-6 py-3">${priorityBadge(t.priority || 'medium')}</td>
+            <td class="px-3 sm:px-6 py-3">${statusBadge(t.status || 'new')}</td>
+            <td class="px-3 sm:px-6 py-3 text-sm text-text-secondary hidden lg:table-cell">${formatDate(t.created_at)}</td>
+            <td class="px-3 sm:px-6 py-3 text-sm text-text-secondary hidden lg:table-cell">${extractId(t.assigned_to) || '-'}</td>
+            <td class="px-3 sm:px-6 py-3">
+                <div class="flex gap-2">
+                    <button onclick="event.stopPropagation(); deleteTicket('${extractId(t.id)}')"
+                        class="text-xs bg-red-500/10 text-red-500 px-2 py-1 rounded-lg hover:bg-red-500/20 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateStats(tickets) {
+    document.getElementById('stat-new').textContent = tickets.filter(t => t.status === 'new').length;
+    document.getElementById('stat-open').textContent = tickets.filter(t => t.status === 'open').length;
+    document.getElementById('stat-progress').textContent = tickets.filter(t => t.status === 'in_progress').length;
+    document.getElementById('stat-resolved').textContent = tickets.filter(t => t.status === 'resolved').length;
+}
+
+async function loadTickets() {
+    try {
+        const res = await fetch(`${API}/tickets`, { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+        allTickets = await res.json();
+        updateStats(allTickets);
+        renderTickets(allTickets);
+    } catch (e) {
+        console.error('Failed to load tickets', e);
+    }
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    ['all', 'my', 'status'].forEach(t => {
+        const btn = document.getElementById('tab-' + t);
+        btn.className = tab === t
+            ? 'px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-white transition-colors'
+            : 'px-4 py-2 rounded-lg text-sm font-medium bg-surface text-text-secondary border border-border hover:bg-background transition-colors';
+    });
+    document.getElementById('status-filter').classList.toggle('hidden', tab !== 'status');
+    if (tab === 'my') {
+        renderTickets(allTickets.filter(t => t.assigned_to));
+    } else if (tab === 'status') {
+        filterByStatus();
+    } else {
+        renderTickets(allTickets);
+    }
+}
+
+function filterByStatus() {
+    const status = document.getElementById('status-filter-select').value;
+    renderTickets(allTickets.filter(t => t.status === status));
+}
+
+async function createTicket(e) {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = {};
+    for (const [k, v] of fd.entries()) { if (v) body[k] = v; }
+    try {
+        await fetch(`${API}/tickets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+            body: JSON.stringify(body)
+        });
+        document.getElementById('ticket-modal').classList.add('hidden');
+        e.target.reset();
+        loadTickets();
+    } catch (err) { console.error(err); }
+}
+
+async function openDetail(id) {
+    currentTicketId = id;
+    document.getElementById('tickets-list-view').classList.add('hidden');
+    document.getElementById('ticket-detail-view').classList.remove('hidden');
+    try {
+        const res = await fetch(`${API}/tickets/${id}`, { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+        const ticket = await res.json();
+        document.getElementById('detail-subject').textContent = ticket.subject;
+        document.getElementById('detail-description').textContent = ticket.description || '';
+        document.getElementById('detail-category').innerHTML = categoryBadge(ticket.category || 'general');
+        document.getElementById('detail-priority').innerHTML = priorityBadge(ticket.priority || 'medium');
+        document.getElementById('detail-status').innerHTML = statusBadge(ticket.status || 'new');
+        document.getElementById('detail-meta').textContent = `${formatDate(ticket.created_at)} | ${extractId(ticket.client) || '-'} | ${extractId(ticket.assigned_to) || '-'}`;
+        loadReplies(id);
+    } catch (err) { console.error(err); }
+}
+
+function closeDetail() {
+    currentTicketId = null;
+    document.getElementById('tickets-list-view').classList.remove('hidden');
+    document.getElementById('ticket-detail-view').classList.add('hidden');
+}
+
+async function loadReplies(id) {
+    const container = document.getElementById('replies-container');
+    try {
+        const res = await fetch(`${API}/tickets/${id}/replies`, { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+        const replies = await res.json();
+        if (!replies.length) {
+            container.innerHTML = `<p class="text-text-secondary text-sm text-center py-4">{{ t["cp_no_tickets"] }}</p>`;
+            return;
+        }
+        container.innerHTML = replies.map(r => {
+            const isAgent = r.author_role === 'agent' || r.author_role === 'system';
+            return `<div class="flex ${isAgent ? 'justify-start' : 'justify-end'}">
+                <div class="max-w-[80%] p-3 rounded-xl ${isAgent ? 'bg-blue-50 border border-blue-100' : 'bg-green-50 border border-green-100'}">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-semibold ${isAgent ? 'text-blue-700' : 'text-green-700'}">${r.author || r.author_role}</span>
+                        <span class="text-xs text-text-secondary">${formatDate(r.created_at)}</span>
+                    </div>
+                    <p class="text-sm text-primary">${r.message}</p>
+                </div>
+            </div>`;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    } catch (err) { console.error(err); }
+}
+
+async function sendReply(e) {
+    e.preventDefault();
+    if (!currentTicketId) return;
+    const fd = new FormData(e.target);
+    const body = { message: fd.get('message'), author_role: 'agent' };
+    try {
+        await fetch(`${API}/tickets/${currentTicketId}/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+            body: JSON.stringify(body)
+        });
+        e.target.reset();
+        loadReplies(currentTicketId);
+    } catch (err) { console.error(err); }
+}
+
+async function quickAction(action) {
+    if (!currentTicketId) return;
+    const statusMap = { assign: 'open', start: 'in_progress', wait: 'waiting_client', resolve: 'resolved' };
+    const status = statusMap[action];
+    if (!status) return;
+    try {
+        await fetch(`${API}/tickets/${currentTicketId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+            body: JSON.stringify({ status })
+        });
+        openDetail(currentTicketId);
+        loadTickets();
+    } catch (err) { console.error(err); }
+}
+
+function openCloseModal() {
+    document.getElementById('close-modal').classList.remove('hidden');
+}
+
+async function closeTicket(e) {
+    e.preventDefault();
+    if (!currentTicketId) return;
+    const fd = new FormData(e.target);
+    const body = {};
+    const res_val = fd.get('resolution');
+    if (res_val) body.resolution = res_val;
+    const rating_val = fd.get('rating');
+    if (rating_val) body.rating = parseInt(rating_val);
+    try {
+        await fetch(`${API}/tickets/${currentTicketId}/close`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getCookie('auth_token') },
+            body: JSON.stringify(body)
+        });
+        document.getElementById('close-modal').classList.add('hidden');
+        e.target.reset();
+        openDetail(currentTicketId);
+        loadTickets();
+    } catch (err) { console.error(err); }
+}
+
+async function deleteTicket(id) {
+    if (!confirm('{{ t["cp_delete_confirm"] }}')) return;
+    try {
+        await fetch(`${API}/tickets/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') }
+        });
+        loadTickets();
+    } catch (err) { console.error(err); }
+}
+
+async function loadClients() {
+    try {
+        const res = await fetch('/api/clients', { headers: { 'Authorization': 'Bearer ' + getCookie('auth_token') } });
+        const clients = await res.json();
+        const sel = document.getElementById('client-select');
+        clients.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = extractId(c.id);
+            opt.textContent = c.name || c.company_name || extractId(c.id);
+            sel.appendChild(opt);
+        });
+    } catch (err) { console.error('Failed to load clients', err); }
+}
+
+function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadTickets();
+    loadClients();
+});
+</script>
+{% endblock %}

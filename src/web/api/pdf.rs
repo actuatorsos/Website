@@ -49,7 +49,7 @@ async fn generate_attendance_report(
 
     // Fetch data
     let attendance_records: Vec<crate::domains::hr::models::Attendance> =
-        crate::domains::hr::repository::get_attendance_by_date(&state, &target_date)
+        crate::domains::hr::repository::get_attendance_by_date(&state, &target_date, None)
             .await
             .unwrap_or_default();
 

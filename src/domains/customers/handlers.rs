@@ -25,6 +25,7 @@ pub struct CustomersTemplate {
     pub active_page: String,
     pub user_email: String,
     pub user_role: String,
+    pub user_type: String,
     pub user_avatar: Option<String>,
 }
 
@@ -49,6 +50,7 @@ pub async fn customers_page(
         active_page: "customers".to_string(),
         user_email: auth.email,
         user_role: auth.role,
+        user_type: auth.user_type,
         user_avatar: auth.avatar,
     };
 

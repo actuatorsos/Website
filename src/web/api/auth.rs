@@ -19,7 +19,7 @@ use validator::Validate;
 use crate::db::AppState;
 use crate::domains::email::models::SendEmailRequest;
 use crate::domains::email::service::send_email;
-use crate::middleware::auth::create_token;
+use crate::middleware::auth::create_token_with_org;
 use crate::models::{
     AuthResponse, AuthUser, CurrentUser, LoginRequest, SignupRequest, hash_password,
     verify_password,
@@ -172,11 +172,13 @@ async fn signup(
         });
     }
 
-    // Generate JWT token
-    let token = match create_token(
+    // Generate JWT token (include organization ID for data isolation)
+    let org_id = account.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
+    let token = match create_token_with_org(
         &account.id_string(),
         &account.email,
         &account.role.to_string(),
+        org_id.as_deref(),
         &state.jwt_secret,
         state.jwt_expiry_hours,
     ) {
@@ -342,11 +344,13 @@ async fn login(
             .await;
     });
 
-    // Generate JWT token
-    let token = match create_token(
+    // Generate JWT token (include organization ID for data isolation)
+    let org_id = account.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
+    let token = match create_token_with_org(
         &account.id_string(),
         &account.email,
         &account.role.to_string(),
+        org_id.as_deref(),
         &state.jwt_secret,
         state.jwt_expiry_hours,
     ) {

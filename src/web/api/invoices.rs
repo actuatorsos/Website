@@ -5,7 +5,7 @@
 use askama::Template;
 use axum::{
     Form, Json, Router,
-    extract::{Path, State},
+    extract::{Extension, Path, State},
     response::Html,
     routing::{delete, get, post},
 };
@@ -13,7 +13,8 @@ use std::collections::HashMap;
 use tower_cookies::Cookies;
 use validator::Validate;
 
-use crate::db::AppState;
+use crate::db::{self, AppState};
+use crate::models::CurrentUser;
 use crate::domains::customers::models::Client;
 use crate::domains::finance::models::{CreateInvoiceRequest, Invoice, InvoiceItem, InvoiceStatus};
 use crate::domains::finance::repository;
@@ -97,6 +98,7 @@ fn parse_status(status: &str) -> InvoiceStatus {
 
 async fn create_invoice(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     cookies: Cookies,
     Form(form): Form<CreateInvoiceForm>,
 ) -> Html<String> {
@@ -150,6 +152,28 @@ async fn create_invoice(
 
     match repository::create_invoice(&state, request).await {
         Ok(invoice) => {
+            let _ = db::audit_log(
+                &state.db,
+                Some(&user.email),
+                "create",
+                "invoice",
+                invoice.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+                None,
+                None,
+            )
+            .await;
+
+            // Broadcast to WebSocket clients
+            let _ = state.notification_tx.send(serde_json::json!({
+                "type": "notification",
+                "action": "invoice_created",
+                "data": {
+                    "id": invoice.id.as_ref().map(|t| t.id.to_raw()),
+                    "invoice_number": &invoice.invoice_number,
+                    "client_name": &invoice.client_name
+                }
+            }).to_string());
+
             let template = InvoiceRowTemplate { invoice, t };
             Html(
                 template
@@ -164,11 +188,15 @@ async fn create_invoice(
     }
 }
 
-async fn list_invoices(State(state): State<AppState>, cookies: Cookies) -> Html<String> {
+async fn list_invoices(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+    cookies: Cookies,
+) -> Html<String> {
     let lang = resolve_language(&cookies);
     let t = state.i18n.get_dictionary(lang.as_str());
 
-    let invoices: Vec<Invoice> = repository::get_all_invoices(&state)
+    let invoices: Vec<Invoice> = repository::get_all_invoices(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     let template = InvoiceListTemplate { invoices, t };
@@ -181,18 +209,32 @@ async fn list_invoices(State(state): State<AppState>, cookies: Cookies) -> Html<
 
 async fn update_status(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     Path(id): Path<String>,
     Form(form): Form<UpdateInvoiceStatusForm>,
 ) -> Html<String> {
     let status = parse_status(&form.status);
     match repository::update_invoice_status(&state, &id, status).await {
-        Ok(_) => Html(r#"<span class="text-green-600">تم التحديث</span>"#.to_string()),
+        Ok(_) => {
+            let _ = db::audit_log(
+                &state.db,
+                Some(&user.email),
+                "update",
+                "invoice",
+                Some(&id),
+                None,
+                Some(serde_json::json!({ "status": form.status })),
+            )
+            .await;
+            Html(r#"<span class="text-green-600">تم التحديث</span>"#.to_string())
+        }
         Err(e) => Html(format!("<span class='text-red-600'>Error: {}</span>", e)),
     }
 }
 
 async fn record_payment(
     State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
     cookies: Cookies,
     Path(id): Path<String>,
     Form(form): Form<RecordPaymentForm>,
@@ -202,6 +244,16 @@ async fn record_payment(
 
     match repository::record_invoice_payment(&state, &id, form.amount).await {
         Ok(invoice) => {
+            let _ = db::audit_log(
+                &state.db,
+                Some(&user.email),
+                "update",
+                "invoice",
+                Some(&id),
+                None,
+                Some(serde_json::json!({ "payment_amount": form.amount })),
+            )
+            .await;
             let template = InvoiceRowTemplate { invoice, t };
             Html(
                 template
@@ -213,22 +265,44 @@ async fn record_payment(
     }
 }
 
-async fn delete_invoice(State(state): State<AppState>, Path(id): Path<String>) -> Html<String> {
+async fn delete_invoice(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+    Path(id): Path<String>,
+) -> Html<String> {
     match repository::delete_invoice(&state, &id).await {
-        Ok(_) => Html(String::new()), // Return empty to remove from DOM
+        Ok(_) => {
+            let _ = db::audit_log(
+                &state.db,
+                Some(&user.email),
+                "delete",
+                "invoice",
+                Some(&id),
+                None,
+                None,
+            )
+            .await;
+            Html(String::new()) // Return empty to remove from DOM
+        }
         Err(e) => Html(format!("<span class='text-red-600'>Error: {}</span>", e)),
     }
 }
 
-async fn get_invoices_json(State(state): State<AppState>) -> Json<Vec<Invoice>> {
-    let invoices: Vec<Invoice> = repository::get_all_invoices(&state)
+async fn get_invoices_json(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<Vec<Invoice>> {
+    let invoices: Vec<Invoice> = repository::get_all_invoices(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     Json(invoices)
 }
 
-async fn get_clients_json(State(state): State<AppState>) -> Json<Vec<Client>> {
-    let clients: Vec<Client> = crate::domains::customers::repository::get_all_clients(&state)
+async fn get_clients_json(
+    State(state): State<AppState>,
+    Extension(user): Extension<CurrentUser>,
+) -> Json<Vec<Client>> {
+    let clients: Vec<Client> = crate::domains::customers::repository::get_all_clients(&state, user.organization_id.as_deref())
         .await
         .unwrap_or_default();
     Json(clients)

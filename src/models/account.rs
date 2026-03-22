@@ -97,7 +97,7 @@ pub struct Account {
     pub user_type: String,
     /// Organization this user belongs to (if any)
     #[serde(default)]
-    pub organization: Option<serde_json::Value>,
+    pub organization: Option<surrealdb::sql::Thing>,
     /// Auth methods: [{type: "rfid"|"email"|"device", value: "..."}]
     #[serde(default)]
     pub auth_methods: Vec<serde_json::Value>,
@@ -202,6 +202,9 @@ pub struct Claims {
     pub email: String,
     /// Role
     pub role: String,
+    /// Organization ID for data isolation
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub org: Option<String>,
     /// Issued at (unix timestamp)
     pub iat: usize,
     /// Expiration (unix timestamp)
@@ -218,6 +221,8 @@ pub struct CurrentUser {
     pub email: String,
     /// Role
     pub role: AccountRole,
+    /// Organization ID for data isolation (None = superadmin / unscoped)
+    pub organization_id: Option<String>,
 }
 
 // ============================================================================

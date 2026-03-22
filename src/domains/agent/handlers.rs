@@ -177,9 +177,9 @@ async fn list_notifications(
     Query(filter): Query<NotifFilter>,
 ) -> axum::response::Result<Json<Vec<Notification>>, crate::db::DbError> {
     let query = if filter.unread_only.unwrap_or(false) {
-        "SELECT * FROM notification WHERE recipient = type::thing('account', $user_id) AND is_read = false ORDER BY created_at DESC LIMIT 50"
+        "SELECT * FROM notification WHERE recipient = type::thing('account', $user_id) AND is_read = false AND (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC LIMIT 50"
     } else {
-        "SELECT * FROM notification WHERE recipient = type::thing('account', $user_id) ORDER BY created_at DESC LIMIT 50"
+        "SELECT * FROM notification WHERE recipient = type::thing('account', $user_id) AND (is_archived = false OR is_archived = NONE) ORDER BY created_at DESC LIMIT 50"
     };
 
     let notifs: Vec<Notification> = state

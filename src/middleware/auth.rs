@@ -32,11 +32,24 @@ pub fn create_token(
     secret: &str,
     expiry_hours: i64,
 ) -> Result<String, jsonwebtoken::errors::Error> {
+    create_token_with_org(account_id, email, role, None, secret, expiry_hours)
+}
+
+/// Create a JWT token with an optional organization scope
+pub fn create_token_with_org(
+    account_id: &str,
+    email: &str,
+    role: &str,
+    org_id: Option<&str>,
+    secret: &str,
+    expiry_hours: i64,
+) -> Result<String, jsonwebtoken::errors::Error> {
     let now = chrono::Utc::now();
     let claims = Claims {
         sub: account_id.to_string(),
         email: email.to_string(),
         role: role.to_string(),
+        org: org_id.map(|s| s.to_string()),
         iat: now.timestamp() as usize,
         exp: (now + chrono::Duration::hours(expiry_hours)).timestamp() as usize,
     };
@@ -93,6 +106,7 @@ pub async fn require_auth(
                 id: claims.sub,
                 email: claims.email,
                 role: AccountRole::from_str_or_default(&claims.role),
+                organization_id: claims.org,
             };
             request.extensions_mut().insert(current_user);
             next.run(request).await
