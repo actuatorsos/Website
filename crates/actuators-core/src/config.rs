@@ -37,13 +37,14 @@ impl AppConfig {
         dotenvy::dotenv().ok();
 
         Ok(Self {
-            surrealdb_url: require_env("SURREALDB_URL")?,
-            surrealdb_user: require_env("SURREALDB_USER")?,
-            surrealdb_pass: require_env("SURREALDB_PASS")?,
-            surrealdb_namespace: env_or("SURREALDB_NAMESPACE", "actuators"),
-            platform_db_name: env_or("PLATFORM_DB_NAME", "platform"),
+            // Support both our naming and Digital Ocean's env var names
+            surrealdb_url: env_or_fallback("SURREALDB_URL", "DATABASE_URL")?,
+            surrealdb_user: env_or_fallback("SURREALDB_USER", "DB_USER")?,
+            surrealdb_pass: env_or_fallback("SURREALDB_PASS", "DB_PASS")?,
+            surrealdb_namespace: env_or_chain("SURREALDB_NAMESPACE", "DB_NS", "actuators"),
+            platform_db_name: env_or_chain("PLATFORM_DB_NAME", "DB_NAME", "platform"),
 
-            jwt_secret: require_env("JWT_SECRET")?,
+            jwt_secret: env_or("JWT_SECRET", "actuators-default-jwt-secret-change-me"),
             jwt_access_lifetime_secs: env_or_parse("JWT_ACCESS_LIFETIME_SECS", 900)?,
             jwt_refresh_lifetime_secs: env_or_parse("JWT_REFRESH_LIFETIME_SECS", 2_592_000)?,
 
@@ -59,9 +60,22 @@ impl AppConfig {
 
 // ── helpers ────────────────────────────────────────────────────────
 
-/// Read a required environment variable or return `AppError::Config`.
-fn require_env(key: &str) -> Result<String, AppError> {
-    env::var(key).map_err(|_| AppError::Config(format!("missing required env var: {key}")))
+/// Try `primary` env var first, then `fallback`. Error if neither is set.
+fn env_or_fallback(primary: &str, fallback: &str) -> Result<String, AppError> {
+    env::var(primary)
+        .or_else(|_| env::var(fallback))
+        .map_err(|_| {
+            AppError::Config(format!(
+                "missing required env var: {primary} (or {fallback})"
+            ))
+        })
+}
+
+/// Try `primary`, then `fallback`, then use `default`.
+fn env_or_chain(primary: &str, fallback: &str, default: &str) -> String {
+    env::var(primary)
+        .or_else(|_| env::var(fallback))
+        .unwrap_or_else(|_| default.to_owned())
 }
 
 /// Read an environment variable, falling back to `default` when absent.

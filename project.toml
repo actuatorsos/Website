@@ -1,0 +1,13 @@
+[build]
+
+[[build.env]]
+name = "BP_CARGO_WORKSPACE_MEMBERS"
+value = "actuators-server"
+
+[[build.env]]
+name = "BP_CARGO_INSTALL_ARGS"
+value = "--path=./crates/actuators-server"
+
+[[build.env]]
+name = "BP_INCLUDE_FILES"
+value = "static/*:templates/*:crates/actuators-platform/askama.toml:askama.toml"
