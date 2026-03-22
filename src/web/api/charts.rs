@@ -3,6 +3,7 @@
 //! JSON endpoints for KPI visualization with ApexCharts.
 
 use axum::{Extension, Json, extract::State};
+use surrealdb::types::SurrealValue;
 use serde::Serialize;
 
 use crate::db::AppState;
@@ -42,7 +43,7 @@ pub async fn assets_by_status(
     State(state): State<AppState>,
     Extension(user): Extension<CurrentUser>,
 ) -> Json<ChartData> {
-    #[derive(serde::Deserialize)]
+    #[derive(serde::Deserialize, SurrealValue)]
     struct StatusCount {
         status: String,
         count: i64,
@@ -76,7 +77,7 @@ pub async fn repairs_by_month(
     State(state): State<AppState>,
     Extension(user): Extension<CurrentUser>,
 ) -> Json<ChartData> {
-    #[derive(serde::Deserialize)]
+    #[derive(serde::Deserialize, SurrealValue)]
     struct MonthCount {
         month: String,
         count: i64,
@@ -127,7 +128,7 @@ pub async fn employee_workload(
     State(state): State<AppState>,
     Extension(user): Extension<CurrentUser>,
 ) -> Json<ChartData> {
-    #[derive(serde::Deserialize)]
+    #[derive(serde::Deserialize, SurrealValue)]
     struct EmployeeWorkload {
         name: String,
         count: i64,
@@ -182,7 +183,7 @@ pub async fn asset_value_by_category(
     State(state): State<AppState>,
     Extension(user): Extension<CurrentUser>,
 ) -> Json<ChartData> {
-    #[derive(serde::Deserialize)]
+    #[derive(serde::Deserialize, SurrealValue)]
     struct CategoryValue {
         category: String,
         total: i64,

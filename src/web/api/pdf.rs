@@ -3,6 +3,7 @@
 //! توليد تقارير PDF والشهادات
 
 use std::io::BufWriter;
+use surrealdb::types::SurrealValue;
 
 use axum::{
     Router,
@@ -34,7 +35,7 @@ fn load_font(doc: &PdfDocumentReference) -> Result<IndirectFontRef, String> {
 // Attendance Report
 // ============================================================================
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 struct ReportParams {
     date: Option<String>,
 }

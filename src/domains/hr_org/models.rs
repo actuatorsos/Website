@@ -2,20 +2,20 @@
 //! Departments and positions
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 // ══════════════════════════════════════════════════════════════════
 // Department
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Department {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub code: String,
     pub name: String,
-    pub parent: Option<Thing>,
-    pub manager: Option<Thing>,
-    pub cost_center: Option<Thing>,
+    pub parent: Option<RecordId>,
+    pub manager: Option<RecordId>,
+    pub cost_center: Option<RecordId>,
     pub is_active: Option<bool>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
@@ -24,7 +24,7 @@ pub struct Department {
     pub employee_count: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateDepartmentRequest {
     pub code: String,
     pub name: String,
@@ -32,7 +32,7 @@ pub struct CreateDepartmentRequest {
     pub manager_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct UpdateDepartmentRequest {
     pub name: Option<String>,
     pub manager_id: Option<String>,
@@ -43,12 +43,12 @@ pub struct UpdateDepartmentRequest {
 // Position
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Position {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub code: String,
     pub title: String,
-    pub department: Option<Thing>,
+    pub department: Option<RecordId>,
     pub grade: Option<String>,
     pub min_salary: Option<f64>,
     pub max_salary: Option<f64>,
@@ -59,7 +59,7 @@ pub struct Position {
     pub department_name: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreatePositionRequest {
     pub code: String,
     pub title: String,
@@ -69,7 +69,7 @@ pub struct CreatePositionRequest {
     pub max_salary: Option<f64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct UpdatePositionRequest {
     pub title: Option<String>,
     pub department_id: Option<String>,

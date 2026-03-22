@@ -13,8 +13,9 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::{Client, Ws};
+use surrealdb::engine::any::Any;
 use surrealdb::opt::auth::Root;
+use surrealdb::types::SurrealValue;
 use thiserror::Error;
 use tokio::sync::broadcast;
 use tokio::sync::RwLock;
@@ -25,6 +26,25 @@ use crate::i18n::I18n;
 use crate::models::{
     Account, Asset, AssetStatus, AssignAssetRequest, CreateAssetRequest, SignupRequest,
 };
+
+/// Extract the raw key string from a RecordIdKey (v3 equivalent of Thing.key.to_string())
+pub fn record_id_key_to_raw(key: &surrealdb::types::RecordIdKey) -> String {
+    match key {
+        surrealdb::types::RecordIdKey::String(s) => s.clone(),
+        surrealdb::types::RecordIdKey::Number(n) => n.to_string(),
+        other => format!("{:?}", other),
+    }
+}
+
+/// Extract the raw key string from a RecordId (v3 equivalent of Thing.key.to_string())
+pub fn record_id_to_raw(rid: &surrealdb::types::RecordId) -> String {
+    record_id_key_to_raw(&rid.key)
+}
+
+/// Format a RecordId as "table:key" (v3 equivalent of format!("{}:{}", thing.tb, thing.id))
+pub fn record_id_to_string(rid: &surrealdb::types::RecordId) -> String {
+    format!("{}:{}", rid.table, record_id_key_to_raw(&rid.key))
+}
 
 /// Database error types — أنواع أخطاء قاعدة البيانات
 #[derive(Error, Debug)]
@@ -195,7 +215,7 @@ impl<T: Serialize> PaginatedResult<T> {
 
 /// Record an audit log entry
 pub async fn audit_log(
-    db: &Surreal<Client>,
+    db: &Surreal<Any>,
     actor_id: Option<&str>,
     action: &str,
     table_name: &str,
@@ -226,7 +246,7 @@ pub async fn audit_log(
 // ============================================================================
 
 /// Archive a record (soft delete) instead of physical delete
-pub async fn soft_delete(db: &Surreal<Client>, table: &str, id: &str) -> Result<(), DbError> {
+pub async fn soft_delete(db: &Surreal<Any>, table: &str, id: &str) -> Result<(), DbError> {
     let query = format!(
         "UPDATE type::thing('{}', $id) SET is_archived = true",
         table
@@ -245,7 +265,7 @@ pub struct StatsCache {
 #[derive(Clone)]
 pub struct AppState {
     /// SurrealDB connection
-    pub db: Surreal<Client>,
+    pub db: Surreal<Any>,
     /// Internationalization
     pub i18n: Arc<I18n>,
     /// JWT HMAC secret key
@@ -277,13 +297,13 @@ impl AppState {
         let max_attempts = 10;
 
         loop {
-            match Surreal::new::<Ws>(&config.db.url).await {
+            match surrealdb::engine::any::connect(&config.db.url).await {
                 Ok(db) => {
                     // Authenticate
                     if let Err(e) = db
                         .signin(Root {
-                            username: &config.db.user,
-                            password: &config.db.pass,
+                            username: config.db.user.clone(),
+                            password: config.db.pass.clone(),
                         })
                         .await
                     {
@@ -372,9 +392,9 @@ impl AppState {
                     "Failed to connect to SurrealDB after {} attempts",
                     max_attempts
                 );
-                return Err(DbError::Database(surrealdb::Error::Api(
-                    surrealdb::error::Api::Query("Failed to connect to database".into()),
-                )));
+                return Err(DbError::Validation(
+                    "Failed to connect to database after max attempts".into(),
+                ));
             }
 
             tokio::time::sleep(std::time::Duration::from_secs(3)).await;
@@ -382,7 +402,7 @@ impl AppState {
     }
 
     /// Apply the database schema from schema.surql
-    async fn apply_schema(db: &Surreal<Client>) -> Result<(), DbError> {
+    async fn apply_schema(db: &Surreal<Any>) -> Result<(), DbError> {
         let schema_paths = [
             std::path::PathBuf::from("src/db/schema.surql"),
             std::env::current_exe()
@@ -443,7 +463,7 @@ impl AppState {
     /// Query records from a table, optionally filtered by organization.
     /// If `org_id` is `Some`, only records matching `organization = $org` are returned.
     /// If `org_id` is `None`, all records are returned (backward compatible).
-    pub async fn query_scoped<T: for<'de> serde::Deserialize<'de>>(&self, table: &str, org_id: Option<&str>) -> Result<Vec<T>, DbError> {
+    pub async fn query_scoped<T: surrealdb::types::SurrealValue>(&self, table: &str, org_id: Option<&str>) -> Result<Vec<T>, DbError> {
         if let Some(org) = org_id {
             let result: Vec<T> = self.db
                 .query(&format!("SELECT * FROM {} WHERE organization = type::record($org)", table))
@@ -484,7 +504,7 @@ impl AppState {
         }
 
         // Cache miss — query DB
-        #[derive(serde::Deserialize)]
+        #[derive(serde::Deserialize, SurrealValue)]
         struct CountResult {
             count: i64,
         }
@@ -738,9 +758,9 @@ impl AppState {
             .await
             .map_err(DbError::Database)?;
 
-        #[derive(serde::Deserialize)]
+        #[derive(serde::Deserialize, SurrealValue)]
         struct TokenResult {
-            account: surrealdb::sql::Thing,
+            account: surrealdb::types::RecordId,
         }
 
         let tokens: Vec<TokenResult> = result.take(0).map_err(DbError::Database)?;
@@ -753,7 +773,7 @@ impl AppState {
             .await
             .map_err(DbError::Database)?;
 
-        Ok(token_record.account.id.to_raw())
+        Ok(record_id_to_raw(&token_record.account))
     }
 
     /// Set email_verified flag on account

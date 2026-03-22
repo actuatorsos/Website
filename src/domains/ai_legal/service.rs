@@ -126,7 +126,7 @@ pub async fn chat(
             let s = repository::create_session(state, user_id, specialty).await?;
             // Set title from first message (truncated)
             let title: String = message.chars().take(50).collect();
-            let sid = s.id.as_ref().map(|t| t.id.to_raw()).unwrap_or_default();
+            let sid = s.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default();
             let _ = repository::update_session_title(state, &sid, &title).await;
             s
         }
@@ -135,7 +135,7 @@ pub async fn chat(
     let sid = session
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .unwrap_or_default();
 
     // 2. Save user message

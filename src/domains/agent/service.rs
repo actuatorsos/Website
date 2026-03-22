@@ -119,7 +119,7 @@ async fn create_approval_for_agent(
     let agent_id = agent
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .ok_or_else(|| "Agent has no ID".to_string())?;
 
     let priority = request.priority.as_deref().unwrap_or("normal");
@@ -138,7 +138,7 @@ async fn create_approval_for_agent(
     .await
     .map_err(|e| format!("DB error: {}", e))?;
 
-    Ok(approval.id.map(|t| t.id.to_raw()).unwrap_or_default())
+    Ok(approval.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default())
 }
 
 /// Generate a random API key

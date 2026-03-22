@@ -3,13 +3,14 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use surrealdb::types::SurrealValue;
 
 /// يمثّل فيديو تعليمي مخزّن في النظام.
 /// يستخدم مع SurrealDB — الحقل `id` اختياري لأن DB تولّده عند الإنشاء.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Video {
     /// المعرّف الفريد — `None` قبل الحفظ، `Some` بعده (مثال: "educational_video:abc123")
-    pub id: Option<surrealdb::sql::Thing>,
+    pub id: Option<surrealdb::types::RecordId>,
     /// عنوان الفيديو
     pub title: String,
     /// وصف اختياري للفيديو
@@ -25,13 +26,13 @@ pub struct Video {
     /// مدة الفيديو بالثواني (اختياري)
     pub duration_secs: Option<i64>,
     /// المستخدم الذي رفع الفيديو (مرجع لجدول account)
-    pub uploaded_by: surrealdb::sql::Thing,
+    pub uploaded_by: surrealdb::types::RecordId,
     /// تاريخ الرفع
     pub created_at: Option<DateTime<Utc>>,
 }
 
 /// يستخدم في قوالب Askama — نسخة مبسّطة خالية من أنواع SurrealDB
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct VideoView {
     pub id: String,
     pub title: String,
@@ -46,7 +47,7 @@ pub struct VideoView {
 }
 
 /// البيانات المُرسَلة عند إنشاء فيديو جديد
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateVideoPayload {
     pub title: String,
     pub description: Option<String>,
@@ -54,7 +55,7 @@ pub struct CreateVideoPayload {
     pub file_name: String,
     pub file_size: i64,
     pub mime_type: String,
-    pub uploaded_by: surrealdb::sql::Thing,
+    pub uploaded_by: surrealdb::types::RecordId,
 }
 
 impl VideoView {
@@ -63,10 +64,10 @@ impl VideoView {
         let id = v
             .id
             .as_ref()
-            .map(|t| format!("{}", t.id))
+            .map(|t| crate::db::record_id_to_raw(t))
             .unwrap_or_default();
 
-        let uploaded_by = format!("{}", v.uploaded_by.id);
+        let uploaded_by = crate::db::record_id_to_raw(&v.uploaded_by);
 
         let created_at = v
             .created_at

@@ -104,7 +104,7 @@ async fn create_employee(
     let emp_id_raw = employee
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .unwrap_or_default();
 
     // ════════════════════════════════════════════════════════════════

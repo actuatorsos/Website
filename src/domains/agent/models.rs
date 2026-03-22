@@ -1,16 +1,16 @@
 //! Agent Domain Models — نماذج البنية التحتية لوكلاء AI
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 // ============================================================================
 // Agent Account — هوية الوكيل
 // ============================================================================
 
 /// AI agent account with API key and scoped permissions
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct AgentAccount {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub name: String,
     pub description: Option<String>,
     pub api_key_hash: String,
@@ -20,7 +20,7 @@ pub struct AgentAccount {
     pub rate_limit: i32,
     #[serde(default = "default_true")]
     pub is_active: bool,
-    pub created_by: Option<Thing>,
+    pub created_by: Option<RecordId>,
     pub created_at: Option<String>,
     pub last_used_at: Option<String>,
 }
@@ -33,7 +33,7 @@ fn default_true() -> bool {
 }
 
 /// Request to create a new agent
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateAgentRequest {
     pub name: String,
     pub description: Option<String>,
@@ -42,7 +42,7 @@ pub struct CreateAgentRequest {
 }
 
 /// Response after creating agent (includes raw API key — shown once)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateAgentResponse {
     pub agent: AgentAccount,
     /// Raw API key — shown only once at creation
@@ -50,7 +50,7 @@ pub struct CreateAgentResponse {
 }
 
 /// Request to update agent
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct UpdateAgentRequest {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -64,9 +64,9 @@ pub struct UpdateAgentRequest {
 // ============================================================================
 
 /// Policy that classifies an operation as routine, sensitive, or critical
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct ActionPolicy {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub action: String,
     pub scope_required: String,
     pub sensitivity: String,
@@ -87,7 +87,7 @@ fn default_escalation() -> i32 {
 }
 
 /// Request to create a policy
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreatePolicyRequest {
     pub action: String,
     pub scope_required: String,
@@ -104,10 +104,10 @@ pub struct CreatePolicyRequest {
 // ============================================================================
 
 /// Approval request from an AI agent for a sensitive action
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct ApprovalRequest {
-    pub id: Option<Thing>,
-    pub agent: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub agent: Option<RecordId>,
     pub action: String,
     pub target_table: String,
     pub target_id: Option<String>,
@@ -115,7 +115,7 @@ pub struct ApprovalRequest {
     pub reason: Option<String>,
     pub status: String,
     pub priority: String,
-    pub reviewed_by: Option<Thing>,
+    pub reviewed_by: Option<RecordId>,
     pub review_note: Option<String>,
     pub created_at: Option<String>,
     pub reviewed_at: Option<String>,
@@ -124,7 +124,7 @@ pub struct ApprovalRequest {
 }
 
 /// Agent's request to perform an action (evaluated by policy engine)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct AgentActionRequest {
     pub action: String,
     pub target_table: String,
@@ -135,7 +135,7 @@ pub struct AgentActionRequest {
 }
 
 /// Result of policy evaluation
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct PolicyDecision {
     pub allowed: bool,
     pub decision: String, // "executed", "pending_approval", "blocked"
@@ -144,7 +144,7 @@ pub struct PolicyDecision {
 }
 
 /// Human review of an approval request
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct ReviewApprovalRequest {
     pub approved: bool,
     pub note: Option<String>,
@@ -155,10 +155,10 @@ pub struct ReviewApprovalRequest {
 // ============================================================================
 
 /// Usage log entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct AgentUsageLog {
-    pub id: Option<Thing>,
-    pub agent: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub agent: Option<RecordId>,
     pub endpoint: String,
     pub method: String,
     pub action: Option<String>,
@@ -175,10 +175,10 @@ pub struct AgentUsageLog {
 // ============================================================================
 
 /// Notification model
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Notification {
-    pub id: Option<Thing>,
-    pub recipient: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub recipient: Option<RecordId>,
     pub title: String,
     pub body: String,
     #[serde(rename = "type")]

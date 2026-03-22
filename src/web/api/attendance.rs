@@ -3,6 +3,7 @@
 //! نقاط نهاية API للدوام
 
 use askama::Template;
+use surrealdb::types::SurrealValue;
 use axum::{
     Extension, Form, Router,
     extract::{Path, Query, State},
@@ -51,7 +52,7 @@ pub struct CheckInForm {
     pub notes: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct DateQuery {
     pub date: Option<String>,
 }
@@ -112,7 +113,7 @@ async fn check_in(
                 "type": "notification",
                 "action": "attendance_recorded",
                 "data": {
-                    "id": attendance.id.as_ref().map(|t| t.id.to_raw()),
+                    "id": attendance.id.as_ref().map(|t| crate::db::record_id_to_raw(t)),
                     "person_name": &attendance.person_name
                 }
             }).to_string());
@@ -233,7 +234,7 @@ async fn people_options(
         let eid = emp
             .id
             .as_ref()
-            .map(|thing| thing.id.to_string())
+            .map(|thing| crate::db::record_id_to_raw(thing))
             .unwrap_or_default();
         html.push_str(&format!(
             r#"<option value="{}" data-type="employee">{}</option>"#,
@@ -247,7 +248,7 @@ async fn people_options(
         let tid = trainee
             .id
             .as_ref()
-            .map(|thing| thing.id.to_string())
+            .map(|thing| crate::db::record_id_to_raw(thing))
             .unwrap_or_default();
         html.push_str(&format!(
             r#"<option value="{}" data-type="trainee">{}</option>"#,

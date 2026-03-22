@@ -1,11 +1,11 @@
 //! Course Models — نماذج الكورسات والمسارات التعليمية
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, SurrealValue, Clone)]
 pub struct Course {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub title: String,
     pub description: Option<String>,
     pub thumbnail: Option<String>,
@@ -17,8 +17,8 @@ pub struct Course {
     pub is_published: Option<bool>,
     pub is_archived: Option<bool>,
     pub total_lessons: Option<i64>,
-    pub organization: Option<Thing>,
-    pub created_by: Option<Thing>,
+    pub organization: Option<RecordId>,
+    pub created_by: Option<RecordId>,
     pub created_at: Option<String>,
     // Enriched
     pub enrollment_count: Option<i64>,
@@ -36,14 +36,14 @@ pub struct CreateCourseRequest {
     pub currency: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, SurrealValue, Clone)]
 pub struct CourseLesson {
-    pub id: Option<Thing>,
-    pub course: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub course: Option<RecordId>,
     pub title: String,
     pub description: Option<String>,
     pub lesson_order: Option<i64>,
-    pub video: Option<Thing>,
+    pub video: Option<RecordId>,
     pub video_url: Option<String>,
     pub duration_mins: Option<i64>,
     pub attachments: Option<Vec<serde_json::Value>>,
@@ -65,11 +65,11 @@ pub struct CreateLessonRequest {
     pub duration_mins: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, SurrealValue, Clone)]
 pub struct CourseEnrollment {
-    pub id: Option<Thing>,
-    pub account: Option<Thing>,
-    pub course: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub account: Option<RecordId>,
+    pub course: Option<RecordId>,
     pub progress: Option<f64>,
     pub status: Option<String>,
     pub enrolled_at: Option<String>,

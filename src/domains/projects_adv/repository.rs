@@ -68,7 +68,7 @@ pub async fn create_project(
     let proj_id = project
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .unwrap_or_default();
     let _ = add_project_member(state, &proj_id, creator_id, "owner").await;
 
@@ -163,7 +163,7 @@ pub async fn create_default_board(state: &AppState, project_id: &str) -> Result<
     )
     .await?;
 
-    let board_id = board.id.as_ref().map(|t| t.id.to_raw()).unwrap_or_default();
+    let board_id = board.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default();
 
     let default_lists = vec![
         ("📥 Backlog".to_string(), "#6b7280".to_string()),
@@ -533,7 +533,7 @@ pub async fn get_board_lists_with_cards(
     let lists = get_board_lists(state, board_id).await?;
     let mut result = Vec::with_capacity(lists.len());
     for list in lists {
-        let list_id = list.id.as_ref().map(|t| t.id.to_raw()).unwrap_or_default();
+        let list_id = list.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default();
         let cards = get_list_cards(state, &list_id).await.unwrap_or_default();
         result.push(BoardListWithCards {
             id: list.id,
@@ -612,21 +612,21 @@ pub async fn get_project_members(
 }
 
 pub async fn get_board_id_from_list(state: &AppState, list_id: &str) -> Result<String, DbError> {
-    let board: Option<surrealdb::sql::Thing> = state
+    let board: Option<surrealdb::types::RecordId> = state
         .db
         .query("SELECT VALUE board FROM type::thing('board_list', $id)")
         .bind(("id", list_id.to_string()))
         .await?
         .take(0)?;
-    Ok(board.map(|t| t.id.to_raw()).unwrap_or_default())
+    Ok(board.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default())
 }
 
 pub async fn get_board_id_from_card(state: &AppState, card_id: &str) -> Result<String, DbError> {
-    let board: Option<surrealdb::sql::Thing> = state
+    let board: Option<surrealdb::types::RecordId> = state
         .db
         .query("SELECT VALUE board_list.board FROM type::thing('card', $id)")
         .bind(("id", card_id.to_string()))
         .await?
         .take(0)?;
-    Ok(board.map(|t| t.id.to_raw()).unwrap_or_default())
+    Ok(board.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default())
 }

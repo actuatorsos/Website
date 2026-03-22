@@ -75,7 +75,7 @@ pub async fn checkout(
     let order_id = order
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .ok_or_else(|| "Order has no ID".to_string())?;
 
     for cart_item in &cart_items {

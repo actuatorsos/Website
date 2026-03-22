@@ -39,7 +39,7 @@ pub async fn create_machine(
         None,
         "create",
         "machine",
-        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )
@@ -118,7 +118,7 @@ pub async fn create_project(
         None,
         "create",
         "project",
-        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )
@@ -191,7 +191,7 @@ pub async fn create_repair(
         None,
         "create",
         "repair_operation",
-        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )

@@ -49,7 +49,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch connected machines
-            let mut machines: surrealdb::Response = state.db.query("SELECT id, model, manufacturer FROM machine WHERE customer_id = $id OR client = type::thing('client', $id)")
+            let mut machines: surrealdb::IndexedResults = state.db.query("SELECT id, model, manufacturer FROM machine WHERE customer_id = $id OR client = type::thing('client', $id)")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let machines: Vec<Value> = machines.take(0).unwrap_or_default();
@@ -74,7 +74,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch connected projects
-            let mut projects: surrealdb::Response = state.db.query("SELECT id, title, name FROM project WHERE customer_id = $id OR client = type::thing('client', $id)")
+            let mut projects: surrealdb::IndexedResults = state.db.query("SELECT id, title, name FROM project WHERE customer_id = $id OR client = type::thing('client', $id)")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let projects: Vec<Value> = projects.take(0).unwrap_or_default();
@@ -99,7 +99,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch Recent Interactions / Visits
-            let mut interactions: surrealdb::Response = state.db.query("SELECT id, subject, channel, created_at FROM interaction WHERE client = type::thing('client', $id) ORDER BY created_at DESC LIMIT 5")
+            let mut interactions: surrealdb::IndexedResults = state.db.query("SELECT id, subject, channel, created_at FROM interaction WHERE client = type::thing('client', $id) ORDER BY created_at DESC LIMIT 5")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let interactions: Vec<Value> = interactions.take(0).unwrap_or_default();
@@ -122,7 +122,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch Repair Operations
-            let mut repairs: surrealdb::Response = state.db.query("SELECT id, description, status FROM repair_operation WHERE customer_id = $id OR machine_id.customer_id = $id ORDER BY created_at DESC LIMIT 5")
+            let mut repairs: surrealdb::IndexedResults = state.db.query("SELECT id, description, status FROM repair_operation WHERE customer_id = $id OR machine_id.customer_id = $id ORDER BY created_at DESC LIMIT 5")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let repairs: Vec<Value> = repairs.take(0).unwrap_or_default();
@@ -196,7 +196,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch Repair Operations for this machine
-            let mut repairs: surrealdb::Response = state.db.query("SELECT id, description FROM repair_operation WHERE machine_id = type::thing('machine', $id) ORDER BY created_at DESC")
+            let mut repairs: surrealdb::IndexedResults = state.db.query("SELECT id, description FROM repair_operation WHERE machine_id = type::thing('machine', $id) ORDER BY created_at DESC")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let repairs: Vec<Value> = repairs.take(0).unwrap_or_default();
@@ -253,7 +253,7 @@ pub async fn get_document_profile(
             }
 
             // Fetch Project Members
-            let mut members: surrealdb::Response = state.db.query("SELECT member.name as name, role, member as member_id FROM project_member WHERE project = type::thing('project', $id) AND (is_archived = false OR is_archived = NONE)")
+            let mut members: surrealdb::IndexedResults = state.db.query("SELECT member.name as name, role, member as member_id FROM project_member WHERE project = type::thing('project', $id) AND (is_archived = false OR is_archived = NONE)")
                 .bind(("id", raw_id.clone()))
                 .await?;
             let members: Vec<Value> = members.take(0).unwrap_or_default();

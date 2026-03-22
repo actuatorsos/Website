@@ -3,6 +3,7 @@
 //! نقاط نهاية API للمشاريع
 
 use askama::Template;
+use surrealdb::types::SurrealValue;
 use axum::{
     Form, Json, Router,
     extract::{Path, State},
@@ -56,7 +57,7 @@ pub struct CreateProjectForm {
     pub budget: Option<f64>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct UpdateProjectStatusForm {
     pub status: String,
 }

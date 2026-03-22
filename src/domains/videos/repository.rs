@@ -36,7 +36,7 @@ pub async fn create_video(state: &AppState, payload: CreateVideoPayload) -> Resu
     let db = &state.db;
 
     // نبني صيغة معرّف المستخدم لـ SurrealDB (مثال: account:abc123)
-    let uploaded_by_str = format!("{}:{}", payload.uploaded_by.tb, payload.uploaded_by.id);
+    let uploaded_by_str = crate::db::record_id_to_string(&payload.uploaded_by);
 
     // ننسخ القيم كـ String لتتجاوز قيود 'static لـ bind()
     let title       = payload.title.clone();

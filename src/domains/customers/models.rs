@@ -3,10 +3,10 @@
 //! نموذج بيانات العملاء
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 /// Client status enum
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ClientStatus {
     /// Active client
@@ -28,10 +28,10 @@ impl std::fmt::Display for ClientStatus {
 }
 
 /// Client model
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Client {
     /// Unique identifier
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     /// Creation date
     pub created_at: Option<String>,
     /// Company Name
@@ -59,14 +59,7 @@ impl Client {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| {
-                thing
-                    .id
-                    .to_string()
-                    .replace('"', "")
-                    .replace('⟨', "")
-                    .replace('⟩', "")
-            })
+            .map(|thing| crate::db::record_id_to_raw(thing))
             .unwrap_or_default()
     }
 
@@ -116,7 +109,7 @@ impl Client {
 }
 
 /// Request to create a new client
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[serde(deny_unknown_fields)]
 pub struct CreateClientRequest {
     /// Company Name
@@ -156,7 +149,7 @@ impl Default for CreateClientRequest {
 }
 
 /// Request to update a client
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[serde(deny_unknown_fields)]
 pub struct UpdateClientRequest {
     /// Company Name

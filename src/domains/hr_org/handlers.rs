@@ -59,7 +59,7 @@ async fn department_options(
     let options: String = departments
         .iter()
         .map(|d| {
-            let id_str = d.id.as_ref().map(|t| t.id.to_string()).unwrap_or_default();
+            let id_str = d.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default();
             format!(r#"<option value="{}">{}</option>"#, id_str, d.name)
         })
         .collect::<Vec<_>>()

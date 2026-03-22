@@ -4,6 +4,7 @@
 
 use axum::{Json, extract::State, http::StatusCode};
 use serde::{Deserialize, Serialize};
+use surrealdb::types::SurrealValue;
 
 use crate::db::AppState;
 
@@ -73,7 +74,7 @@ pub struct DeviceCommand {
 }
 
 /// Device info for listing.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, SurrealValue)]
 pub struct DeviceInfo {
     /// Device ID.
     pub device_id: String,
@@ -258,7 +259,7 @@ fn generate_device_secret() -> String {
 
 /// Get pending command for a device.
 async fn get_pending_command(state: &AppState, device_id: &str) -> Option<DeviceCommand> {
-    #[derive(serde::Deserialize)]
+    #[derive(serde::Deserialize, SurrealValue)]
     struct CommandRecord {
         command_type: String,
         params: Option<serde_json::Value>,

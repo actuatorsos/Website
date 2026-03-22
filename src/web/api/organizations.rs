@@ -7,6 +7,7 @@ use axum::{
     routing::{get, post},
 };
 use serde::{Deserialize, Serialize};
+use surrealdb::types::SurrealValue;
 
 use crate::db::AppState;
 
@@ -19,9 +20,9 @@ pub struct CreateOrgRequest {
     pub description: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, SurrealValue, Debug, Clone)]
 pub struct Organization {
-    pub id: Option<surrealdb::sql::Thing>,
+    pub id: Option<surrealdb::types::RecordId>,
     pub name: String,
     pub org_type: String,
     pub email: Option<String>,

@@ -7,11 +7,11 @@
 //! يطابق جدول `account` في `hr-schema.surql`
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 use validator::Validate;
 
 /// Account role — matches schema ASSERT constraint
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AccountRole {
     /// مدير النظام
@@ -70,10 +70,10 @@ impl AccountRole {
 }
 
 /// Account record — maps to SurrealDB `account` table
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Account {
     /// SurrealDB record ID (e.g., account:xyz)
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     /// Email address (unique, validated)
     pub email: String,
     /// Argon2 password hash — never expose via API
@@ -97,7 +97,7 @@ pub struct Account {
     pub user_type: String,
     /// Organization this user belongs to (if any)
     #[serde(default)]
-    pub organization: Option<surrealdb::sql::Thing>,
+    pub organization: Option<surrealdb::types::RecordId>,
     /// Auth methods: [{type: "rfid"|"email"|"device", value: "..."}]
     #[serde(default)]
     pub auth_methods: Vec<serde_json::Value>,
@@ -118,7 +118,7 @@ impl Account {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| thing.id.to_raw())
+            .map(|thing| crate::db::record_id_to_raw(thing))
             .unwrap_or_default()
     }
 }
@@ -159,7 +159,7 @@ pub struct AuthResponse {
 }
 
 /// Safe user info returned in API responses (no password_hash)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 #[serde(deny_unknown_fields)]
 pub struct AuthUser {
     /// Record ID string
@@ -194,7 +194,7 @@ impl From<&Account> for AuthUser {
 }
 
 /// JWT claims payload — what's encoded inside the token
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, SurrealValue)]
 pub struct Claims {
     /// Subject = account record ID
     pub sub: String,

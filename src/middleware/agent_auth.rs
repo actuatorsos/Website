@@ -53,7 +53,7 @@ pub async fn require_agent_key(
 
     // 3. Update last_used_at
     if let Some(ref id) = agent.id {
-        let _ = repository::touch_agent(&state, &id.id.to_raw()).await;
+        let _ = repository::touch_agent(&state, &crate::db::record_id_to_raw(id)).await;
     }
 
     // 4. Inject agent into request extensions

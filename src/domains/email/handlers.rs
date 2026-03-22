@@ -5,6 +5,7 @@ use axum::{
     extract::{Path, Query, State},
     routing::{get, post},
 };
+use surrealdb::types::SurrealValue;
 
 use super::models::*;
 use super::repository;
@@ -15,7 +16,7 @@ use crate::db::AppState;
 // Query Params
 // ============================================================================
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct LogFilter {
     pub status: Option<String>,
 }

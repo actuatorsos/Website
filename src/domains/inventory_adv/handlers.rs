@@ -26,7 +26,7 @@ async fn create_warehouse(
         Some(&user.email),
         "create",
         "warehouse",
-        wh.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        wh.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )
@@ -50,7 +50,7 @@ async fn create_inventory_item(
         Some(&user.email),
         "create",
         "inventory_item",
-        item.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        item.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )

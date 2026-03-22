@@ -5,6 +5,7 @@ use axum::{
     extract::{Path, Query, State},
     routing::{delete, get, post, put},
 };
+use surrealdb::types::SurrealValue;
 
 use super::models::*;
 use super::repository;
@@ -15,12 +16,12 @@ use crate::db::AppState;
 // Query Params
 // ============================================================================
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct OrderFilter {
     pub status: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct CartQuery {
     pub session_id: String,
 }

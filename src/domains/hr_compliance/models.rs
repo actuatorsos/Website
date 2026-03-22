@@ -1,19 +1,19 @@
 //! HR Compliance Models — نماذج الامتثال (إنذارات، نهاية الخدمة، الإضافي)
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 // ══════════════════════════════════════════════════════════════════
 // Warning — إنذار رسمي
 // ══════════════════════════════════════════════════════════════════
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Warning {
     #[serde(default)]
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     #[serde(default)]
-    pub employee: Option<Thing>,
+    pub employee: Option<RecordId>,
     #[serde(default)]
-    pub issued_by: Option<Thing>,
+    pub issued_by: Option<RecordId>,
     #[serde(default)]
     pub warning_type: Option<String>,
     #[serde(default)]
@@ -44,7 +44,7 @@ pub struct Warning {
     pub created_at: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateWarningRequest {
     pub employee_id: String,
     #[serde(default)]
@@ -64,12 +64,12 @@ pub struct CreateWarningRequest {
 // ══════════════════════════════════════════════════════════════════
 // End of Service — نهاية الخدمة
 // ══════════════════════════════════════════════════════════════════
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct EndOfService {
     #[serde(default)]
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     #[serde(default)]
-    pub employee: Option<Thing>,
+    pub employee: Option<RecordId>,
     #[serde(default)]
     pub termination_type: Option<String>,
     #[serde(default)]
@@ -99,7 +99,7 @@ pub struct EndOfService {
     #[serde(default)]
     pub status: Option<String>,
     #[serde(default)]
-    pub approved_by: Option<Thing>,
+    pub approved_by: Option<RecordId>,
     #[serde(default)]
     pub payment_date: Option<serde_json::Value>,
     #[serde(default)]
@@ -108,7 +108,7 @@ pub struct EndOfService {
     pub created_at: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CalculateEosRequest {
     pub employee_id: String,
     pub end_date: String,
@@ -122,12 +122,12 @@ pub struct CalculateEosRequest {
 // ══════════════════════════════════════════════════════════════════
 // Overtime Request — طلب عمل إضافي
 // ══════════════════════════════════════════════════════════════════
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct OvertimeRequest {
     #[serde(default)]
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     #[serde(default)]
-    pub employee: Option<Thing>,
+    pub employee: Option<RecordId>,
     #[serde(default)]
     pub date: Option<serde_json::Value>,
     #[serde(default)]
@@ -141,7 +141,7 @@ pub struct OvertimeRequest {
     #[serde(default)]
     pub status: Option<String>,
     #[serde(default)]
-    pub approved_by: Option<Thing>,
+    pub approved_by: Option<RecordId>,
     #[serde(default)]
     pub notes: Option<String>,
     #[serde(default)]
@@ -150,7 +150,7 @@ pub struct OvertimeRequest {
     pub created_at: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateOvertimeRequest {
     pub employee_id: String,
     pub date: String,

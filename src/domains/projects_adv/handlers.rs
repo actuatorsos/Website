@@ -1,4 +1,5 @@
 use super::models::*;
+use surrealdb::types::SurrealValue;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
@@ -45,7 +46,7 @@ async fn create_project(
     let project_id = project
         .id
         .as_ref()
-        .map(|t| t.id.to_raw())
+        .map(|t| crate::db::record_id_to_raw(t))
         .unwrap_or_default();
     if !project_id.is_empty() {
         let _ = repo::create_default_board(&s, &project_id).await;
@@ -282,7 +283,7 @@ async fn add_comment(
     Ok(Json(repo::add_card_comment(&s, req).await?))
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 struct CreateChecklistBody {
     title: String,
 }

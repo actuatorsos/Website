@@ -34,7 +34,7 @@ async fn create_contact(
         Some(&user.email),
         "create",
         "contact",
-        contact.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        contact.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )
@@ -94,7 +94,7 @@ async fn create_opportunity(
         Some(&user.email),
         "create",
         "opportunity",
-        opp.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        opp.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )
@@ -161,7 +161,7 @@ async fn create_quotation(
         Some(&user.email),
         "create",
         "quotation",
-        quot.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
+        quot.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
         None,
         None,
     )

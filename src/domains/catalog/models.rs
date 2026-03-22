@@ -1,25 +1,25 @@
 //! Product & Service Catalog Models
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 // ══════════════════════════════════════════════════════════════════
 // ProductCategory
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct ProductCategory {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub code: String,
     pub name: String,
-    pub parent: Option<Thing>,
+    pub parent: Option<RecordId>,
     pub image_url: Option<String>,
     pub is_active: Option<bool>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateProductCategoryRequest {
     pub code: String,
     pub name: String,
@@ -30,12 +30,12 @@ pub struct CreateProductCategoryRequest {
 // Product
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Product {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub sku: String,
     pub name: String,
-    pub category: Option<Thing>,
+    pub category: Option<RecordId>,
     pub product_type: Option<String>,
     pub brand: Option<String>,
     pub model: Option<String>,
@@ -48,11 +48,11 @@ pub struct Product {
     pub weight_kg: Option<f64>,
     pub dimensions: Option<String>,
     pub image_url: Option<String>,
-    pub vendor: Option<Thing>,
+    pub vendor: Option<RecordId>,
     pub warranty_months: Option<i64>,
     pub min_stock: Option<i64>,
     pub has_bom: Option<bool>,
-    pub active_bom: Option<Thing>,
+    pub active_bom: Option<RecordId>,
     pub is_sellable: Option<bool>,
     pub is_purchasable: Option<bool>,
     pub is_active: Option<bool>,
@@ -60,7 +60,7 @@ pub struct Product {
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateProductRequest {
     pub sku: String,
     pub name: String,
@@ -78,7 +78,7 @@ pub struct CreateProductRequest {
     pub min_stock: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct UpdateProductRequest {
     pub name: Option<String>,
     pub sell_price: Option<f64>,
@@ -91,9 +91,9 @@ pub struct UpdateProductRequest {
 // ServiceCatalog
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct ServiceCatalog {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub code: String,
     pub name: String,
     pub category: Option<String>,
@@ -108,7 +108,7 @@ pub struct ServiceCatalog {
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateServiceCatalogRequest {
     pub code: String,
     pub name: String,

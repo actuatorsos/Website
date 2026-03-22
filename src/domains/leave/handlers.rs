@@ -48,7 +48,7 @@ async fn approve_leave(
         "action": "leave_approved",
         "data": {
             "id": &id,
-            "employee": leave.employee.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+            "employee": leave.employee.as_ref().map(|e| crate::db::record_id_to_string(e)).unwrap_or_default(),
             "leave_type": &leave.leave_type
         }
     }).to_string());
@@ -68,7 +68,7 @@ async fn reject_leave(
         "action": "leave_rejected",
         "data": {
             "id": &id,
-            "employee": leave.employee.as_ref().map(|e| e.to_string()).unwrap_or_default(),
+            "employee": leave.employee.as_ref().map(|e| crate::db::record_id_to_string(e)).unwrap_or_default(),
             "leave_type": &leave.leave_type
         }
     }).to_string());

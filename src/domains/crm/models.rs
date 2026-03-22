@@ -2,16 +2,16 @@
 
 use f64;
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
 // ══════════════════════════════════════════════════════════════════
 // Contact — جهة اتصال
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Contact {
-    pub id: Option<Thing>,
-    pub client: Thing,
+    pub id: Option<RecordId>,
+    pub client: RecordId,
     pub name: String,
     pub title: Option<String>,
     pub department: Option<String>,
@@ -25,7 +25,7 @@ pub struct Contact {
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateContactRequest {
     pub client_id: String,
     pub name: String,
@@ -41,13 +41,13 @@ pub struct CreateContactRequest {
 // Interaction — سجل تفاعل
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Interaction {
-    pub id: Option<Thing>,
-    pub client: Thing,
-    pub contact: Option<Thing>,
-    pub employee: Option<Thing>,
-    pub opportunity: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub client: RecordId,
+    pub contact: Option<RecordId>,
+    pub employee: Option<RecordId>,
+    pub opportunity: Option<RecordId>,
     pub channel: String,
     pub direction: Option<String>,
     pub subject: String,
@@ -62,7 +62,7 @@ pub struct Interaction {
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateInteractionRequest {
     pub client_id: String,
     pub contact_id: Option<String>,
@@ -81,10 +81,10 @@ pub struct CreateInteractionRequest {
 // Opportunity — فرصة بيع
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Opportunity {
-    pub id: Option<Thing>,
-    pub client: Thing,
+    pub id: Option<RecordId>,
+    pub client: RecordId,
     pub title: String,
     pub description: Option<String>,
     pub value: Option<f64>,
@@ -101,12 +101,12 @@ pub struct Opportunity {
     pub next_action: Option<String>,
     pub next_action_date: Option<String>,
     pub products: Option<serde_json::Value>,
-    pub assigned_to: Option<Thing>,
+    pub assigned_to: Option<RecordId>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateOpportunityRequest {
     pub client_id: String,
     pub title: String,
@@ -119,7 +119,7 @@ pub struct CreateOpportunityRequest {
     pub assigned_to_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct UpdateOpportunityStageRequest {
     pub stage: String,
     pub probability: Option<i64>,
@@ -130,7 +130,7 @@ pub struct UpdateOpportunityStageRequest {
 // Quotation — عرض سعر
 // ══════════════════════════════════════════════════════════════════
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct QuotationItem {
     pub description: String,
     pub quantity: f64,
@@ -139,11 +139,11 @@ pub struct QuotationItem {
     pub tax_rate: Option<f64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Quotation {
-    pub id: Option<Thing>,
-    pub client: Thing,
-    pub opportunity: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub client: RecordId,
+    pub opportunity: Option<RecordId>,
     pub quote_number: String,
     pub title: Option<String>,
     pub items: Option<Vec<QuotationItem>>,
@@ -159,14 +159,14 @@ pub struct Quotation {
     pub valid_until: Option<String>,
     pub version: Option<i64>,
     pub status: Option<String>,
-    pub prepared_by: Option<Thing>,
-    pub converted_to: Option<Thing>,
+    pub prepared_by: Option<RecordId>,
+    pub converted_to: Option<RecordId>,
     pub notes: Option<String>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateQuotationRequest {
     pub client_id: String,
     pub opportunity_id: Option<String>,

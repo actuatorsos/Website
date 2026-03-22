@@ -3,6 +3,7 @@
 //! صفحات الويب العامة
 
 use askama::Template;
+use surrealdb::types::SurrealValue;
 use axum::{
     Router,
     extract::{Query, State},
@@ -49,7 +50,7 @@ pub struct LearningTemplate {
 // ============================================================================
 
 /// Query parameter for language selection
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 pub struct LangParam {
     /// Language code (e.g., "en", "ar")
     lang: Option<String>,

@@ -9,6 +9,7 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
+use surrealdb::types::SurrealValue;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 
@@ -138,7 +139,7 @@ async fn get_device_secret(state: &AppState, device_id: &str) -> Result<String, 
         .ok_or("Device not found")
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, SurrealValue)]
 struct DeviceRecord {
     secret: String,
 }

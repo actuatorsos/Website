@@ -1,22 +1,22 @@
 //! Inventory Advanced Models — نماذج المخزون
 
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::types::{RecordId, SurrealValue};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct Warehouse {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub name: String,
     pub code: String,
     pub address: Option<String>,
-    pub manager: Option<Thing>,
+    pub manager: Option<RecordId>,
     pub is_active: Option<bool>,
     pub capacity: Option<i64>,
     pub notes: Option<String>,
     pub is_archived: Option<bool>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateWarehouseRequest {
     pub name: String,
     pub code: String,
@@ -26,9 +26,9 @@ pub struct CreateWarehouseRequest {
     pub notes: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct InventoryItem {
-    pub id: Option<Thing>,
+    pub id: Option<RecordId>,
     pub sku: Option<String>,
     pub name: String,
     pub category: Option<String>,
@@ -40,14 +40,14 @@ pub struct InventoryItem {
     pub location: Option<String>,
     pub supplier: Option<String>,
     pub notes: Option<String>,
-    pub organization: Option<Thing>,
-    pub warehouse: Option<Thing>,
-    pub vendor: Option<Thing>,
+    pub organization: Option<RecordId>,
+    pub warehouse: Option<RecordId>,
+    pub vendor: Option<RecordId>,
     pub barcode: Option<String>,
     pub is_archived: Option<bool>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct CreateInventoryItemRequest {
     pub name: String,
     pub sku: Option<String>,
@@ -65,21 +65,21 @@ pub struct CreateInventoryItemRequest {
     pub barcode: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct InventoryTransaction {
-    pub id: Option<Thing>,
-    pub item: Option<Thing>,
+    pub id: Option<RecordId>,
+    pub item: Option<RecordId>,
     pub txn_type: String,
     pub quantity: i64,
     pub unit_cost: Option<f64>,
     pub total_cost: Option<f64>,
     pub reference: Option<String>,
     pub notes: Option<String>,
-    pub employee: Option<Thing>,
+    pub employee: Option<RecordId>,
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct InventoryInRequest {
     pub item_id: String,
     pub quantity: i64,
@@ -88,7 +88,7 @@ pub struct InventoryInRequest {
     pub notes: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct InventoryOutRequest {
     pub item_id: String,
     pub quantity: i64,
@@ -96,7 +96,7 @@ pub struct InventoryOutRequest {
     pub notes: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
 pub struct InventoryAdjustRequest {
     pub item_id: String,
     pub new_quantity: i64,
