@@ -230,14 +230,25 @@ pub struct CurrentUser {
 // ============================================================================
 
 use argon2::{
-    Argon2,
+    Argon2, Algorithm, Version, Params,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
-/// Hash a plain-text password using Argon2id
+/// Lighter Argon2 params for low-resource servers (DO shared 1-CPU)
+fn light_argon2() -> Argon2<'static> {
+    let params = Params::new(
+        16 * 1024, // 16 MB memory (default is 19456 = 19 MB)
+        2,         // 2 iterations (default is 2)
+        1,         // 1 thread (default is 1)
+        None,      // default output length
+    ).unwrap_or_else(|_| Params::default());
+    Argon2::new(Algorithm::Argon2id, Version::V0x13, params)
+}
+
+/// Hash a plain-text password using Argon2id (lightweight for shared hosting)
 pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Error> {
     let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
+    let argon2 = light_argon2();
     let hash = argon2.hash_password(password.as_bytes(), &salt)?;
     Ok(hash.to_string())
 }
@@ -245,6 +256,7 @@ pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Er
 /// Verify a plain-text password against an Argon2 hash
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::password_hash::Error> {
     let parsed_hash = PasswordHash::new(hash)?;
+    // Verify works with any params stored in the hash itself
     Ok(Argon2::default()
         .verify_password(password.as_bytes(), &parsed_hash)
         .is_ok())
