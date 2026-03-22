@@ -3,7 +3,7 @@
 use axum::{
     Extension, Json, Router,
     extract::{Path, Query, State},
-    routing::{delete, get, post, put},
+    routing::{get, post, put},
 };
 
 use crate::models::CurrentUser;

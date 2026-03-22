@@ -9,7 +9,7 @@ use axum::{
     Extension, Router,
     extract::{Path, State},
     response::Json,
-    routing::{get, post, put, delete},
+    routing::{get, post, put},
 };
 
 async fn list_tickets(

@@ -84,11 +84,11 @@ pub async fn generate_payroll(
 
     let mut records = Vec::new();
     for emp in &employees {
-        let emp_id_str = match &emp.id {
+        let _emp_id_str = match &emp.id {
             Some(thing) => thing.id.to_raw(),
             None => continue,
         };
-        let emp_name = emp.name.clone().unwrap_or_default();
+        let _emp_name = emp.name.clone().unwrap_or_default();
         let emp_email = emp.email.clone().unwrap_or_default();
 
         if emp_email.is_empty() {

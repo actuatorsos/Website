@@ -7,7 +7,7 @@ use axum::{
     Extension, Router,
     extract::{Path, Query, State},
     response::Json,
-    routing::{get, post, put},
+    routing::{get, put},
 };
 use std::collections::HashMap;
 

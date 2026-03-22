@@ -7,7 +7,7 @@ use axum::{
     Router,
     extract::{Extension, Path, State},
     response::{Html, Json},
-    routing::{delete, get, post, put},
+    routing::{get},
 };
 
 async fn list_departments(

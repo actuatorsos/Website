@@ -198,7 +198,7 @@ pub async fn review_approval(
     state: &AppState,
     id: &str,
     approved: bool,
-    reviewer_id: Option<&str>,
+    _reviewer_id: Option<&str>,
     note: Option<&str>,
 ) -> Result<ApprovalRequest, DbError> {
     let new_status = if approved { "approved" } else { "rejected" };

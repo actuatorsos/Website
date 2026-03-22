@@ -6,7 +6,7 @@ use axum::{
     Router,
     extract::{Path, State},
     response::Json,
-    routing::{delete, get, post, put},
+    routing::{delete, get},
 };
 
 async fn list_categories(State(s): State<AppState>) -> Result<Json<Vec<ProductCategory>>, DbError> {

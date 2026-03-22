@@ -3,7 +3,7 @@ use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
 use crate::models::CurrentUser;
-use axum::response::sse::{Event, KeepAlive, Sse};
+use axum::response::sse::{Event, Sse};
 use axum::{
     Router,
     extract::{Path, Request, State},
