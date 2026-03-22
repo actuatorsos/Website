@@ -150,7 +150,7 @@ async fn screenshot_unavailable(
     (
         axum::http::StatusCode::SERVICE_UNAVAILABLE,
         [("content-type", "application/json")],
-        b"{\"error\":\"Screenshot service not available — headless_chrome feature not enabled\"}".to_vec(),
+        b"{\"error\":\"Screenshot service not available - headless_chrome feature not enabled\"}".to_vec(),
     )
 }
 
