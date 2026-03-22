@@ -61,8 +61,8 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-feature
 # Email
 lettre = { version = "0.11", features = ["tokio1-native-tls"] }
 
-# Screenshot
-headless_chrome = "1"
+# Screenshot (optional — requires Chrome installed on host)
+headless_chrome = { version = "1", optional = true }
 
 # PDF Generation
 printpdf = "0.7"
