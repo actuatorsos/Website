@@ -1,6 +1,6 @@
 # ══════════════════════════════════════════════════════════════
 # Actuators Platform — Production Docker Image
-# Optimized for Digital Ocean App Platform / Droplet
+# SurrealDB v2 embedded + Actuators binary
 # ══════════════════════════════════════════════════════════════
 
 FROM rust:slim AS builder
@@ -23,7 +23,7 @@ COPY templates ./templates
 RUN cargo build --release --bin Actuators
 
 # ══════════════════════════════════════════════════════════════
-# Production image
+# Production image with SurrealDB embedded
 # ══════════════════════════════════════════════════════════════
 FROM debian:bookworm-slim
 WORKDIR /app
@@ -31,6 +31,9 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libssl3 ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
+
+# Install SurrealDB v2.4.0
+RUN curl -sSf https://install.surrealdb.com | sh -s -- --version v2.4.0
 
 # Binary
 COPY --from=builder /app/target/release/Actuators /usr/local/bin/Actuators
@@ -42,8 +45,12 @@ COPY templates ./templates
 COPY src/db/schema.surql ./src/db/schema.surql
 COPY data ./data
 
-# Create uploads directory
-RUN mkdir -p static/uploads/videos static/uploads/courses
+# Create directories
+RUN mkdir -p static/uploads/videos static/uploads/courses /data/surreal
+
+# Startup script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Environment defaults (override in DO App Platform)
 ENV SERVER_HOST=0.0.0.0
@@ -52,7 +59,7 @@ ENV RUST_LOG=info,actuators=debug
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:8080/api/health || exit 1
 
-CMD ["Actuators"]
+CMD ["/app/entrypoint.sh"]
