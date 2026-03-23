@@ -3,14 +3,14 @@
 //! نماذج بيانات القسم الصناعي والآلات، وتشمل الآلات والمشاريع وعمليات الإصلاح
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 // ============================================================================
 // Machine Models
 // ============================================================================
 
 /// Machine status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum MachineStatus {
     /// Fully operational
@@ -35,10 +35,10 @@ impl std::fmt::Display for MachineStatus {
 }
 
 /// Machine model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Machine {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Owner ID
@@ -62,7 +62,14 @@ impl Machine {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| {
+                thing
+                    .id
+                    .to_string()
+                    .replace('"', "")
+                    .replace('⟨', "")
+                    .replace('⟩', "")
+            })
             .unwrap_or_default()
     }
 
@@ -78,7 +85,7 @@ impl Machine {
 }
 
 /// Request to create a new machine
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateMachineRequest {
     /// Owner ID
@@ -98,7 +105,7 @@ pub struct CreateMachineRequest {
 // ============================================================================
 
 /// Project status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum ProjectStatus {
     /// New project
@@ -126,10 +133,10 @@ impl std::fmt::Display for ProjectStatus {
 }
 
 /// Project model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Customer ID
@@ -155,7 +162,14 @@ impl Project {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| {
+                thing
+                    .id
+                    .to_string()
+                    .replace('"', "")
+                    .replace('⟨', "")
+                    .replace('⟩', "")
+            })
             .unwrap_or_default()
     }
 
@@ -172,7 +186,7 @@ impl Project {
 }
 
 /// Request to create a new project
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateProjectRequest {
     /// Customer ID
@@ -194,7 +208,7 @@ pub struct CreateProjectRequest {
 // ============================================================================
 
 /// Repair status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum RepairStatus {
     /// New repair request
@@ -225,10 +239,10 @@ impl std::fmt::Display for RepairStatus {
 }
 
 /// Repair operation model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RepairOperation {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Machine ID
@@ -276,7 +290,7 @@ impl RepairOperation {
 }
 
 /// Request to create a new repair operation
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateRepairRequest {
     /// Machine ID
@@ -292,7 +306,7 @@ pub struct CreateRepairRequest {
 }
 
 /// Request to update repair operation
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UpdateRepairRequest {
     /// Updated diagnosis

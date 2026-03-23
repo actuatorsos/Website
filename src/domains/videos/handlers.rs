@@ -412,11 +412,11 @@ pub async fn delete_video_handler(
 // Helper
 // ============================================================================
 
-/// استخراج هوية المستخدم (RecordId) من JWT cookie
+/// استخراج هوية المستخدم (Thing) من JWT cookie
 async fn extract_user_thing(
     headers: &HeaderMap,
     state: &AppState,
-) -> Option<surrealdb::types::RecordId> {
+) -> Option<surrealdb::sql::Thing> {
     // استخراج الـ cookie يدوياً من الترويسة (tower-cookies غير متاحة هنا)
     let cookie_header = headers.get(header::COOKIE)?.to_str().ok()?;
 
@@ -433,7 +433,7 @@ async fn extract_user_thing(
     // جلب الحساب من DB للحصول على الـ ID الفعلي
     let account = state.get_account_by_email(&claims.email).await.ok()?;
 
-    // account.id هو بالفعل Option<RecordId>، نرجعه رأساً
+    // account.id هو بالفعل Option<Thing>، نرجعه رأساً
     Some(account.id?)
 }
 

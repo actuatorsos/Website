@@ -3,7 +3,6 @@
 //! نقاط نهاية API للأصول
 
 use askama::Template;
-use surrealdb::types::SurrealValue;
 use axum::{
     Form, Json, Router,
     extract::{Path, State},
@@ -39,7 +38,7 @@ pub struct AssetListTemplate {
 // Form Data
 // ============================================================================
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct CreateAssetForm {
     pub name: String,
     pub category: String,
@@ -49,7 +48,7 @@ pub struct CreateAssetForm {
     pub location: Option<String>,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct AssignAssetForm {
     pub employee_id: String,
     pub location: String,

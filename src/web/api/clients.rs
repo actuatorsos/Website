@@ -3,7 +3,6 @@
 //! نقاط نهاية API لإدارة العملاء
 
 use askama::Template;
-use surrealdb::types::SurrealValue;
 use axum::{
     Extension, Form, Router,
     extract::{Path, State},
@@ -58,7 +57,7 @@ pub struct CreateClientForm {
     pub city: Option<String>,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct UpdateStatusForm {
     pub status: String,
 }

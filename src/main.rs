@@ -1,6 +1,7 @@
-//! Actuators Platform - Entry Point
+//! Dr. Machine Web Application - Entry Point
+#![warn(missing_docs)]
 //!
-//! نقطة الدخول الرئيسية للمنصة
+//! نقطة الدخول الرئيسية للتطبيق
 
 use std::net::SocketAddr;
 

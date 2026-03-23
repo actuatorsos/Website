@@ -3,9 +3,8 @@
 use axum::{
     Extension, Json, Router,
     extract::{Path, Query, State},
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
 };
-use surrealdb::types::SurrealValue;
 
 use crate::models::CurrentUser;
 
@@ -18,12 +17,12 @@ use crate::db::AppState;
 // Query Params
 // ============================================================================
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct ApprovalFilter {
     pub status: Option<String>,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct NotifFilter {
     pub unread_only: Option<bool>,
 }
@@ -150,7 +149,7 @@ async fn execute_action(
         .map_err(|e| crate::db::DbError::Validation(e))?;
 
     // Log usage
-    let agent_id = agent.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default();
+    let agent_id = agent.id.as_ref().map(|t| t.id.to_raw()).unwrap_or_default();
     let _ = repository::log_usage(
         &state,
         &agent_id,

@@ -5,7 +5,6 @@ use axum::{
     extract::{Path, Query, State},
     routing::{delete, get, post},
 };
-use surrealdb::types::SurrealValue;
 
 use crate::db::AppState;
 use crate::models::CurrentUser;
@@ -18,7 +17,7 @@ use super::service;
 // Query Params
 // ============================================================================
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct SpecialtyFilter {
     pub specialty: Option<String>,
 }
@@ -59,7 +58,7 @@ async fn list_sessions(
     let response: Vec<SessionResponse> = sessions
         .into_iter()
         .map(|s| SessionResponse {
-            id: s.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).unwrap_or_default(),
+            id: s.id.map(|t| t.id.to_raw()).unwrap_or_default(),
             title: s.title,
             specialty: s.specialty,
             message_count: s.message_count,
@@ -78,7 +77,7 @@ async fn get_session_messages(
 ) -> axum::response::Result<Json<Vec<ChatMessage>>, crate::db::DbError> {
     // Verify session belongs to user
     let session = repository::get_session(&state, &id).await?;
-    if session.user.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref() != Some(&user.id) {
+    if session.user.as_ref().map(|t| t.id.to_raw()).as_deref() != Some(&user.id) {
         return Err(crate::db::DbError::Forbidden(
             "Session does not belong to this user".to_string(),
         ));
@@ -96,7 +95,7 @@ async fn delete_session(
 ) -> axum::response::Result<Json<serde_json::Value>, crate::db::DbError> {
     // Verify session belongs to user
     let session = repository::get_session(&state, &id).await?;
-    if session.user.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref() != Some(&user.id) {
+    if session.user.as_ref().map(|t| t.id.to_raw()).as_deref() != Some(&user.id) {
         return Err(crate::db::DbError::Forbidden(
             "Session does not belong to this user".to_string(),
         ));

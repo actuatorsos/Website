@@ -241,7 +241,7 @@ pub async fn consume_materials(
         .await?;
     let order = order.ok_or(DbError::NotFound)?;
 
-    let bom_id = crate::db::record_id_to_raw(&order.bom);
+    let bom_id = order.bom.id.to_raw();
     let production_qty = order.quantity;
 
     let lines: Vec<BomLine> = state
@@ -255,7 +255,7 @@ pub async fn consume_materials(
 
     for line in &lines {
         if let Some(inv_item) = &line.inventory_item {
-            let item_id = crate::db::record_id_to_raw(inv_item);
+            let item_id = inv_item.id.to_raw();
             let waste_factor = 1.0 + line.waste_percentage.unwrap_or(0.0) / 100.0;
             let needed_qty = (line.quantity * (production_qty as f64) * waste_factor)
                 .ceil()

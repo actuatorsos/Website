@@ -3,7 +3,6 @@
 //! Simple count endpoints for dashboard stat cards.
 
 use crate::db::AppState;
-use surrealdb::types::SurrealValue;
 use crate::models::CurrentUser;
 use axum::{Extension, extract::State, response::Html};
 
@@ -39,7 +38,7 @@ pub async fn repairs_count(
     State(state): State<AppState>,
     Extension(user): Extension<CurrentUser>,
 ) -> Html<String> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct CountResult {
         count: i64,
     }
@@ -83,7 +82,7 @@ async fn get_table_count(state: &AppState, table: &str, org_id: Option<&str>) ->
         return 0;
     }
 
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct CountResult {
         count: i64,
     }

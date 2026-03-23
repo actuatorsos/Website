@@ -97,7 +97,7 @@ pub async fn create_invoice(
         None,
         "create",
         "invoice",
-        inv.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+        inv.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
         None,
         None,
     )
@@ -231,7 +231,7 @@ pub async fn create_certificate(
         None,
         "create",
         "certificate",
-        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
         None,
         None,
     )

@@ -3,9 +3,8 @@
 use axum::{
     Json, Router,
     extract::{Path, Query, State},
-    routing::{get, post},
+    routing::{delete, get, post, put},
 };
-use surrealdb::types::SurrealValue;
 
 use super::models::*;
 use super::repository;
@@ -16,7 +15,7 @@ use crate::db::AppState;
 // Query Params
 // ============================================================================
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct LogFilter {
     pub status: Option<String>,
 }

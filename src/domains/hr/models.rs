@@ -3,7 +3,7 @@
 //! نماذج بيانات الموارد البشرية (موظفين، متدربين، دوام)
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 // ============================================================================
 // Employee Models
@@ -16,10 +16,10 @@ use surrealdb::types::{RecordId, SurrealValue};
 // Common statuses: active, on_leave, resigned, suspended, terminated
 
 /// Employee model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Employee {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Full name
@@ -82,7 +82,7 @@ impl Employee {
 }
 
 /// Request to create a new employee
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateEmployeeRequest {
     /// Full name
@@ -119,7 +119,7 @@ pub struct CreateEmployeeRequest {
 // ============================================================================
 
 /// Trainee status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum TraineeStatus {
     /// Currently training
@@ -141,10 +141,10 @@ impl std::fmt::Display for TraineeStatus {
 }
 
 /// Trainee model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Trainee {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Full name
@@ -175,7 +175,7 @@ impl Trainee {
 }
 
 /// Request to create a new trainee
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateTraineeRequest {
     /// Full name
@@ -197,7 +197,7 @@ pub struct CreateTraineeRequest {
 // ============================================================================
 
 /// Person type for attendance (employee or trainee)
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum PersonType {
     /// Regular employee
@@ -216,10 +216,10 @@ impl std::fmt::Display for PersonType {
 }
 
 /// Attendance record
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Attendance {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Person ID
     pub person_id: String,
     /// Person Type
@@ -241,7 +241,7 @@ impl Attendance {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| thing.id.to_string())
             .unwrap_or_default()
     }
 
@@ -318,7 +318,7 @@ impl Attendance {
 }
 
 /// Request to check in
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CheckInRequest {
     /// Person ID
@@ -332,7 +332,7 @@ pub struct CheckInRequest {
 }
 
 /// Request to check out
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CheckOutRequest {
     /// Attendance Record ID

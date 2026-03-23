@@ -1,14 +1,13 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::types::SurrealValue;
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentProperty {
     pub key: String,
     pub label: String,
     pub value: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentLink {
     pub id: String,       // e.g. "machine:123"
     pub title: String,    // e.g. "Wood-6AV-1"
@@ -16,7 +15,7 @@ pub struct DocumentLink {
     pub icon: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentFile {
     pub id: String,
     pub name: String,
@@ -24,7 +23,7 @@ pub struct DocumentFile {
     pub file_type: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentResponse {
     pub id: String,
     pub entity_type: String, // "client", "machine", "project", etc.
@@ -37,7 +36,7 @@ pub struct DocumentResponse {
     pub files: Vec<DocumentFile>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateDocumentRequest {
     pub title: Option<String>,
     pub icon: Option<String>,

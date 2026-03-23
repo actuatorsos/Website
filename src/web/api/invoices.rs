@@ -3,7 +3,6 @@
 //! نقاط نهاية API للفواتير
 
 use askama::Template;
-use surrealdb::types::SurrealValue;
 use axum::{
     Form, Json, Router,
     extract::{Extension, Path, State},
@@ -60,12 +59,12 @@ pub struct CreateInvoiceForm {
     pub item_unit_price: Vec<String>,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct UpdateInvoiceStatusForm {
     pub status: String,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct RecordPaymentForm {
     pub amount: f64,
 }
@@ -158,7 +157,7 @@ async fn create_invoice(
                 Some(&user.email),
                 "create",
                 "invoice",
-                invoice.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+                invoice.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
                 None,
                 None,
             )
@@ -169,7 +168,7 @@ async fn create_invoice(
                 "type": "notification",
                 "action": "invoice_created",
                 "data": {
-                    "id": invoice.id.as_ref().map(|t| crate::db::record_id_to_raw(t)),
+                    "id": invoice.id.as_ref().map(|t| t.id.to_raw()),
                     "invoice_number": &invoice.invoice_number,
                     "client_name": &invoice.client_name
                 }

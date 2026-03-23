@@ -1,17 +1,17 @@
 //! Email Domain Models — نماذج بيانات البريد الإلكتروني
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 // ============================================================================
 // Email Config — إعدادات SMTP
 // ============================================================================
 
 /// SMTP server configuration stored in database
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmailConfig {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// SMTP host (e.g. smtp.gmail.com)
     pub host: String,
     /// SMTP port (e.g. 587, 465)
@@ -39,7 +39,7 @@ fn default_true() -> bool {
 }
 
 /// Request to create/update SMTP config
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpsertEmailConfigRequest {
     pub host: String,
     pub port: i32,
@@ -55,10 +55,10 @@ pub struct UpsertEmailConfigRequest {
 // ============================================================================
 
 /// Email template stored in database
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmailTemplate {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Template name (unique)
     pub name: String,
     /// Email subject line
@@ -78,7 +78,7 @@ pub struct EmailTemplate {
 }
 
 /// Request to create a new template
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateTemplateRequest {
     pub name: String,
     pub subject: String,
@@ -88,7 +88,7 @@ pub struct CreateTemplateRequest {
 }
 
 /// Request to update a template
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateTemplateRequest {
     pub name: Option<String>,
     pub subject: Option<String>,
@@ -103,10 +103,10 @@ pub struct UpdateTemplateRequest {
 // ============================================================================
 
 /// Email send log entry
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmailLog {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Recipient email
     pub recipient: String,
     /// Email subject
@@ -114,13 +114,13 @@ pub struct EmailLog {
     /// Email body
     pub body: Option<String>,
     /// Template used (if any)
-    pub template: Option<RecordId>,
+    pub template: Option<Thing>,
     /// Send status
     pub status: String,
     /// Error message if failed
     pub error_msg: Option<String>,
     /// Who sent it
-    pub sent_by: Option<RecordId>,
+    pub sent_by: Option<Thing>,
     /// When it was sent
     pub sent_at: Option<String>,
 }
@@ -130,7 +130,7 @@ pub struct EmailLog {
 // ============================================================================
 
 /// Request to send an email
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendEmailRequest {
     /// List of recipient emails
     pub recipients: Vec<String>,
@@ -145,7 +145,7 @@ pub struct SendEmailRequest {
 }
 
 /// Response for send email
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendEmailResponse {
     /// Number of emails sent successfully
     pub sent: usize,
@@ -156,7 +156,7 @@ pub struct SendEmailResponse {
 }
 
 /// Per-recipient send result
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SendResult {
     pub recipient: String,
     pub status: String,

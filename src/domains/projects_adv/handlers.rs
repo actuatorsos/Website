@@ -1,10 +1,9 @@
 use super::models::*;
-use surrealdb::types::SurrealValue;
 use super::repository as repo;
 use crate::db::AppState;
 use crate::db::DbError;
 use crate::models::CurrentUser;
-use axum::response::sse::{Event, Sse};
+use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::{
     Router,
     extract::{Path, Request, State},
@@ -46,7 +45,7 @@ async fn create_project(
     let project_id = project
         .id
         .as_ref()
-        .map(|t| crate::db::record_id_to_raw(t))
+        .map(|t| t.id.to_raw())
         .unwrap_or_default();
     if !project_id.is_empty() {
         let _ = repo::create_default_board(&s, &project_id).await;
@@ -283,7 +282,7 @@ async fn add_comment(
     Ok(Json(repo::add_card_comment(&s, req).await?))
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 struct CreateChecklistBody {
     title: String,
 }

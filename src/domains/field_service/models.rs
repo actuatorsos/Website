@@ -1,15 +1,15 @@
 //! Field Service Models — نماذج الخدمة الميدانية
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
-#[derive(Debug, Serialize, Deserialize, SurrealValue, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ServiceTicket {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub title: String,
     pub description: Option<String>,
-    pub client: Option<RecordId>,
-    pub assigned_to: Option<RecordId>,
+    pub client: Option<Thing>,
+    pub assigned_to: Option<Thing>,
     pub priority: Option<String>,
     pub status: Option<String>,
     pub scheduled_date: Option<String>,

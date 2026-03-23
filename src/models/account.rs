@@ -7,11 +7,11 @@
 //! يطابق جدول `account` في `hr-schema.surql`
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 use validator::Validate;
 
 /// Account role — matches schema ASSERT constraint
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AccountRole {
     /// مدير النظام
@@ -70,10 +70,10 @@ impl AccountRole {
 }
 
 /// Account record — maps to SurrealDB `account` table
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     /// SurrealDB record ID (e.g., account:xyz)
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Email address (unique, validated)
     pub email: String,
     /// Argon2 password hash — never expose via API
@@ -97,7 +97,7 @@ pub struct Account {
     pub user_type: String,
     /// Organization this user belongs to (if any)
     #[serde(default)]
-    pub organization: Option<surrealdb::types::RecordId>,
+    pub organization: Option<surrealdb::sql::Thing>,
     /// Auth methods: [{type: "rfid"|"email"|"device", value: "..."}]
     #[serde(default)]
     pub auth_methods: Vec<serde_json::Value>,
@@ -118,7 +118,7 @@ impl Account {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| thing.id.to_raw())
             .unwrap_or_default()
     }
 }
@@ -159,7 +159,7 @@ pub struct AuthResponse {
 }
 
 /// Safe user info returned in API responses (no password_hash)
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AuthUser {
     /// Record ID string
@@ -194,7 +194,7 @@ impl From<&Account> for AuthUser {
 }
 
 /// JWT claims payload — what's encoded inside the token
-#[derive(Debug, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     /// Subject = account record ID
     pub sub: String,
@@ -229,12 +229,23 @@ pub struct CurrentUser {
 // Password Hashing (Argon2)
 // ============================================================================
 
-/// Hash a plain-text password using bcrypt (fast on low-CPU servers)
-pub fn hash_password(password: &str) -> Result<String, String> {
-    bcrypt::hash(password, 8).map_err(|e| e.to_string())
+use argon2::{
+    Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
+};
+
+/// Hash a plain-text password using Argon2id
+pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Error> {
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    let hash = argon2.hash_password(password.as_bytes(), &salt)?;
+    Ok(hash.to_string())
 }
 
-/// Verify a plain-text password against a bcrypt hash
-pub fn verify_password(password: &str, hash: &str) -> Result<bool, String> {
-    bcrypt::verify(password, hash).map_err(|e| e.to_string())
+/// Verify a plain-text password against an Argon2 hash
+pub fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::password_hash::Error> {
+    let parsed_hash = PasswordHash::new(hash)?;
+    Ok(Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash)
+        .is_ok())
 }

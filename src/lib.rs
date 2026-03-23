@@ -1,7 +1,7 @@
-//! Actuators Platform
+//! Dr. Machine Web Application
+#![warn(missing_docs)]
 //!
-//! منصة Actuators لتخطيط موارد المؤسسات
-#![allow(dead_code, unused_imports, non_snake_case, noop_method_call)]
+//! تطبيق ويب متكامل لشركة Dr. Machine L.L.C.
 
 pub mod config;
 pub mod db;

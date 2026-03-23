@@ -65,41 +65,36 @@ pub struct AppConfig {
 /// Default (insecure) JWT secret — used only when JWT_SECRET env var is not set.
 const DEFAULT_JWT_SECRET: &str = "CHANGE_ME_IN_PRODUCTION_64_CHARS_MINIMUM_SECRET_KEY_HERE_NOW";
 
-/// Helper: try primary env var, then fallback, then default
-fn env_chain(primary: &str, fallback: &str, default: &str) -> String {
-    env::var(primary)
-        .or_else(|_| env::var(fallback))
-        .unwrap_or_else(|_| default.to_string())
-}
-
-/// Helper: try primary then fallback, error if neither set
-fn env_require(primary: &str, fallback: &str) -> Result<String, env::VarError> {
-    env::var(primary).or_else(|_| env::var(fallback))
-}
-
 impl AppConfig {
-    /// Load configuration from environment variables.
-    /// Supports both native names (SURREAL_*) and Digital Ocean names (DATABASE_URL, DB_*).
+    /// Load configuration from environment variables
     pub fn from_env() -> Result<Self, env::VarError> {
         let config = Self {
             db: DbConfig {
-                url: env_chain("SURREAL_URL", "DATABASE_URL", "ws://127.0.0.1:8000"),
-                user: env_require("SURREAL_USER", "DB_USER")?,
-                pass: env_require("SURREAL_PASS", "DB_PASS")?,
-                namespace: env_chain("SURREAL_NS", "DB_NS", "actuators"),
-                database: env_chain("SURREAL_DB", "DB_NAME", "platform"),
+                url: env::var("DATABASE_URL")
+                    .or_else(|_| env::var("SURREAL_URL"))
+                    .unwrap_or_else(|_| "ws://127.0.0.1:8000".to_string()),
+                user: env::var("DB_USER")
+                    .or_else(|_| env::var("SURREAL_USER"))?,
+                pass: env::var("DB_PASS")
+                    .or_else(|_| env::var("SURREAL_PASS"))?,
+                namespace: env::var("DB_NS")
+                    .or_else(|_| env::var("SURREAL_NS"))
+                    .unwrap_or_else(|_| "Actuators".to_string()),
+                database: env::var("DB_NAME")
+                    .or_else(|_| env::var("SURREAL_DB"))
+                    .unwrap_or_else(|_| "erp".to_string()),
             },
             server: ServerConfig {
-                host: env_chain("SERVER_HOST", "HOST", "0.0.0.0"),
-                port: env::var("SERVER_PORT")
-                    .or_else(|_| env::var("PORT"))
+                host: env::var("SERVER_HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
+                port: env::var("PORT")
+                    .or_else(|_| env::var("SERVER_PORT"))
                     .unwrap_or_else(|_| "8080".to_string())
                     .parse()
-                    .unwrap_or(8080),
+                    .unwrap_or(3000),
             },
             admin: AdminConfig {
-                user: env::var("ADMIN_USER").unwrap_or_else(|_| "admin".to_string()),
-                pass: env::var("ADMIN_PASS").unwrap_or_else(|_| "admin".to_string()),
+                user: env::var("ADMIN_USER").unwrap_or_else(|_| "admin@actuators.app".to_string()),
+                pass: env::var("ADMIN_PASS").unwrap_or_else(|_| "Admin1234!".to_string()),
             },
             jwt: JwtConfig {
                 secret: env::var("JWT_SECRET").unwrap_or_else(|_| {
@@ -111,6 +106,20 @@ impl AppConfig {
                     .unwrap_or(24),
             },
         };
+
+        // Warn if using default JWT secret (insecure for production)
+        if config.jwt.secret == DEFAULT_JWT_SECRET || config.jwt.secret.len() < 32 {
+            eprintln!("⚠️  WARNING: JWT_SECRET is using the default/weak value!");
+            eprintln!("   This is acceptable for development, but MUST be changed in production.");
+            eprintln!("   Set a strong random JWT_SECRET of at least 64 characters.");
+
+            // Block startup in production (when RUST_LOG is not debug)
+            let log_level = env::var("RUST_LOG").unwrap_or_default();
+            if !log_level.contains("debug") && env::var("ALLOW_INSECURE_JWT").is_err() {
+                eprintln!("   Set ALLOW_INSECURE_JWT=1 to bypass this check (NOT recommended).");
+                return Err(env::VarError::NotPresent);
+            }
+        }
 
         Ok(config)
     }

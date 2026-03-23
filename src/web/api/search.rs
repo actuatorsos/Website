@@ -8,7 +8,6 @@ use axum::{
     response::Html,
 };
 use serde::{Deserialize, Serialize};
-use surrealdb::types::SurrealValue;
 
 use crate::db::AppState;
 use crate::models::CurrentUser;
@@ -21,7 +20,7 @@ pub struct SearchQuery {
 }
 
 /// Search result item.
-#[derive(Serialize, Deserialize, SurrealValue, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SearchResult {
     /// Entity ID.
     pub id: String,
@@ -110,9 +109,9 @@ async fn search_all_entities(state: &AppState, pattern: String, org_id: Option<&
 }
 
 async fn search_employees(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct EmployeeResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         name: String,
         role: Option<String>,
     }
@@ -136,19 +135,19 @@ async fn search_employees(state: &AppState, pattern: String, org_id: Option<&str
     Ok(results
         .into_iter()
         .map(|e| SearchResult {
-            id: crate::db::record_id_to_raw(&e.id),
+            id: e.id.id.to_string(),
             name: e.name,
             entity_type: "employee".to_string(),
-            url: format!("/admin/employees/{}", crate::db::record_id_to_raw(&e.id)),
+            url: format!("/admin/employees/{}", e.id.id),
             subtitle: e.role,
         })
         .collect())
 }
 
 async fn search_assets(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct AssetResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         name: String,
         category: Option<String>,
     }
@@ -172,19 +171,19 @@ async fn search_assets(state: &AppState, pattern: String, org_id: Option<&str>) 
     Ok(results
         .into_iter()
         .map(|a| SearchResult {
-            id: crate::db::record_id_to_raw(&a.id),
+            id: a.id.id.to_string(),
             name: a.name,
             entity_type: "asset".to_string(),
-            url: format!("/admin/assets/{}", crate::db::record_id_to_raw(&a.id)),
+            url: format!("/admin/assets/{}", a.id.id),
             subtitle: a.category,
         })
         .collect())
 }
 
 async fn search_machines(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct MachineResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         serial_number: String,
         model: Option<String>,
     }
@@ -207,19 +206,19 @@ async fn search_machines(state: &AppState, pattern: String, org_id: Option<&str>
     Ok(results
         .into_iter()
         .map(|m| SearchResult {
-            id: crate::db::record_id_to_raw(&m.id),
+            id: m.id.id.to_string(),
             name: m.serial_number,
             entity_type: "machine".to_string(),
-            url: format!("/admin/machines/{}", crate::db::record_id_to_raw(&m.id)),
+            url: format!("/admin/machines/{}", m.id.id),
             subtitle: m.model,
         })
         .collect())
 }
 
 async fn search_clients(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct ClientResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         name: String,
         phone: Option<String>,
     }
@@ -243,19 +242,19 @@ async fn search_clients(state: &AppState, pattern: String, org_id: Option<&str>)
     Ok(results
         .into_iter()
         .map(|c| SearchResult {
-            id: crate::db::record_id_to_raw(&c.id),
+            id: c.id.id.to_string(),
             name: c.name,
             entity_type: "client".to_string(),
-            url: format!("/admin/customers/{}", crate::db::record_id_to_raw(&c.id)),
+            url: format!("/admin/customers/{}", c.id.id),
             subtitle: c.phone,
         })
         .collect())
 }
 
 async fn search_invoices(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct InvoiceResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         invoice_number: String,
         client_name: Option<String>,
     }
@@ -279,19 +278,19 @@ async fn search_invoices(state: &AppState, pattern: String, org_id: Option<&str>
     Ok(results
         .into_iter()
         .map(|i| SearchResult {
-            id: crate::db::record_id_to_raw(&i.id),
+            id: i.id.id.to_string(),
             name: i.invoice_number,
             entity_type: "invoice".to_string(),
-            url: format!("/admin/invoices/{}", crate::db::record_id_to_raw(&i.id)),
+            url: format!("/admin/invoices/{}", i.id.id),
             subtitle: i.client_name,
         })
         .collect())
 }
 
 async fn search_projects(state: &AppState, pattern: String, org_id: Option<&str>) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct ProjectResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         title: String,
         customer_name: Option<String>,
     }
@@ -315,19 +314,19 @@ async fn search_projects(state: &AppState, pattern: String, org_id: Option<&str>
     Ok(results
         .into_iter()
         .map(|p| SearchResult {
-            id: crate::db::record_id_to_raw(&p.id),
+            id: p.id.id.to_string(),
             name: p.title,
             entity_type: "project".to_string(),
-            url: format!("/admin/projects/{}", crate::db::record_id_to_raw(&p.id)),
+            url: format!("/admin/projects/{}", p.id.id),
             subtitle: p.customer_name,
         })
         .collect())
 }
 
 async fn search_certificates(state: &AppState, pattern: String) -> Result<Vec<SearchResult>, ()> {
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct CertificateResult {
-        id: surrealdb::types::RecordId,
+        id: surrealdb::sql::Thing,
         credential_id: String,
         trainee_name: String,
     }
@@ -343,10 +342,10 @@ async fn search_certificates(state: &AppState, pattern: String) -> Result<Vec<Se
     Ok(results
         .into_iter()
         .map(|c| SearchResult {
-            id: crate::db::record_id_to_raw(&c.id),
+            id: c.id.id.to_string(),
             name: c.credential_id,
             entity_type: "certificate".to_string(),
-            url: format!("/admin/certificates/{}", crate::db::record_id_to_raw(&c.id)),
+            url: format!("/admin/certificates/{}", c.id.id),
             subtitle: Some(c.trainee_name),
         })
         .collect())

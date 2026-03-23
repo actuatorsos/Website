@@ -52,7 +52,7 @@ pub async fn create_employee(
         None,
         "create",
         "employee",
-        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
         None,
         None,
     )
@@ -121,7 +121,7 @@ pub async fn create_trainee(
         None,
         "create",
         "trainee",
-        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
         None,
         None,
     )

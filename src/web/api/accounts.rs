@@ -86,7 +86,7 @@ async fn update_role(
     // Verify target account belongs to same organization
     if let Some(ref org) = user.organization_id {
         if let Ok(target) = state.get_account_by_id(&req.id).await {
-            let target_org = target.organization.as_ref().map(|o| crate::db::record_id_to_string(o));
+            let target_org = target.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
             if target_org.as_deref() != Some(org) {
                 return (
                     StatusCode::FORBIDDEN,
@@ -133,7 +133,7 @@ async fn update_status(
     // Verify target account belongs to same organization
     if let Some(ref org) = user.organization_id {
         if let Ok(target) = state.get_account_by_id(&req.id).await {
-            let target_org = target.organization.as_ref().map(|o| crate::db::record_id_to_string(o));
+            let target_org = target.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
             if target_org.as_deref() != Some(org) {
                 return (
                     StatusCode::FORBIDDEN,

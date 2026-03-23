@@ -6,7 +6,7 @@ use Actuators::db::{AppState, StatsCache};
 use Actuators::i18n::I18n;
 use std::collections::HashMap;
 use std::sync::Arc;
-use surrealdb::engine::any::Any;
+use surrealdb::engine::remote::ws::{Client, Ws};
 use surrealdb::opt::auth::Root;
 use surrealdb::Surreal;
 use tokio::sync::{RwLock, broadcast};
@@ -18,13 +18,13 @@ async fn main() {
 
     let (board_tx, _) = broadcast::channel(100);
 
-    let db: Surreal<Any> = surrealdb::engine::any::connect(&config.db.url)
+    let db: Surreal<Client> = Surreal::new::<Ws>(&config.db.url)
         .await
         .expect("Failed to connect to SurrealDB");
 
     db.signin(Root {
-        username: config.db.user.clone(),
-        password: config.db.pass.clone(),
+        username: &config.db.user,
+        password: &config.db.pass,
     })
     .await
     .expect("Failed to sign in");

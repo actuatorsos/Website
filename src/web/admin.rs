@@ -3,7 +3,6 @@
 //! لوحة التحكم المحمية بـ JWT
 
 use askama::Template;
-use surrealdb::types::SurrealValue;
 use axum::{
     Router,
     extract::{Query, State},
@@ -216,7 +215,7 @@ pub struct AuthInfo {
     pub user_type: String,
     pub avatar: Option<String>,
     pub full_name: Option<String>,
-    pub organization: Option<surrealdb::types::RecordId>,
+    pub organization: Option<surrealdb::sql::Thing>,
 }
 
 /// Check JWT cookie and return user info, or redirect to login page
@@ -262,7 +261,7 @@ pub async fn check_jwt_auth(
 // ============================================================================
 
 /// Query parameter for language selection
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct LangParam {
     pub lang: Option<String>,
 }
@@ -291,7 +290,7 @@ async fn get_table_count(state: &AppState, table: &str) -> usize {
         return 0;
     }
 
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct CountResult {
         count: i64,
     }
@@ -364,7 +363,7 @@ async fn forgot_password_page(
     Html(template.render().unwrap_or_default()).into_response()
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 struct TokenParam {
     token: Option<String>,
     lang: Option<String>,
@@ -560,7 +559,7 @@ async fn accounts_page(
     let t = state.i18n.get_dictionary(lang.as_str());
     // Filter accounts by organization — admin only sees their org
     let accounts = if let Some(ref org_thing) = auth.organization {
-        let org_str = crate::db::record_id_to_string(org_thing);
+        let org_str = format!("{}:{}", org_thing.tb, org_thing.id);
         let result: Result<Vec<crate::models::Account>, _> = state.db
             .query("SELECT * FROM account WHERE organization = type::record($org) ORDER BY created_at DESC")
             .bind(("org", org_str))
@@ -657,7 +656,7 @@ async fn verify_page() -> Response {
 }
 
 /// Public verify check (HTMX)
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 struct VerifyParams {
     credential_id: Option<String>,
 }
@@ -1178,7 +1177,7 @@ async fn audit_log_page(
     let t = state.i18n.get_dictionary(lang.as_str());
 
     // Fetch recent audit log entries
-    #[derive(serde::Deserialize, SurrealValue)]
+    #[derive(serde::Deserialize)]
     struct RawAuditEntry {
         timestamp: Option<String>,
         actor: Option<String>,

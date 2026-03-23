@@ -1,19 +1,19 @@
 //! Leave Management Models — نماذج الإجازات
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaveRequest {
-    pub id: Option<RecordId>,
-    pub employee: Option<RecordId>,
+    pub id: Option<Thing>,
+    pub employee: Option<Thing>,
     pub leave_type: String,
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub days: Option<i64>,
     pub reason: Option<String>,
     pub status: Option<String>,
-    pub approved_by: Option<RecordId>,
+    pub approved_by: Option<Thing>,
     pub is_archived: Option<bool>,
     pub created_at: Option<String>,
     #[serde(default)]
@@ -22,7 +22,7 @@ pub struct LeaveRequest {
     pub employee_email: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateLeaveRequest {
     pub employee_id: String,
     pub leave_type: String,
@@ -31,20 +31,20 @@ pub struct CreateLeaveRequest {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApproveLeaveRequest {
     pub approved_by_id: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RejectLeaveRequest {
     pub rejection_reason: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaveBalance {
-    pub id: Option<RecordId>,
-    pub employee: RecordId,
+    pub id: Option<Thing>,
+    pub employee: Thing,
     pub year: i64,
     pub annual_total: Option<i64>,
     pub annual_used: Option<i64>,

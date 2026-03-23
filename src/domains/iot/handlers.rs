@@ -95,7 +95,7 @@ async fn ingest_reading(
             .find(|d| {
                 d.id
                     .as_ref()
-                    .map(|t| crate::db::record_id_to_raw(t) == *device_id)
+                    .map(|t| t.id.to_raw() == *device_id)
                     .unwrap_or(false)
             })
             .ok_or(DbError::NotFound)?
@@ -108,7 +108,7 @@ async fn ingest_reading(
     let device_id = device
         .id
         .as_ref()
-        .map(|t| crate::db::record_id_to_raw(t))
+        .map(|t| t.id.to_raw())
         .ok_or(DbError::NotFound)?;
 
     Ok(Json(

@@ -48,7 +48,7 @@ async fn liveness() -> impl IntoResponse {
 /// Performs a lightweight DB query; returns 200 if reachable, 503 otherwise.
 async fn readiness(State(state): State<AppState>) -> impl IntoResponse {
     // A simple INFO query to verify the connection is alive.
-    let result: Result<surrealdb::IndexedResults, _> = state.db.query("INFO FOR DB").await;
+    let result: Result<surrealdb::Response, _> = state.db.query("INFO FOR DB").await;
 
     match result {
         Ok(_) => (

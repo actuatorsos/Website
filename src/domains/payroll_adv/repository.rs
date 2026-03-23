@@ -2,12 +2,12 @@
 
 use super::models::*;
 use crate::db::{AppState, DbError};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 /// Minimal employee struct for payroll generation
-#[derive(Debug, Clone, serde::Deserialize, SurrealValue)]
+#[derive(Debug, Clone, serde::Deserialize)]
 struct EmployeeRef {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub name: Option<String>,
     pub email: Option<String>,
 }
@@ -84,11 +84,11 @@ pub async fn generate_payroll(
 
     let mut records = Vec::new();
     for emp in &employees {
-        let _emp_id_str = match &emp.id {
-            Some(thing) => crate::db::record_id_to_raw(thing),
+        let emp_id_str = match &emp.id {
+            Some(thing) => thing.id.to_raw(),
             None => continue,
         };
-        let _emp_name = emp.name.clone().unwrap_or_default();
+        let emp_name = emp.name.clone().unwrap_or_default();
         let emp_email = emp.email.clone().unwrap_or_default();
 
         if emp_email.is_empty() {
@@ -135,7 +135,7 @@ pub async fn generate_payroll(
             .map_err(DbError::Database)?;
 
         let acc_id = match acc_result.and_then(|a| a.id) {
-            Some(thing) => crate::db::record_id_to_raw(&thing),
+            Some(thing) => thing.id.to_raw(),
             None => continue,
         };
 

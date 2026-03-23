@@ -3,10 +3,10 @@
 //! Runs once on server startup if data does not already exist
 
 use surrealdb::Surreal;
-use surrealdb::engine::any::Any;
+use surrealdb::engine::remote::ws::Client;
 
 /// Seed all default data
-pub async fn seed_all(db: &Surreal<Any>) {
+pub async fn seed_all(db: &Surreal<Client>) {
     seed_company_settings(db).await;
     seed_departments(db).await;
     seed_positions(db).await;
@@ -18,7 +18,7 @@ pub async fn seed_all(db: &Surreal<Any>) {
 
 /// Fix records with NULL/NONE fields
 /// Includes: created_at (datetime) + base_salary/housing/transport (decimal) + dependents (int)
-async fn fix_null_defaults(db: &Surreal<Any>) {
+async fn fix_null_defaults(db: &Surreal<Client>) {
     // ── 1. Fix created_at for all tables ──
     let tables = [
         "trainee",
@@ -62,7 +62,7 @@ async fn fix_null_defaults(db: &Surreal<Any>) {
 // ──────────────────────────────────────────────────────────────────
 // Company Settings
 // ──────────────────────────────────────────────────────────────────
-async fn seed_company_settings(db: &Surreal<Any>) {
+async fn seed_company_settings(db: &Surreal<Client>) {
     let exists: Vec<serde_json::Value> = db
         .query("SELECT id FROM company_settings LIMIT 1")
         .await
@@ -100,7 +100,7 @@ async fn seed_company_settings(db: &Surreal<Any>) {
 // ──────────────────────────────────────────────────────────────────
 // Departments — Default departments
 // ──────────────────────────────────────────────────────────────────
-async fn seed_departments(db: &Surreal<Any>) {
+async fn seed_departments(db: &Surreal<Client>) {
     let exists: Vec<serde_json::Value> = db
         .query("SELECT id FROM department LIMIT 1")
         .await
@@ -134,7 +134,7 @@ async fn seed_departments(db: &Surreal<Any>) {
 // ──────────────────────────────────────────────────────────────────
 // Positions — Default positions
 // ──────────────────────────────────────────────────────────────────
-async fn seed_positions(db: &Surreal<Any>) {
+async fn seed_positions(db: &Surreal<Client>) {
     let exists: Vec<serde_json::Value> = db
         .query("SELECT id FROM position LIMIT 1")
         .await
@@ -175,7 +175,7 @@ async fn seed_positions(db: &Surreal<Any>) {
 // ──────────────────────────────────────────────────────────────────
 // Account Chart — Chart of Accounts
 // ──────────────────────────────────────────────────────────────────
-async fn seed_account_chart(db: &Surreal<Any>) {
+async fn seed_account_chart(db: &Surreal<Client>) {
     let exists: Vec<serde_json::Value> = db
         .query("SELECT id FROM account_chart LIMIT 1")
         .await
@@ -265,7 +265,7 @@ async fn seed_account_chart(db: &Surreal<Any>) {
 // ──────────────────────────────────────────────────────────────────
 // Product Categories
 // ──────────────────────────────────────────────────────────────────
-async fn seed_product_categories(db: &Surreal<Any>) {
+async fn seed_product_categories(db: &Surreal<Client>) {
     let exists: Vec<serde_json::Value> = db
         .query("SELECT id FROM product_category LIMIT 1")
         .await

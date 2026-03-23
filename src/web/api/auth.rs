@@ -173,7 +173,7 @@ async fn signup(
     }
 
     // Generate JWT token (include organization ID for data isolation)
-    let org_id = account.organization.as_ref().map(|o| crate::db::record_id_to_string(o));
+    let org_id = account.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
     let token = match create_token_with_org(
         &account.id_string(),
         &account.email,
@@ -345,7 +345,7 @@ async fn login(
     });
 
     // Generate JWT token (include organization ID for data isolation)
-    let org_id = account.organization.as_ref().map(|o| crate::db::record_id_to_string(o));
+    let org_id = account.organization.as_ref().map(|o| format!("{}:{}", o.tb, o.id));
     let token = match create_token_with_org(
         &account.id_string(),
         &account.email,

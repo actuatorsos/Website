@@ -3,10 +3,10 @@
 //! نموذج بيانات أصول الشركة
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 /// Asset category enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AssetCategory {
     /// Tools and hand equipment
@@ -34,7 +34,7 @@ impl std::fmt::Display for AssetCategory {
 }
 
 /// Asset status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AssetStatus {
     /// Available for use
@@ -59,10 +59,10 @@ impl std::fmt::Display for AssetStatus {
 }
 
 /// Asset model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Asset {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Creation date
     pub created_at: Option<String>,
     /// Asset name
@@ -98,7 +98,7 @@ impl Asset {
 }
 
 /// Request to create a new asset
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CreateAssetRequest {
     /// Asset name
@@ -116,7 +116,7 @@ pub struct CreateAssetRequest {
 }
 
 /// Request to assign asset to employee
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct AssignAssetRequest {
     /// Employee ID to assign to

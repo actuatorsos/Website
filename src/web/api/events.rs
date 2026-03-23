@@ -7,7 +7,6 @@ use axum::{
     routing::{get, post},
 };
 use serde::{Deserialize, Serialize};
-use surrealdb::types::SurrealValue;
 
 use crate::db::AppState;
 
@@ -21,9 +20,9 @@ pub struct CreateEventRequest {
     pub description: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, SurrealValue, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Event {
-    pub id: Option<surrealdb::types::RecordId>,
+    pub id: Option<surrealdb::sql::Thing>,
     pub title: String,
     pub event_type: String,
     pub start_date: String,

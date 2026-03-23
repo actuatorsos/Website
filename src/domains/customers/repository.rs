@@ -19,7 +19,7 @@ pub async fn create_client(state: &AppState, req: CreateClientRequest) -> Result
         None,
         "create",
         "client",
-        created.id.as_ref().map(|t| crate::db::record_id_to_raw(t)).as_deref(),
+        created.id.as_ref().map(|t| t.id.to_raw()).as_deref(),
         None,
         None,
     )

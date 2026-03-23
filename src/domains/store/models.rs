@@ -1,15 +1,15 @@
 //! Store Models — نماذج المتجر الإلكتروني
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 // ============================================================================
 // Store Settings
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoreSettings {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub store_name: String,
     pub store_name_en: Option<String>,
     pub description: Option<String>,
@@ -25,7 +25,7 @@ pub struct StoreSettings {
     pub updated_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpsertStoreSettingsRequest {
     pub store_name: String,
     pub store_name_en: Option<String>,
@@ -44,11 +44,11 @@ pub struct UpsertStoreSettingsRequest {
 // Store Order
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoreOrder {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub order_number: String,
-    pub customer: Option<RecordId>,
+    pub customer: Option<Thing>,
     pub customer_name: String,
     pub customer_email: Option<String>,
     pub customer_phone: Option<String>,
@@ -65,7 +65,7 @@ pub struct StoreOrder {
     pub updated_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateOrderStatusRequest {
     pub status: String,
     pub notes: Option<String>,
@@ -75,13 +75,13 @@ pub struct UpdateOrderStatusRequest {
 // Order Item
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrderItem {
-    pub id: Option<RecordId>,
-    pub order: Option<RecordId>,
+    pub id: Option<Thing>,
+    pub order: Option<Thing>,
     pub item_type: String,
-    pub product: Option<RecordId>,
-    pub service: Option<RecordId>,
+    pub product: Option<Thing>,
+    pub service: Option<Thing>,
     pub name: String,
     pub sku: Option<String>,
     pub quantity: i32,
@@ -94,21 +94,21 @@ pub struct OrderItem {
 // Shopping Cart
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CartItem {
-    pub id: Option<RecordId>,
-    pub owner: Option<RecordId>,
+    pub id: Option<Thing>,
+    pub owner: Option<Thing>,
     pub session_id: Option<String>,
     pub item_type: String,
-    pub product: Option<RecordId>,
-    pub service: Option<RecordId>,
+    pub product: Option<Thing>,
+    pub service: Option<Thing>,
     pub name: String,
     pub quantity: i32,
     pub unit_price: f64,
     pub added_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AddToCartRequest {
     pub item_type: String, // "product" or "service"
     pub product_id: Option<String>,
@@ -120,10 +120,10 @@ pub struct AddToCartRequest {
 // Payment
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Payment {
-    pub id: Option<RecordId>,
-    pub order: Option<RecordId>,
+    pub id: Option<Thing>,
+    pub order: Option<Thing>,
     pub amount: f64,
     pub currency: Option<String>,
     pub method: String,
@@ -135,7 +135,7 @@ pub struct Payment {
     pub created_at: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreatePaymentRequest {
     pub order_id: String,
     pub amount: f64,
@@ -148,7 +148,7 @@ pub struct CreatePaymentRequest {
 // Checkout Request (from cart → order)
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CheckoutRequest {
     pub customer_name: String,
     pub customer_email: Option<String>,
@@ -159,9 +159,9 @@ pub struct CheckoutRequest {
 }
 
 /// Public storefront product/service listing item
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StorefrontItem {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub name: String,
     pub description: Option<String>,
     pub price: Option<f64>,

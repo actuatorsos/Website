@@ -23,7 +23,7 @@ tower-http = { version = "0.6", features = ["fs", "trace", "limit"] }
 futures = "0.3"
 
 # Database
-surrealdb = { version = "3", features = ["protocol-ws", "protocol-http"] }
+surrealdb = { version = "=2.4.0", features = ["protocol-ws", "rustls"] }
 
 # Templating
 askama = { version = "0.12", features = ["with-axum"] }
@@ -52,7 +52,6 @@ hex = "0.4"
 rand = "0.8"
 subtle = "2.5"
 argon2 = "0.5"
-bcrypt = "0.17"
 jsonwebtoken = "9"
 validator = { version = "0.20", features = ["derive"] }
 
@@ -62,8 +61,8 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-feature
 # Email
 lettre = { version = "0.11", features = ["tokio1-native-tls"] }
 
-# Screenshot (optional — requires Chrome installed on host)
-headless_chrome = { version = "1", optional = true }
+# Screenshot
+headless_chrome = "1"
 
 # PDF Generation
 printpdf = "0.7"

@@ -1,14 +1,14 @@
 //! AI Legal Models — نماذج المستشار القانوني السوري
 
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 
 // ============================================================================
 // Chat — المحادثة مع المستشار القانوني
 // ============================================================================
 
 /// Request to chat with the AI legal advisor
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatRequest {
     pub session_id: Option<String>,
     pub message: String,
@@ -16,7 +16,7 @@ pub struct ChatRequest {
 }
 
 /// AI legal advisor response
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatResponse {
     pub message: String,
     pub citations: Vec<Citation>,
@@ -26,7 +26,7 @@ pub struct ChatResponse {
 }
 
 /// Legal citation reference
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Citation {
     pub law: String,
     pub article: i32,
@@ -38,11 +38,11 @@ pub struct Citation {
 // ============================================================================
 
 /// Chat session stored in DB — matches schema field names
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LegalChatSession {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     #[serde(default)]
-    pub user: Option<RecordId>,
+    pub user: Option<Thing>,
     pub title: Option<String>,
     #[serde(default = "default_specialty")]
     pub specialty: String,
@@ -59,7 +59,7 @@ fn default_specialty() -> String {
 }
 
 /// Session response for API
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SessionResponse {
     pub id: String,
     pub title: Option<String>,
@@ -69,11 +69,11 @@ pub struct SessionResponse {
 }
 
 /// Chat message stored in DB — matches schema field names
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     #[serde(default)]
-    pub session: Option<RecordId>,
+    pub session: Option<Thing>,
     pub role: String,
     pub content: String,
     #[serde(default)]
@@ -90,14 +90,14 @@ pub struct ChatMessage {
 // Search — البحث في المواد القانونية
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchRequest {
     pub query: String,
     pub specialty: Option<String>,
     pub limit: Option<i32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
     pub article_number: Option<i32>,
     pub text_ar: Option<String>,
@@ -112,7 +112,7 @@ pub struct SearchResult {
 // Specialties — التخصصات القانونية
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpecialtyInfo {
     pub id: String,
     pub name_ar: String,
@@ -124,9 +124,9 @@ pub struct SpecialtyInfo {
 // Procedures — الإجراءات القانونية
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LegalProcedure {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub name_ar: Option<String>,
     pub category: Option<String>,
     pub specialty: Option<String>,

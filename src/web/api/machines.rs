@@ -3,7 +3,6 @@
 //! نقاط نهاية API للآلات
 
 use askama::Template;
-use surrealdb::types::SurrealValue;
 use axum::{
     Form, Json, Router,
     extract::{Path, State},
@@ -55,7 +54,7 @@ pub struct CreateMachineForm {
     pub purchase_date: Option<String>,
 }
 
-#[derive(serde::Deserialize, SurrealValue)]
+#[derive(serde::Deserialize)]
 pub struct UpdateMachineStatusForm {
     pub status: String,
 }

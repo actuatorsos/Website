@@ -4,7 +4,7 @@
 
 use f64;
 use serde::{Deserialize, Serialize};
-use surrealdb::types::{RecordId, SurrealValue};
+use surrealdb::sql::Thing;
 use validator::Validate;
 
 // ============================================================================
@@ -12,7 +12,7 @@ use validator::Validate;
 // ============================================================================
 
 /// Invoice status enum
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum InvoiceStatus {
     /// Invoice is a draft, not yet sent
@@ -43,10 +43,10 @@ impl std::fmt::Display for InvoiceStatus {
 }
 
 /// Invoice model
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Invoice {
     /// Unique identifier
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     /// Invoice number (auto-generated, e.g. INV-2026-001)
     pub invoice_number: String,
     /// Client ID (reference to clients table)
@@ -80,7 +80,7 @@ pub struct Invoice {
 }
 
 /// Invoice line item
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InvoiceItem {
     /// Item description
     pub description: String,
@@ -109,7 +109,7 @@ impl Invoice {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| thing.id.to_string())
             .unwrap_or_default()
     }
 
@@ -146,7 +146,7 @@ impl Invoice {
 }
 
 /// Request to create a new invoice
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateInvoiceRequest {
     /// Client ID
     pub client_id: String,
@@ -163,14 +163,14 @@ pub struct CreateInvoiceRequest {
 }
 
 /// Request to update invoice status
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateInvoiceStatusRequest {
     /// New status
     pub status: InvoiceStatus,
 }
 
 /// Request to record a payment
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecordPaymentRequest {
     /// Payment amount
     pub amount: f64,
@@ -187,7 +187,7 @@ pub struct RecordPaymentRequest {
 // ============================================================================
 
 /// Certificate status
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum CertificateStatus {
     Issued,
@@ -204,9 +204,9 @@ impl std::fmt::Display for CertificateStatus {
 }
 
 /// Certificate record
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Certificate {
-    pub id: Option<RecordId>,
+    pub id: Option<Thing>,
     pub credential_id: String,
     pub trainee_name: String,
     pub course_title: String,
@@ -239,7 +239,7 @@ impl Certificate {
     pub fn id_string(&self) -> String {
         self.id
             .as_ref()
-            .map(|thing| crate::db::record_id_to_raw(thing))
+            .map(|thing| thing.id.to_string())
             .unwrap_or_default()
     }
 
