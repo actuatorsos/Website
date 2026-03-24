@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::{Client, Ws, Wss};
+use surrealdb::engine::remote::http::{Client, Http, Https};
 use surrealdb::opt::auth::Root;
 use thiserror::Error;
 use tokio::sync::broadcast;
@@ -277,12 +277,12 @@ impl AppState {
         let max_attempts = 10;
 
         loop {
-            let connect_result = if config.db.url.starts_with("wss://") || config.db.url.starts_with("https://") {
-                let addr = config.db.url.trim_start_matches("wss://").trim_start_matches("https://");
-                Surreal::new::<Wss>(addr).await
+            let connect_result = if config.db.url.starts_with("https://") {
+                let addr = config.db.url.trim_start_matches("https://");
+                Surreal::new::<Https>(addr).await
             } else {
-                let addr = config.db.url.trim_start_matches("ws://").trim_start_matches("http://");
-                Surreal::new::<Ws>(addr).await
+                let addr = config.db.url.trim_start_matches("http://");
+                Surreal::new::<Http>(addr).await
             };
             match connect_result {
                 Ok(db) => {

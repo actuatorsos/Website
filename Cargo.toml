@@ -23,7 +23,7 @@ tower-http = { version = "0.6", features = ["fs", "trace", "limit"] }
 futures = "0.3"
 
 # Database
-surrealdb = { version = "2.6", features = ["protocol-ws", "rustls"] }
+surrealdb = { version = "2.6", features = ["protocol-ws", "protocol-http", "rustls"] }
 
 # Templating
 askama = { version = "0.12", features = ["with-axum"] }

@@ -3,7 +3,7 @@
 //! Runs once on server startup if data does not already exist
 
 use surrealdb::Surreal;
-use surrealdb::engine::remote::ws::Client;
+use surrealdb::engine::remote::http::Client;
 
 /// Seed all default data
 pub async fn seed_all(db: &Surreal<Client>) {
