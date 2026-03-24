@@ -42,7 +42,7 @@ impl TakeJson for IndexedResults {
 }
 
 use serde::Serialize;
-use surrealdb::engine::remote::http::Client;
+use surrealdb::engine::remote::ws::Client;
 use surrealdb::Surreal;
 
 /// Create a record with content, serializing to serde_json::Value to avoid SurrealValue requirement.
